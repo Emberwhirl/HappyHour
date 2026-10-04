@@ -1,0 +1,115 @@
+def build_email(date_str: str = "Friday, 30th October",
+                time_str: str | None = None,
+                place_str: str | None = None) -> tuple[str, str]:
+    """Return (subject, html_body)."""
+
+    # Optional event details: only shown when provided.
+    details = ""
+    for icon, label, value in (("🗓", "Date", date_str),
+                               ("🕔", "Time", time_str),
+                               ("📍", "Place", place_str)):
+        if value:
+            details += f"""
+            <tr>
+              <td style="padding:10px 14px;font-size:18px;width:32px;
+                         vertical-align:middle;">{icon}</td>
+              <td style="padding:10px 4px;font-size:11px;letter-spacing:2px;
+                         color:#9fa8ff;text-transform:uppercase;width:70px;
+                         vertical-align:middle;">{label}</td>
+              <td style="padding:10px 14px;font-size:17px;font-weight:bold;
+                         color:#ffffff;font-family:Georgia,serif;
+                         vertical-align:middle;">{value}</td>
+            </tr>"""
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:24px;background:#05061a;font-family:Georgia,serif;">
+  <div style="max-width:600px;margin:0 auto;background:#0b0d2e;
+              border-radius:14px;overflow:hidden;border:1px solid #2a2f6b;
+              box-shadow:0 8px 30px rgba(90,70,200,0.35);">
+
+    <!-- Deep-space nebula header with scattered stars -->
+    <div style="background:#1a1050;
+                background:radial-gradient(ellipse at 20% 10%,#6b3fa0 0%,transparent 55%),
+                           radial-gradient(ellipse at 85% 80%,#1f5fa8 0%,transparent 55%),
+                           linear-gradient(180deg,#140a3a 0%,#0b0d2e 100%);
+                padding:30px 28px 38px;text-align:center;">
+      <div style="font-size:12px;color:#ffffff;letter-spacing:14px;opacity:0.75;">
+        ✦ · ✧ &nbsp; · ✦ &nbsp; ✧ · &nbsp; ✦
+      </div>
+      <div style="font-size:54px;line-height:1;margin:18px 0 10px;">🪐</div>
+      <div style="font-size:11px;letter-spacing:4px;color:#c9b8ff;
+                  text-transform:uppercase;margin-bottom:8px;">
+        Barozzi &amp; Tardito Lab
+      </div>
+      <h1 style="margin:0;color:#ffffff;font-size:34px;letter-spacing:1px;
+                 text-shadow:0 0 12px rgba(170,140,255,0.8);">
+        Happy Hour
+      </h1>
+      <p style="margin:10px 0 0;color:#b8c4ff;font-size:14px;font-style:italic;">
+        An out-of-this-world evening among the stars
+      </p>
+      <div style="font-size:12px;color:#ffffff;letter-spacing:14px;
+                  opacity:0.6;margin-top:18px;">
+        · ✧ &nbsp; ✦ · &nbsp; · ✧ &nbsp; ✦ ·
+      </div>
+    </div>
+
+    <!-- Intro -->
+    <div style="padding:26px 30px 6px;">
+      <p style="color:#dfe3ff;font-size:15px;margin:0;line-height:1.6;">
+        Dear crew,
+      </p>
+      <p style="color:#c3c8ef;font-size:15px;margin:10px 0 0;line-height:1.6;">
+        Prepare for launch! 🚀 The <strong style="color:#ffffff;">Barozzi
+        &amp; Tardito labs</strong> are aligning their orbits for a cosmic
+        Happy Hour. Come float by for drinks, snacks and stellar company —
+        no spacesuit required.
+      </p>
+    </div>
+
+    <!-- Mission details -->
+    <div style="padding:20px 24px 4px;">
+      <div style="font-size:12px;letter-spacing:3px;color:#9fa8ff;
+                  text-transform:uppercase;font-weight:bold;
+                  padding:0 8px 8px;border-bottom:1px solid #3a3f8f;">
+        ✦ Mission Details
+      </div>
+      <div style="background:#141850;border-radius:10px;margin-top:12px;
+                  border:1px solid #2e3480;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tbody>{details}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Orbit divider -->
+    <div style="text-align:center;padding:26px 28px 6px;">
+      <span style="font-size:20px;letter-spacing:10px;">🌑🌒🌓🌔🌕</span>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:14px 28px 28px;text-align:center;">
+      <p style="color:#dfe3ff;font-size:16px;margin:0 0 6px;">
+        See you among the stars! ✨
+      </p>
+      <p style="color:#7c84c4;font-size:12px;margin:0;letter-spacing:1px;">
+        Barozzi &amp; Tardito Lab
+      </p>
+    </div>
+  </div>
+</body>
+</html>"""
+
+    subject = f"🪐 Happy Hour — Barozzi & Tardito Lab — {date_str}"
+    return subject, html
+
+
+if __name__ == "__main__":
+    subject, html = build_email()
+    with open("happy_hour_preview.html", "w", encoding="utf-8") as f:
+        f.write(html)
+    print(subject)
+    print("Preview written to happy_hour_preview.html")
