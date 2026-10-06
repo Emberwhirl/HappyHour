@@ -4,14 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#05040a">
-  <meta name="description" content="The Barozzi &amp; Tardito Lab is having a happy hour on Thursday, October 30, 2026 at 5:00 PM (Vienna time) in the CCR container.">
+  <meta name="description" content="The Barozzi &amp; Tardito Lab is having a happy hour on Friday, October 30, 2026 at 5:00 PM (Vienna time) in the CCR container.">
   <title>Happy Hour with the Barozzi &amp; Tardito Lab</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%05040a'/%3E%3Cellipse cx='32' cy='32' rx='22' ry='7' fill='none' stroke='%23e7c56a' stroke-width='2' transform='rotate(-18 32 32)'/%3E%3Ccircle cx='32' cy='32' r='11' fill='%23c9b8ff'/%3E%3C/svg%3E">
+  <!-- Set these two values before sending. hh-rsvp-email becomes the RSVP link. hh-page-url is the hosted invitation. -->
+  <meta name="hh-rsvp-email" content="[RSVP_EMAIL]">
+  <meta name="hh-page-url" content="[PAGE_URL]">
+  <script>
+    (function () {
+      var url = new URL(location.href);
+      var path = url.pathname;
+      var last = path.split("/").pop();
+      if (!path.endsWith("/")) {
+        url.pathname = last.indexOf(".") === -1 ? path + "/" : path.slice(0, path.length - last.length);
+      }
+      url.search = "";
+      url.hash = "";
+      var base = document.createElement("base");
+      base.href = url.href;
+      document.head.prepend(base);
+    })();
+  </script>
+  <link rel="icon" type="image/png" href="assets/images/icon.png">
   <style>
     @font-face {
       font-family: "Cormorant Garamond";
       font-style: normal;
-      font-weight: 400;
+      font-weight: 300 700;
       font-display: swap;
       src: url("assets/fonts/cormorant-garamond.woff2") format("woff2");
     }
@@ -150,7 +168,67 @@
       letter-spacing: .28em;
       text-transform: uppercase;
     }
-    .seal { width: 58px; height: 42px; flex: none; }
+    .invite-top span { min-width: 0; }
+    .seal {
+      width: 74px;
+      height: 74px;
+      flex: none;
+      border-radius: 16px;
+      object-fit: cover;
+      box-shadow: 0 0 0 1px rgba(231, 197, 106, .45);
+    }
+    .still {
+      margin: 1.15rem 0 0;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(243, 223, 154, .16);
+    }
+    .still-frame {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #1a1730;
+    }
+    .still-frame img {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 50%;
+      opacity: 0;
+      transition: opacity 1.15s ease;
+    }
+    .still-frame img.is-on { opacity: 1; }
+    .still-nav {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      padding: .2rem 0 .05rem;
+    }
+    .still-nav button {
+      width: 2rem;
+      height: 2rem;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      cursor: pointer;
+    }
+    .still-nav button::after {
+      content: "";
+      display: block;
+      width: .55rem;
+      height: .55rem;
+      margin: 0 auto;
+      border-radius: 50%;
+      background: rgba(231, 197, 106, .38);
+    }
+    .still-nav button.is-on::after { background: #e7c56a; }
+    .still-nav button:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
 
     h1 {
       margin: 1rem 0 0;
@@ -211,7 +289,7 @@
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(243, 223, 154, .16);
     }
-    .when span {
+    .when > div > span {
       display: block;
       color: var(--lilac);
       font-size: .66rem;
@@ -244,6 +322,7 @@
       font-size: 1.02rem;
     }
     .letter p { margin: 0 0 .75rem; text-wrap: pretty; }
+    .letter a { overflow-wrap: anywhere; }
     .letter p:last-child { margin: 0; }
 
     .actions {
@@ -284,9 +363,20 @@
       border-color: rgba(231,197,106,.5);
       background: rgba(231,197,106,.08);
     }
+    .btn:disabled,
+    .btn[aria-disabled="true"] {
+      opacity: .72;
+      cursor: not-allowed;
+    }
+    .btn:disabled:hover,
+    .btn[aria-disabled="true"]:hover {
+      transform: none;
+      background: rgba(255,255,255,.06);
+      border-color: rgba(231,197,106,.45);
+      box-shadow: none;
+    }
 
     .thanks {
-      display: none;
       text-wrap: pretty;
       margin-top: .95rem;
       padding: .85rem 1rem;
@@ -294,7 +384,17 @@
       background: rgba(197,235,207,.1);
       color: var(--ok);
     }
-    .thanks.on { display: block; animation: rise .4s ease; }
+    .thanks:empty {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .thanks:not(:empty) { animation: rise .4s ease; }
 
     footer {
       display: flex;
@@ -325,8 +425,9 @@
 
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      .blob, .invite, .thanks.on, .glow { animation: none !important; }
-      .invite, .thanks.on {
+      .blob, .invite, .thanks:not(:empty), .glow { animation: none !important; }
+      .still-frame img { transition: none; }
+      .invite, .thanks:not(:empty) {
         opacity: 1;
         transform: none;
       }
@@ -348,28 +449,43 @@
     <article class="invite">
       <div class="invite-top">
         <span>Barozzi &amp; Tardito Lab</span>
-        <svg class="seal" viewBox="0 0 58 42" fill="none" aria-hidden="true">
-          <ellipse cx="29" cy="21" rx="22" ry="7" stroke="#e7c56a" stroke-opacity=".8" transform="rotate(-18 29 21)"/>
-          <circle cx="29" cy="21" r="8.5" fill="#cbb8ff"/>
-          <circle cx="26.5" cy="18.5" r="2" fill="#fff" fill-opacity=".35"/>
-        </svg>
+        <img class="seal" src="assets/images/icon.png" alt="" width="74" height="74">
       </div>
 
       <h1>Happy Hour</h1>
       <p class="lede">Join us for a drink after work.</p>
-      <p class="when-line">Thursday, <span class="nw">October 30,</span> 2026 at <span class="nw">5:00 PM</span> <span class="nw">(Vienna time)</span> in the <span class="nw">CCR container</span></p>
+      <p class="when-line">Friday, <span class="nw">October 30,</span> 2026 at <span class="nw">5:00 PM</span> <span class="nw">(Vienna time)</span> in the <span class="nw">CCR container</span></p>
+
+      <figure class="still" data-slides>
+        <div class="still-frame">
+          <img class="is-on" src="assets/images/terrace.jpg" srcset="assets/images/terrace-640.jpg 640w, assets/images/terrace.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Friends on a Vienna terrace at dusk, two of them looking at a phone." width="1280" height="720">
+          <img src="assets/images/feast.jpg" srcset="assets/images/feast-640.jpg 640w, assets/images/feast.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Food and beer on a Vienna terrace at dusk." width="1280" height="720" aria-hidden="true">
+          <img src="assets/images/table.jpg" srcset="assets/images/table-640.jpg 640w, assets/images/table.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Two glasses beside olives, crackers, and cheese." width="1280" height="720" aria-hidden="true">
+          <img src="assets/images/party.jpg" srcset="assets/images/party-640.jpg 640w, assets/images/party.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Beer mugs and glasses under warm party lights." width="1280" height="720" aria-hidden="true">
+          <img src="assets/images/cosmos.jpg" srcset="assets/images/cosmos-640.jpg 640w, assets/images/cosmos.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Drinks on a ledge under a starry sky." width="1280" height="720" aria-hidden="true">
+          <img src="assets/images/snacks.jpg" srcset="assets/images/snacks-640.jpg 640w, assets/images/snacks.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Beer, pretzels, cheese, olives, and bread." width="1280" height="720" aria-hidden="true">
+        </div>
+        <div class="still-nav">
+          <button type="button" class="is-on" data-slide-to="0" aria-label="Show the terrace" aria-current="true"></button>
+          <button type="button" data-slide-to="1" aria-label="Show the food and beer" aria-current="false"></button>
+          <button type="button" data-slide-to="2" aria-label="Show the quiet table" aria-current="false"></button>
+          <button type="button" data-slide-to="3" aria-label="Show the party lights" aria-current="false"></button>
+          <button type="button" data-slide-to="4" aria-label="Show the starry drinks" aria-current="false"></button>
+          <button type="button" data-slide-to="5" aria-label="Show the snacks" aria-current="false"></button>
+        </div>
+      </figure>
 
       <div class="rule" aria-hidden="true">✦</div>
 
       <div class="when" id="details">
         <div>
-          <span>Thursday</span>
+          <span>Friday</span>
           <div class="dom">30</div>
           <span>October 2026</span>
         </div>
         <div>
           <span>Time</span>
-          <strong>5:00 PM</strong>
+          <strong><span class="nw">5:00 PM</span></strong>
           <span>Vienna time</span>
         </div>
         <div>
@@ -381,15 +497,15 @@
       <div class="letter">
         <p>Hi everyone,</p>
         <p>The Barozzi &amp; Tardito Lab is having a happy hour and we’d love for you to come. There will be drinks and snacks in the <span class="nw">CCR container</span>.</p>
-        <p>Please reply to <span class="ph">[RSVP_EMAIL]</span> if you can make it, so we know how much to get.</p>
+        <p>Please reply to <span class="ph" data-rsvp-slot></span> if you can make it, so we know how much to get.</p>
       </div>
 
       <div class="actions" id="rsvp">
-        <button class="btn btn-gold" type="button" data-rsvp>I’ll be there</button>
-        <a class="btn btn-line" href="mailto:[RSVP_EMAIL]?subject=Happy%20hour%20on%20October%2030">Email RSVP</a>
+        <button class="btn btn-gold" type="button" data-remind aria-pressed="false">Save on this device</button>
+        <button class="btn btn-line" type="button" data-email-rsvp disabled aria-disabled="true">Email RSVP</button>
         <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
       </div>
-      <p class="thanks" data-thanks>Thanks, see you there! Please also send us a quick email so we can count you in.</p>
+      <p class="thanks" data-thanks role="status" aria-live="polite"></p>
     </article>
 
     <footer>
@@ -399,20 +515,51 @@
   </main>
 
   <script>
+    const metaValue = (name) => {
+      const tag = document.querySelector(`meta[name="${name}"]`);
+      return tag ? tag.content.trim() : "";
+    };
+    const HH = {
+      rsvpEmail: metaValue("hh-rsvp-email"),
+      pageUrl: metaValue("hh-page-url"),
+    };
+    const isPlaceholder = (value) => /\[[A-Z][A-Z0-9_]*\]/.test(value || "");
+    const isRealEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || "") && !isPlaceholder(value);
+
     const EVENT = {
       title: "Happy Hour with the Barozzi & Tardito Lab",
       start: "20261030T170000",
-      end: "20261030T190000",
       location: "CCR container",
-      description: "Drinks and snacks with the Barozzi & Tardito Lab. Please reply to [RSVP_EMAIL] if you can make it."
+      description: isRealEmail(HH.rsvpEmail)
+        ? `Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. Please reply to ${HH.rsvpEmail} if you can make it.`
+        : "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM."
     };
 
+    const rsvpSlot = document.querySelector("[data-rsvp-slot]");
+    const emailBtn = document.querySelector("[data-email-rsvp]");
+    if (isRealEmail(HH.rsvpEmail)) {
+      const href = `mailto:${HH.rsvpEmail}?subject=${encodeURIComponent("Happy hour on October 30")}`;
+      const address = document.createElement("a");
+      address.href = href;
+      address.textContent = HH.rsvpEmail;
+      rsvpSlot.replaceWith(address);
+      const action = document.createElement("a");
+      action.className = "btn btn-line";
+      action.href = href;
+      action.textContent = "Email RSVP";
+      emailBtn.replaceWith(action);
+    } else {
+      rsvpSlot.textContent = HH.rsvpEmail || "[RSVP_EMAIL]";
+      emailBtn.setAttribute("aria-label", "Email RSVP is unavailable until an address is set");
+    }
+
     const canvas = document.getElementById("stars");
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas ? canvas.getContext("2d") : null;
     const glow = document.getElementById("glow");
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function paintStars() {
+      if (!canvas || !ctx) return;
       const dpr = Math.min(devicePixelRatio || 1, 2);
       canvas.width = innerWidth * dpr;
       canvas.height = innerHeight * dpr;
@@ -443,6 +590,7 @@
     };
     const settle = async () => {
       try { await document.fonts.ready; } catch (err) { /* keep going */ }
+      await Promise.all([...document.images].map((img) => (img.complete ? null : img.decode().catch(() => {}))));
       const invite = document.querySelector(".invite");
       const anims = invite ? invite.getAnimations() : [];
       if (reduce || !anims.length) {
@@ -454,11 +602,37 @@
     };
     settle();
 
-    const icsText = (s) => s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
+    const icsText = (s) => s.replace(/\\/g, "\\\\").replace(/\r\n|\n|\r/g, "\\n").replace(/([,;])/g, "\\$1");
+
+    function foldIcs(text) {
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+      const folded = [];
+      for (const line of text.split("\r\n")) {
+        const bytes = encoder.encode(line);
+        if (bytes.length <= 75) {
+          folded.push(line);
+          continue;
+        }
+        let start = 0;
+        let first = true;
+        while (start < bytes.length) {
+          const budget = first ? 75 : 74;
+          let end = Math.min(start + budget, bytes.length);
+          while (end > start && (bytes[end] & 0xc0) === 0x80) end -= 1;
+          if (end === start) end = Math.min(start + budget, bytes.length);
+          const chunk = decoder.decode(bytes.slice(start, end));
+          folded.push(first ? chunk : ` ${chunk}`);
+          first = false;
+          start = end;
+        }
+      }
+      return folded.join("\r\n");
+    }
 
     function buildIcs() {
       const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-      return [
+      return foldIcs([
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
         "PRODID:-//Barozzi & Tardito Lab//Happy Hour//EN",
@@ -485,33 +659,144 @@
         "UID:happy-hour-20261030@barozzi-tardito-lab",
         `DTSTAMP:${stamp}`,
         `DTSTART;TZID=Europe/Vienna:${EVENT.start}`,
-        `DTEND;TZID=Europe/Vienna:${EVENT.end}`,
         `SUMMARY:${icsText(EVENT.title)}`,
         `LOCATION:${icsText(EVENT.location)}`,
         `DESCRIPTION:${icsText(EVENT.description)}`,
         "END:VEVENT",
         "END:VCALENDAR",
         ""
-      ].join("\r\n");
+      ].join("\r\n"));
     }
 
     function downloadIcs() {
-      const ics = buildIcs();
-      const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
-      const a = Object.assign(document.createElement("a"), { href: url, download: "happy-hour-barozzi-tardito.ics" });
-      a.click();
-      URL.revokeObjectURL(url);
+      const url = URL.createObjectURL(new Blob([buildIcs()], { type: "text/calendar;charset=utf-8" }));
+      const ios = /iPad|iPhone|iPod/.test(navigator.userAgent)
+        || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (ios) {
+        window.location.assign(url);
+      } else {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "happy-hour-barozzi-tardito.ics";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
     }
 
     document.querySelectorAll("[data-ics]").forEach((el) => el.addEventListener("click", downloadIcs));
 
-    const thanks = document.querySelector("[data-thanks]");
-    const key = "happyhour-2026-10-30-rsvp";
-    if (localStorage.getItem(key) === "yes") thanks.classList.add("on");
-    document.querySelector("[data-rsvp]").addEventListener("click", () => {
-      localStorage.setItem(key, "yes");
-      thanks.classList.add("on");
+    const status = document.querySelector("[data-thanks]");
+    const remindBtn = document.querySelector("[data-remind]");
+    const storageKey = "happyhour-2026-10-30-reminder";
+    const savedText = "Saved in this browser. The lab will only know if you email them.";
+    const unsavedText = "The reminder could not be stored in this browser. Email the lab if you are coming.";
+
+    function storageGet(key) {
+      try { return localStorage.getItem(key); }
+      catch (err) { return null; }
+    }
+    function storageSet(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+    function markSaved() {
+      remindBtn.textContent = "Saved on this device";
+      remindBtn.setAttribute("aria-pressed", "true");
+    }
+    if (storageGet(storageKey) === "yes") {
+      markSaved();
+      status.textContent = savedText;
+    }
+    remindBtn.addEventListener("click", () => {
+      if (storageSet(storageKey, "yes")) {
+        markSaved();
+        status.textContent = savedText;
+      } else {
+        status.textContent = unsavedText;
+      }
     });
+
+    const slides = document.querySelector("[data-slides]");
+    if (slides) {
+      const frames = [...slides.querySelectorAll(".still-frame img")];
+      const dots = [...slides.querySelectorAll("[data-slide-to]")];
+      const kenFrom = ["50% 50%", "42% 46%", "58% 50%", "50% 42%", "46% 58%", "54% 48%"];
+      const kenTo = ["44% 47%", "56% 52%", "46% 44%", "48% 56%", "55% 46%", "45% 54%"];
+      let index = 0;
+      let timer = 0;
+      const playKen = (i) => {
+        const img = frames[i];
+        img.getAnimations().forEach((anim) => anim.cancel());
+        if (reduce) {
+          img.style.objectPosition = "50% 50%";
+          return;
+        }
+        img.animate(
+          [{ objectPosition: kenFrom[i] || kenFrom[0] }, { objectPosition: kenTo[i] || kenTo[0] }],
+          { duration: 8500, easing: "ease-out", fill: "forwards" }
+        );
+      };
+      const pauseKen = (paused) => {
+        frames.forEach((img) => {
+          img.getAnimations().forEach((anim) => (paused ? anim.pause() : anim.play()));
+        });
+      };
+      const showSlide = (next) => {
+        index = (next + frames.length) % frames.length;
+        frames.forEach((img, i) => {
+          const on = i === index;
+          img.classList.toggle("is-on", on);
+          img.toggleAttribute("aria-hidden", !on);
+        });
+        dots.forEach((dot, i) => {
+          const on = i === index;
+          dot.classList.toggle("is-on", on);
+          dot.setAttribute("aria-current", on ? "true" : "false");
+        });
+        playKen(index);
+      };
+      const stopSlides = () => {
+        if (timer) {
+          clearInterval(timer);
+          timer = 0;
+        }
+      };
+      const startSlides = () => {
+        stopSlides();
+        if (reduce || frames.length < 2) return;
+        timer = window.setInterval(() => showSlide(index + 1), 7000);
+      };
+      dots.forEach((dot) => {
+        dot.addEventListener("click", () => {
+          showSlide(Number(dot.dataset.slideTo));
+          startSlides();
+        });
+      });
+      slides.addEventListener("mouseenter", () => {
+        stopSlides();
+        pauseKen(true);
+      });
+      slides.addEventListener("mouseleave", () => {
+        pauseKen(false);
+        startSlides();
+      });
+      slides.addEventListener("focusin", () => {
+        stopSlides();
+        pauseKen(true);
+      });
+      slides.addEventListener("focusout", () => {
+        pauseKen(false);
+        startSlides();
+      });
+      showSlide(0);
+      startSlides();
+    }
   </script>
 </body>
 </html>

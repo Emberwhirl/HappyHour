@@ -1,4 +1,5 @@
 
+from html import escape
 
 
 def build_email(vocab: list[tuple[str, str]], today_str: str) -> tuple[str, str]:
@@ -14,7 +15,7 @@ def build_email(vocab: list[tuple[str, str]], today_str: str) -> tuple[str, str]
                          vertical-align:top;">{i}.</td>
               <td style="padding:14px 18px;border-bottom:1px solid #dde7f0;
                          font-size:17px;font-weight:bold;color:#0d2340;
-                         font-family:Georgia,serif;">{french}</td>
+                         font-family:Georgia,serif;">{escape(french)}</td>
             </tr>"""
 
     # Answers: numbered English translations, in a lighter panel below.
@@ -23,9 +24,9 @@ def build_email(vocab: list[tuple[str, str]], today_str: str) -> tuple[str, str]
         answers += f"""
             <tr>
               <td style="padding:8px 18px;font-size:13px;color:#3b7fb5;
-                         font-weight:bold;width:36px;vertical-align:top;">{i}.</td>
+                         font-weight:bold;width:36px;                         vertical-align:top;">{i}.</td>
               <td style="padding:8px 18px;font-size:14px;color:#2a4a6e;
-                         font-family:Georgia,serif;">{english}</td>
+                         font-family:Georgia,serif;">{escape(english)}</td>
             </tr>"""
 
     html = f"""<!DOCTYPE html>
@@ -48,7 +49,7 @@ def build_email(vocab: list[tuple[str, str]], today_str: str) -> tuple[str, str]
                  text-shadow:0 1px 3px rgba(10,25,60,0.35);">
         Quiz de Vocabulaire
       </h1>
-      <p style="margin:10px 0 0;color:#d6e8f5;font-size:13px;">{today_str}</p>
+      <p style="margin:10px 0 0;color:#d6e8f5;font-size:13px;">{escape(today_str)}</p>
     </div>
 
     <!-- Intro -->
