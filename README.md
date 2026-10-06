@@ -1,35 +1,30 @@
 # Happy Hour invitation
 
-A self-contained invitation page for the Barozzi & Tardito Lab Happy Hour.
+A static invitation page for the Barozzi & Tardito Lab happy hour on **Thursday, October 30, 2026 at 5:00 PM (Vienna time)** in the **CCR container**.
 
-**Thursday, October 30, 2026 at 5:00 PM (Vienna time)**  
-Venue and RSVP address are still placeholders: `[VENUE]`, `[RSVP_EMAIL]`.
+The RSVP address is still a placeholder (`[RSVP_EMAIL]`). It appears in `index.html` (page text, the Email RSVP link and the calendar file) and in `drafts_helene/mail_happy_hour.py`.
 
 ## Preview the page
 
-The page is static. Open `index.html` in a browser, or serve the repo root:
+Open `index.html` in a browser, or serve the repo root and visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
-
-You can also regenerate the copy under `drafts_helene/`:
+To refresh the copy in `drafts_helene/`, run the script below. It writes `drafts_helene/happy_hour_preview.html` and prints the email subject. It does **not** send anything.
 
 ```bash
 python3 drafts_helene/mail_happy_hour.py
 ```
 
-That writes `drafts_helene/happy_hour_preview.html` and prints the email subject. It does **not** send anything.
+To host the page, upload `index.html` together with the `assets/` folder to any static host (GitHub Pages, Netlify or an internal file share). The fonts are bundled, so nothing else needs to load.
 
-Host `index.html` plus the `assets/` folder on any static host (GitHub Pages, Netlify, an internal file share). Fonts are local woff2 files, so no extra CDN is required.
+## Sending later
 
-## Send later (do not use until ready)
+`build_email()` returns the subject and the HTML from `index.html`, and `build_plain_text()` gives a plain-text version for the same email.
 
-The original `build_email()` helper still returns `(subject, html_body)` from `index.html`, and there is a plain-text fallback in `build_plain_text()`.
-
-Sending is opt-in and requires environment variables:
+Sending only happens with `--send` and these environment variables set.
 
 ```bash
 export SMTP_HOST=smtp.example.com
@@ -37,8 +32,8 @@ export SMTP_PORT=587
 export SMTP_USER=you
 export SMTP_PASSWORD=secret
 export MAIL_FROM=you@example.com
-export MAIL_TO=crew@example.com
+export MAIL_TO=team@example.com
 python3 drafts_helene/mail_happy_hour.py --send
 ```
 
-Do not run `--send` until the venue and RSVP address are filled in. The default command never sends mail.
+Please replace `[RSVP_EMAIL]` with a real address before anyone runs `--send`. Without the flag the script never sends mail.
