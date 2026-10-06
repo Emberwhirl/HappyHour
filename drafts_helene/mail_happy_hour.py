@@ -1,115 +1,141 @@
-def build_email(date_str: str = "Friday, 30th October",
-                time_str: str | None = None,
-                place_str: str | None = None) -> tuple[str, str]:
-    """Return (subject, html_body)."""
+"""Build the Happy Hour invitation page and (optionally) a sendable message.
 
-    # Optional event details: only shown when provided.
-    details = ""
-    for icon, label, value in (("🗓", "Date", date_str),
-                               ("🕔", "Time", time_str),
-                               ("📍", "Place", place_str)):
-        if value:
-            details += f"""
-            <tr>
-              <td style="padding:10px 14px;font-size:18px;width:32px;
-                         vertical-align:middle;">{icon}</td>
-              <td style="padding:10px 4px;font-size:11px;letter-spacing:2px;
-                         color:#9fa8ff;text-transform:uppercase;width:70px;
-                         vertical-align:middle;">{label}</td>
-              <td style="padding:10px 14px;font-size:17px;font-weight:bold;
-                         color:#ffffff;font-family:Georgia,serif;
-                         vertical-align:middle;">{value}</td>
-            </tr>"""
+The invitation itself is the static page at the repo root: ``index.html``.
+This script keeps the original ``build_email()`` flow: it returns a subject
+and HTML, writes a local preview, and never sends mail unless you pass
+``--send`` with SMTP environment variables.
+"""
 
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:24px;background:#05061a;font-family:Georgia,serif;">
-  <div style="max-width:600px;margin:0 auto;background:#0b0d2e;
-              border-radius:14px;overflow:hidden;border:1px solid #2a2f6b;
-              box-shadow:0 8px 30px rgba(90,70,200,0.35);">
+from __future__ import annotations
 
-    <!-- Deep-space nebula header with scattered stars -->
-    <div style="background:#1a1050;
-                background:radial-gradient(ellipse at 20% 10%,#6b3fa0 0%,transparent 55%),
-                           radial-gradient(ellipse at 85% 80%,#1f5fa8 0%,transparent 55%),
-                           linear-gradient(180deg,#140a3a 0%,#0b0d2e 100%);
-                padding:30px 28px 38px;text-align:center;">
-      <div style="font-size:12px;color:#ffffff;letter-spacing:14px;opacity:0.75;">
-        ✦ · ✧ &nbsp; · ✦ &nbsp; ✧ · &nbsp; ✦
-      </div>
-      <div style="font-size:54px;line-height:1;margin:18px 0 10px;">🪐</div>
-      <div style="font-size:11px;letter-spacing:4px;color:#c9b8ff;
-                  text-transform:uppercase;margin-bottom:8px;">
-        Barozzi &amp; Tardito Lab
-      </div>
-      <h1 style="margin:0;color:#ffffff;font-size:34px;letter-spacing:1px;
-                 text-shadow:0 0 12px rgba(170,140,255,0.8);">
-        Happy Hour
-      </h1>
-      <p style="margin:10px 0 0;color:#b8c4ff;font-size:14px;font-style:italic;">
-        An out-of-this-world evening among the stars
-      </p>
-      <div style="font-size:12px;color:#ffffff;letter-spacing:14px;
-                  opacity:0.6;margin-top:18px;">
-        · ✧ &nbsp; ✦ · &nbsp; · ✧ &nbsp; ✦ ·
-      </div>
-    </div>
+import argparse
+import os
+import smtplib
+import sys
+from email.message import EmailMessage
+from pathlib import Path
 
-    <!-- Intro -->
-    <div style="padding:26px 30px 6px;">
-      <p style="color:#dfe3ff;font-size:15px;margin:0;line-height:1.6;">
-        Dear crew,
-      </p>
-      <p style="color:#c3c8ef;font-size:15px;margin:10px 0 0;line-height:1.6;">
-        Prepare for launch! 🚀 The <strong style="color:#ffffff;">Barozzi
-        &amp; Tardito labs</strong> are aligning their orbits for a cosmic
-        Happy Hour. Come float by for drinks, snacks and stellar company —
-        no spacesuit required.
-      </p>
-    </div>
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+INVITE_PATH = ROOT / "index.html"
+PREVIEW_PATH = HERE / "happy_hour_preview.html"
 
-    <!-- Mission details -->
-    <div style="padding:20px 24px 4px;">
-      <div style="font-size:12px;letter-spacing:3px;color:#9fa8ff;
-                  text-transform:uppercase;font-weight:bold;
-                  padding:0 8px 8px;border-bottom:1px solid #3a3f8f;">
-        ✦ Mission Details
-      </div>
-      <div style="background:#141850;border-radius:10px;margin-top:12px;
-                  border:1px solid #2e3480;">
-        <table style="width:100%;border-collapse:collapse;">
-          <tbody>{details}
-          </tbody>
-        </table>
-      </div>
-    </div>
+DEFAULT_DATE = "Thursday, October 30, 2026"
+DEFAULT_TIME = "5:00 PM (Vienna time)"
+DEFAULT_PLACE = "[VENUE]"
+DEFAULT_RSVP = "[RSVP_EMAIL]"
 
-    <!-- Orbit divider -->
-    <div style="text-align:center;padding:26px 28px 6px;">
-      <span style="font-size:20px;letter-spacing:10px;">🌑🌒🌓🌔🌕</span>
-    </div>
 
-    <!-- Footer -->
-    <div style="padding:14px 28px 28px;text-align:center;">
-      <p style="color:#dfe3ff;font-size:16px;margin:0 0 6px;">
-        See you among the stars! ✨
-      </p>
-      <p style="color:#7c84c4;font-size:12px;margin:0;letter-spacing:1px;">
-        Barozzi &amp; Tardito Lab
-      </p>
-    </div>
-  </div>
-</body>
-</html>"""
+def build_plain_text(
+    date_str: str = DEFAULT_DATE,
+    time_str: str | None = DEFAULT_TIME,
+    place_str: str | None = DEFAULT_PLACE,
+    rsvp_email: str = DEFAULT_RSVP,
+) -> str:
+    """Plain-text fallback for a later multipart email."""
+    return (
+        "Happy Hour — Barozzi & Tardito Lab\n"
+        "An out-of-this-world evening among the stars\n\n"
+        f"Date: {date_str}\n"
+        f"Time: {time_str or DEFAULT_TIME}\n"
+        f"Place: {place_str or DEFAULT_PLACE}\n\n"
+        "Dear crew,\n\n"
+        "Prepare for launch! The Barozzi & Tardito labs are aligning their "
+        "orbits for a cosmic Happy Hour. Come float by for drinks, snacks "
+        "and stellar company — no spacesuit required.\n\n"
+        f"RSVP: {rsvp_email}\n\n"
+        "See you among the stars!\n"
+        "Barozzi & Tardito Lab\n"
+    )
 
+
+def build_email(
+    date_str: str = DEFAULT_DATE,
+    time_str: str | None = DEFAULT_TIME,
+    place_str: str | None = DEFAULT_PLACE,
+) -> tuple[str, str]:
+    """Return ``(subject, html_body)`` from the static invitation page."""
+    if not INVITE_PATH.is_file():
+        raise FileNotFoundError(f"Invitation page not found: {INVITE_PATH}")
+
+    html = INVITE_PATH.read_text(encoding="utf-8")
     subject = f"🪐 Happy Hour — Barozzi & Tardito Lab — {date_str}"
+    # Keep unused kwargs in the original signature so existing call sites work.
+    _ = (time_str, place_str)
     return subject, html
 
 
-if __name__ == "__main__":
+def write_preview(html: str) -> Path:
+    """Write a drafts_helene preview that can resolve the shared font files."""
+    preview_html = html.replace('url("assets/fonts/', 'url("../assets/fonts/')
+    PREVIEW_PATH.write_text(preview_html, encoding="utf-8")
+    return PREVIEW_PATH
+
+
+def compose_message(
+    subject: str,
+    html_body: str,
+    text_body: str,
+    from_addr: str,
+    to_addrs: list[str],
+) -> EmailMessage:
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = from_addr
+    msg["To"] = ", ".join(to_addrs)
+    msg.set_content(text_body)
+    msg.add_alternative(html_body, subtype="html")
+    return msg
+
+
+def send_email(msg: EmailMessage) -> None:
+    host = os.environ.get("SMTP_HOST")
+    port = int(os.environ.get("SMTP_PORT", "587"))
+    user = os.environ.get("SMTP_USER")
+    password = os.environ.get("SMTP_PASSWORD")
+    if not host:
+        raise SystemExit("Refusing to send: SMTP_HOST is not set.")
+    with smtplib.SMTP(host, port, timeout=30) as smtp:
+        smtp.starttls()
+        if user:
+            smtp.login(user, password or "")
+        smtp.send_message(msg)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Preview the Happy Hour invitation. Does not send by default.")
+    parser.add_argument(
+        "--send",
+        action="store_true",
+        help="Actually send via SMTP (requires SMTP_HOST, MAIL_FROM, MAIL_TO). Default is preview only.",
+    )
+    args = parser.parse_args(argv)
+
     subject, html = build_email()
-    with open("happy_hour_preview.html", "w", encoding="utf-8") as f:
-        f.write(html)
+    preview = write_preview(html)
     print(subject)
-    print("Preview written to happy_hour_preview.html")
+    print(f"Invitation page: {INVITE_PATH}")
+    print(f"Preview written to {preview}")
+
+    if not args.send:
+        print("No email sent (preview only).")
+        return 0
+
+    from_addr = os.environ.get("MAIL_FROM")
+    to_raw = os.environ.get("MAIL_TO")
+    if not from_addr or not to_raw:
+        raise SystemExit("Refusing to send: set MAIL_FROM and MAIL_TO.")
+    msg = compose_message(
+        subject,
+        html,
+        build_plain_text(),
+        from_addr,
+        [addr.strip() for addr in to_raw.split(",") if addr.strip()],
+    )
+    send_email(msg)
+    print(f"Sent to {to_raw}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
