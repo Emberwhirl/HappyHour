@@ -17,7 +17,7 @@ October 30, 2026 is a Friday. Europe switches from summer time to standard time 
 | --- | --- |
 | `index.html` | The invitation page. Host this file with `assets/`. |
 | `assets/fonts/` | Self-hosted Cormorant Garamond and Outfit files. |
-| `assets/images/` | Mark, still life, and favicon used by the page. |
+| `assets/images/` | Header mark, Vienna terrace picture, and favicon. |
 | `docs/` | Event facts, the open plan, and implementation notes. |
 | `scripts/` | Local preview server and the invitation check. |
 | `drafts_helene/` | Legacy mail drafts. Leave this folder where it is. |

@@ -69,10 +69,10 @@ The big date uses lining figures and a line height of 1, with space between the 
 The earlier header mark was a small hand-built planet. It is gone. The page now uses the three files in `assets/images/`:
 
 - `mark.jpg` in the header, cropped to a circle.
-- `evening.jpg` under the date line, cropped with `object-fit: cover`.
+- `evening.jpg` under the date line, shown at its full 16:9 frame.
 - `favicon.jpg`, linked after the base-URL script so the icon resolves next to the page.
 
-The still life alt text is "Two glasses beside a plate of olives, crackers, and cheese." The mark is decorative because the lab name is already beside it.
+The terrace picture alt text is "Four friends share a drink on a Vienna terrace at dusk." The mark is decorative because the lab name is already beside it.
 
 ## Addresses with no trailing slash
 

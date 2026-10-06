@@ -185,7 +185,8 @@
     .still img {
       display: block;
       width: 100%;
-      height: clamp(168px, 32vw, 250px);
+      height: auto;
+      aspect-ratio: 16 / 9;
       object-fit: cover;
       object-position: center;
     }
@@ -249,7 +250,7 @@
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(243, 223, 154, .16);
     }
-    .when span {
+    .when > div > span {
       display: block;
       color: var(--lilac);
       font-size: .66rem;
@@ -416,7 +417,7 @@
       <p class="when-line">Friday, <span class="nw">October 30,</span> 2026 from <span class="nw">5:00 PM</span> to <span class="nw">7:00 PM</span> <span class="nw">(Vienna time)</span> in the <span class="nw">CCR container</span></p>
 
       <figure class="still">
-        <img src="../assets/images/evening.jpg" alt="Two glasses beside a plate of olives, crackers, and cheese." width="1280" height="720">
+        <img src="../assets/images/evening.jpg" alt="Four friends share a drink on a Vienna terrace at dusk." width="1280" height="720">
       </figure>
 
       <div class="rule" aria-hidden="true">✦</div>
