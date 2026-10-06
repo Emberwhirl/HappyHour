@@ -186,7 +186,6 @@
     .still-frame {
       position: relative;
       aspect-ratio: 16 / 9;
-      overflow: hidden;
       background: #1a1730;
     }
     .still-frame img {
@@ -196,8 +195,8 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: 50% 50%;
       opacity: 0;
-      transform: scale(1.04);
       transition: opacity 1.15s ease;
     }
     .still-frame img.is-on { opacity: 1; }
@@ -427,7 +426,7 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .blob, .invite, .thanks:not(:empty), .glow { animation: none !important; }
-      .still-frame img { transition: none; transform: none; }
+      .still-frame img { transition: none; }
       .invite, .thanks:not(:empty) {
         opacity: 1;
         transform: none;
@@ -727,33 +726,19 @@
     if (slides) {
       const frames = [...slides.querySelectorAll(".still-frame img")];
       const dots = [...slides.querySelectorAll("[data-slide-to]")];
-      const kenFrom = [
-        "scale(1) translate3d(0,0,0)",
-        "scale(1.045) translate3d(-1%,.3%,0)",
-        "scale(1.02) translate3d(.7%,0,0)",
-        "scale(1.05) translate3d(0,.5%,0)",
-        "scale(1) translate3d(-.5%,-.3%,0)",
-        "scale(1.03) translate3d(.8%,-.2%,0)",
-      ];
-      const kenTo = [
-        "scale(1.06) translate3d(-1.1%,-.4%,0)",
-        "scale(1) translate3d(.7%,-.2%,0)",
-        "scale(1.055) translate3d(-.7%,.35%,0)",
-        "scale(1) translate3d(-.4%,-.4%,0)",
-        "scale(1.05) translate3d(.9%,.25%,0)",
-        "scale(1) translate3d(-.8%,.15%,0)",
-      ];
+      const kenFrom = ["50% 50%", "42% 46%", "58% 50%", "50% 42%", "46% 58%", "54% 48%"];
+      const kenTo = ["44% 47%", "56% 52%", "46% 44%", "48% 56%", "55% 46%", "45% 54%"];
       let index = 0;
       let timer = 0;
       const playKen = (i) => {
         const img = frames[i];
         img.getAnimations().forEach((anim) => anim.cancel());
         if (reduce) {
-          img.style.transform = "none";
+          img.style.objectPosition = "50% 50%";
           return;
         }
         img.animate(
-          [{ transform: kenFrom[i] || kenFrom[0] }, { transform: kenTo[i] || kenTo[0] }],
+          [{ objectPosition: kenFrom[i] || kenFrom[0] }, { objectPosition: kenTo[i] || kenTo[0] }],
           { duration: 8500, easing: "ease-out", fill: "forwards" }
         );
       };
