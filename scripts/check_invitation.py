@@ -68,7 +68,6 @@ def check_page(html: str) -> None:
     required = (
         "Friday, October 30, 2026",
         "5:00 PM",
-        "7:00 PM",
         "CCR container",
         'name="hh-rsvp-email"',
         'name="hh-page-url"',
@@ -76,12 +75,10 @@ def check_page(html: str) -> None:
         'data-email-rsvp',
         'aria-live="polite"',
         "font-weight: 300 700",
-        "assets/images/mark.jpg",
+        "assets/images/icon.png",
         "assets/images/evening.jpg",
-        "assets/images/favicon.jpg",
         "assets/fonts/cormorant-garamond.woff2",
         "20261030T170000",
-        "20261030T190000",
         "Europe/Vienna",
         "function foldIcs",
         "Saved in this browser. The lab will only know if you email them.",
@@ -99,11 +96,13 @@ def check_page(html: str) -> None:
         fail("favicon still uses a broken percent encoding")
     if "<svg" in html.split("<body>", 1)[-1]:
         fail("the page still embeds an illustration SVG")
+    if "7:00" in html:
+        fail("the page still mentions an end time")
     check_copy("invitation page", guest_text(html))
     for snippet in (
         "Saved in this browser. The lab will only know if you email them.",
         "The reminder could not be stored in this browser. Email the lab if you are coming.",
-        "Drinks and snacks with the Barozzi & Tardito Lab from 5:00 PM to 7:00 PM.",
+        "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM.",
     ):
         if snippet not in html:
             fail(f"index.html is missing guest text: {snippet}")
@@ -112,9 +111,8 @@ def check_page(html: str) -> None:
 
 def check_assets() -> None:
     for rel in (
-        "assets/images/mark.jpg",
+        "assets/images/icon.png",
         "assets/images/evening.jpg",
-        "assets/images/favicon.jpg",
         "assets/fonts/cormorant-garamond.woff2",
         "assets/fonts/cormorant-garamond-italic.woff2",
         "assets/fonts/outfit.woff2",
@@ -206,7 +204,7 @@ def check_sender() -> None:
         fail("ensure_no_placeholders allowed the current placeholders")
 
     preview = read(PREVIEW)
-    if 'src="../assets/images/evening.jpg"' not in preview:
+    if 'src="../assets/images/icon.png"' not in preview or 'src="../assets/images/evening.jpg"' not in preview:
         fail("preview HTML does not point pictures at ../assets/")
     if 'url("../assets/fonts/' not in preview:
         fail("preview HTML does not point fonts at ../assets/")

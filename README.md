@@ -1,6 +1,6 @@
 # Happy Hour invitation
 
-A static invitation page for the Barozzi & Tardito Lab happy hour on **Friday, October 30, 2026 from 5:00 PM to 7:00 PM (Vienna time)** in the **CCR container**.
+A static invitation page for the Barozzi & Tardito Lab happy hour on **Friday, October 30, 2026 at 5:00 PM (Vienna time)** in the **CCR container**.
 
 The RSVP address and the public page URL are still placeholders. Both live in `index.html` meta tags named `hh-rsvp-email` and `hh-page-url`. Change those two values when you have them. The page reads the email from that one tag. Until it is a real address, it is shown as plain text and the Email RSVP control cannot be clicked.
 

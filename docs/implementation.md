@@ -43,8 +43,7 @@ The status element is `role="status"` and `aria-live="polite"`. It stays in the 
 
 "Add to calendar" builds an iCalendar document in the page.
 
-- `DTSTART` is `20261030T170000` in `Europe/Vienna`.
-- `DTEND` is `20261030T190000` in the same zone, which is 7:00 PM. The page shows that end time in the hero line and in the time card.
+- `DTSTART` is `20261030T170000` in `Europe/Vienna`. The page and the calendar file give that start time only.
 - A `VTIMEZONE` block carries the EU rules. The last Sunday of October 2026 is October 25, so this date is already on standard time.
 - `SUMMARY`, `LOCATION`, and `DESCRIPTION` are escaped for commas, semicolons, and newlines.
 - The description includes the RSVP address only when that address is real.
@@ -66,13 +65,12 @@ The big date uses lining figures and a line height of 1, with space between the 
 
 ## Pictures
 
-The earlier header mark was a small hand-built planet. It is gone. The page now uses the three files in `assets/images/`:
+The page uses two files in `assets/images/`:
 
-- `mark.jpg` in the header, cropped to a circle.
-- `evening.jpg` under the date line, shown at its full 16:9 frame.
-- `favicon.jpg`, linked after the base-URL script so the icon resolves next to the page.
+- `icon.png` in the header and as the browser icon. The same file is linked after the base-URL script so it resolves next to the page.
+- `evening.jpg` under the date line, shown at its full 16:9 frame. It is a Vienna terrace at dusk, with beer on the table.
 
-The terrace picture alt text is "Four friends share a drink on a Vienna terrace at dusk." The mark is decorative because the lab name is already beside it.
+The terrace picture alt text is "Four friends raise beer mugs on a Vienna terrace at dusk." The header icon is decorative because the lab name is already beside it.
 
 ## Addresses with no trailing slash
 

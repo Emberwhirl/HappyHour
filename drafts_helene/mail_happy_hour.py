@@ -28,7 +28,6 @@ PREVIEW_PATH = HERE / "happy_hour_preview.html"
 
 DEFAULT_DATE = "Friday, October 30, 2026"
 DEFAULT_START = "5:00 PM"
-DEFAULT_END = "7:00 PM"
 DEFAULT_PLACE = "CCR container"
 DEFAULT_RSVP = "[RSVP_EMAIL]"
 DEFAULT_PAGE_URL = "[PAGE_URL]"
@@ -45,7 +44,7 @@ def build_plain_text(
     page_url: str = DEFAULT_PAGE_URL,
 ) -> str:
     """Plain-text note with a link to the hosted invitation."""
-    when = time_str or f"from {DEFAULT_START} to {DEFAULT_END} (Vienna time)"
+    when = time_str or f"at {DEFAULT_START} (Vienna time)"
     place = place_str or DEFAULT_PLACE
     return (
         "Happy Hour with the Barozzi & Tardito Lab\n\n"

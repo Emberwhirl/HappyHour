@@ -31,4 +31,4 @@ Guest-facing sentences stay plain. That includes the page, the calendar descript
 
 ## Pictures
 
-`assets/images/mark.jpg` is the round glass mark in the card header. `assets/images/evening.jpg` is the wide picture under the date line, a Vienna terrace at dusk in a painted anime style, with St. Stephen's Cathedral behind the table. `assets/images/favicon.jpg` is the browser icon. The small mark stays simple so it still reads at icon size. Replace a file under the same name if the artwork changes, so the page paths can stay put.
+`assets/images/icon.png` is the header picture and the browser icon. `assets/images/evening.jpg` is the wide picture under the date line, a Vienna terrace at dusk in a painted anime style, with beer on the table and St. Stephen's Cathedral behind it. Replace a file under the same name if the artwork changes, so the page paths can stay put.
