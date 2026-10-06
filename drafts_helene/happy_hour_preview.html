@@ -153,32 +153,31 @@
     .seal { width: 58px; height: 42px; flex: none; }
 
     h1 {
-      margin: 1.15rem 0 .1rem;
+      margin: 1rem 0 0;
       font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
       font-weight: 400;
-      font-size: clamp(3.8rem, 13vw, 6.3rem);
-      line-height: .86;
+      font-size: clamp(3.4rem, 14vw, 6.3rem);
+      line-height: 1;
       letter-spacing: -.03em;
+      text-wrap: balance;
       color: #f3df9a;
       text-shadow: 0 0 24px rgba(231, 197, 106, .28);
     }
     .lede {
-      margin: .85rem 0 0;
-      max-width: 22ch;
+      margin: .6rem 0 0;
+      max-width: 34ch;
       font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
       font-style: italic;
       font-size: clamp(1.25rem, 3vw, 1.7rem);
+      line-height: 1.35;
       color: #ebe6fa;
     }
     .when-line {
       margin: .85rem 0 0;
+      text-wrap: pretty;
       color: var(--gold-2);
       font-size: .95rem;
       letter-spacing: .02em;
-    }
-    .vienna {
-      margin-top: .45rem;
-      letter-spacing: .08em;
     }
 
     .rule {
@@ -201,8 +200,12 @@
       grid-template-columns: auto 1fr 1fr;
       gap: .75rem;
       align-items: stretch;
+      font-variant-numeric: lining-nums;
     }
     .when > div {
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
       padding: .85rem .9rem .95rem;
       border-radius: 18px;
       background: rgba(255,255,255,.06);
@@ -212,19 +215,18 @@
       display: block;
       color: var(--lilac);
       font-size: .66rem;
+      line-height: 1.4;
       letter-spacing: .16em;
       text-transform: uppercase;
     }
     .dom {
-      margin: .1rem 0 .05rem;
       font-family: "Cormorant Garamond", Georgia, serif;
       font-size: clamp(3.4rem, 8vw, 4.4rem);
-      line-height: .85;
+      line-height: 1;
       color: var(--gold-2);
     }
     .when strong {
       display: block;
-      margin-top: .4rem;
       font-family: "Cormorant Garamond", Georgia, serif;
       font-size: clamp(1.25rem, 2.5vw, 1.55rem);
       font-weight: 400;
@@ -234,13 +236,14 @@
       border-bottom: 1px dashed rgba(231,197,106,.55);
       color: var(--gold-2);
     }
+    .nw { white-space: nowrap; }
 
     .letter {
       margin: 1.2rem 0 0;
       color: #efeafc;
       font-size: 1.02rem;
     }
-    .letter p { margin: 0 0 .75rem; }
+    .letter p { margin: 0 0 .75rem; text-wrap: pretty; }
     .letter p:last-child { margin: 0; }
 
     .actions {
@@ -284,6 +287,7 @@
 
     .thanks {
       display: none;
+      text-wrap: pretty;
       margin-top: .95rem;
       padding: .85rem 1rem;
       border-radius: 14px;
