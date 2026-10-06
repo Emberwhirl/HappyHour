@@ -139,7 +139,8 @@ def smtp_port() -> int:
 
 def write_preview(html: str) -> Path:
     """Write a drafts_helene preview that can resolve shared assets."""
-    preview_html = html.replace('url("assets/', 'url("../assets/')
+    preview_html = html.replace("assets/images/", "../assets/images/")
+    preview_html = preview_html.replace('url("assets/', 'url("../assets/')
     preview_html = preview_html.replace('src="assets/', 'src="../assets/')
     preview_html = preview_html.replace('href="assets/', 'href="../assets/')
     PREVIEW_PATH.write_text(preview_html, encoding="utf-8")

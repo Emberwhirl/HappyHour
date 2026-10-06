@@ -31,4 +31,4 @@ Guest-facing sentences stay plain. That includes the page, the calendar descript
 
 ## Pictures
 
-`assets/images/icon.png` is the header picture and the browser icon. `assets/images/terrace.jpg` and `assets/images/feast.jpg` are the two pictures under the date line. The page switches between them. Replace a file under the same name if the artwork changes, so the page paths can stay put.
+`assets/images/icon.png` is the header picture and the browser icon. The date line cycles through `terrace.jpg`, `feast.jpg`, `table.jpg`, `party.jpg`, `cosmos.jpg`, and `snacks.jpg`. Each one also has a `*-640.jpg` sibling. Replace a file under the same name if the artwork changes, so the page paths can stay put.

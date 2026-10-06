@@ -78,6 +78,10 @@ def check_page(html: str) -> None:
         "assets/images/icon.png",
         "assets/images/terrace.jpg",
         "assets/images/feast.jpg",
+        "assets/images/table.jpg",
+        "assets/images/party.jpg",
+        "assets/images/cosmos.jpg",
+        "assets/images/snacks.jpg",
         "assets/fonts/cormorant-garamond.woff2",
         "20261030T170000",
         "Europe/Vienna",
@@ -114,7 +118,17 @@ def check_assets() -> None:
     for rel in (
         "assets/images/icon.png",
         "assets/images/terrace.jpg",
+        "assets/images/terrace-640.jpg",
         "assets/images/feast.jpg",
+        "assets/images/feast-640.jpg",
+        "assets/images/table.jpg",
+        "assets/images/table-640.jpg",
+        "assets/images/party.jpg",
+        "assets/images/party-640.jpg",
+        "assets/images/cosmos.jpg",
+        "assets/images/cosmos-640.jpg",
+        "assets/images/snacks.jpg",
+        "assets/images/snacks-640.jpg",
         "assets/fonts/cormorant-garamond.woff2",
         "assets/fonts/cormorant-garamond-italic.woff2",
         "assets/fonts/outfit.woff2",
@@ -206,8 +220,9 @@ def check_sender() -> None:
         fail("ensure_no_placeholders allowed the current placeholders")
 
     preview = read(PREVIEW)
-    if 'src="../assets/images/icon.png"' not in preview or 'src="../assets/images/terrace.jpg"' not in preview or 'src="../assets/images/feast.jpg"' not in preview:
-        fail("preview HTML does not point pictures at ../assets/")
+    for name in ("icon.png", "terrace.jpg", "feast.jpg", "table.jpg", "party.jpg", "cosmos.jpg", "snacks.jpg", "terrace-640.jpg"):
+        if f"../assets/images/{name}" not in preview:
+            fail(f"preview HTML does not point at {name}")
     if 'url("../assets/fonts/' not in preview:
         fail("preview HTML does not point fonts at ../assets/")
     if 'url("assets/' in preview or 'src="assets/' in preview:

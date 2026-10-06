@@ -186,6 +186,7 @@
     .still-frame {
       position: relative;
       aspect-ratio: 16 / 9;
+      overflow: hidden;
       background: #1a1730;
     }
     .still-frame img {
@@ -196,18 +197,19 @@
       height: 100%;
       object-fit: cover;
       opacity: 0;
-      transition: opacity .7s ease;
+      transform: scale(1.04);
+      transition: opacity 1.15s ease;
     }
     .still-frame img.is-on { opacity: 1; }
     .still-nav {
       display: flex;
       justify-content: center;
-      gap: .1rem;
+      gap: 0;
       padding: .2rem 0 .05rem;
     }
     .still-nav button {
-      width: 2.4rem;
-      height: 2.2rem;
+      width: 2rem;
+      height: 2rem;
       padding: 0;
       border: 0;
       border-radius: 999px;
@@ -425,7 +427,7 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .blob, .invite, .thanks:not(:empty), .glow { animation: none !important; }
-      .still-frame img { transition: none; }
+      .still-frame img { transition: none; transform: none; }
       .invite, .thanks:not(:empty) {
         opacity: 1;
         transform: none;
@@ -457,12 +459,20 @@
 
       <figure class="still" data-slides>
         <div class="still-frame">
-          <img class="is-on" src="../assets/images/terrace.jpg" alt="Friends on a Vienna terrace at dusk, two of them looking at a phone." width="1280" height="720">
-          <img src="../assets/images/feast.jpg" alt="Food and beer on a Vienna terrace at dusk." width="1280" height="720" aria-hidden="true">
+          <img class="is-on" src="../assets/images/terrace.jpg" srcset="../assets/images/terrace-640.jpg 640w, ../assets/images/terrace.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Friends on a Vienna terrace at dusk, two of them looking at a phone." width="1280" height="720">
+          <img src="../assets/images/feast.jpg" srcset="../assets/images/feast-640.jpg 640w, ../assets/images/feast.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Food and beer on a Vienna terrace at dusk." width="1280" height="720" aria-hidden="true">
+          <img src="../assets/images/table.jpg" srcset="../assets/images/table-640.jpg 640w, ../assets/images/table.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Two glasses beside olives, crackers, and cheese." width="1280" height="720" aria-hidden="true">
+          <img src="../assets/images/party.jpg" srcset="../assets/images/party-640.jpg 640w, ../assets/images/party.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Beer mugs and glasses under warm party lights." width="1280" height="720" aria-hidden="true">
+          <img src="../assets/images/cosmos.jpg" srcset="../assets/images/cosmos-640.jpg 640w, ../assets/images/cosmos.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Drinks on a ledge under a starry sky." width="1280" height="720" aria-hidden="true">
+          <img src="../assets/images/snacks.jpg" srcset="../assets/images/snacks-640.jpg 640w, ../assets/images/snacks.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Beer, pretzels, cheese, olives, and bread." width="1280" height="720" aria-hidden="true">
         </div>
         <div class="still-nav">
           <button type="button" class="is-on" data-slide-to="0" aria-label="Show the terrace" aria-current="true"></button>
           <button type="button" data-slide-to="1" aria-label="Show the food and beer" aria-current="false"></button>
+          <button type="button" data-slide-to="2" aria-label="Show the quiet table" aria-current="false"></button>
+          <button type="button" data-slide-to="3" aria-label="Show the party lights" aria-current="false"></button>
+          <button type="button" data-slide-to="4" aria-label="Show the starry drinks" aria-current="false"></button>
+          <button type="button" data-slide-to="5" aria-label="Show the snacks" aria-current="false"></button>
         </div>
       </figure>
 
@@ -717,8 +727,41 @@
     if (slides) {
       const frames = [...slides.querySelectorAll(".still-frame img")];
       const dots = [...slides.querySelectorAll("[data-slide-to]")];
+      const kenFrom = [
+        "scale(1) translate3d(0,0,0)",
+        "scale(1.045) translate3d(-1%,.3%,0)",
+        "scale(1.02) translate3d(.7%,0,0)",
+        "scale(1.05) translate3d(0,.5%,0)",
+        "scale(1) translate3d(-.5%,-.3%,0)",
+        "scale(1.03) translate3d(.8%,-.2%,0)",
+      ];
+      const kenTo = [
+        "scale(1.06) translate3d(-1.1%,-.4%,0)",
+        "scale(1) translate3d(.7%,-.2%,0)",
+        "scale(1.055) translate3d(-.7%,.35%,0)",
+        "scale(1) translate3d(-.4%,-.4%,0)",
+        "scale(1.05) translate3d(.9%,.25%,0)",
+        "scale(1) translate3d(-.8%,.15%,0)",
+      ];
       let index = 0;
       let timer = 0;
+      const playKen = (i) => {
+        const img = frames[i];
+        img.getAnimations().forEach((anim) => anim.cancel());
+        if (reduce) {
+          img.style.transform = "none";
+          return;
+        }
+        img.animate(
+          [{ transform: kenFrom[i] || kenFrom[0] }, { transform: kenTo[i] || kenTo[0] }],
+          { duration: 8500, easing: "ease-out", fill: "forwards" }
+        );
+      };
+      const pauseKen = (paused) => {
+        frames.forEach((img) => {
+          img.getAnimations().forEach((anim) => (paused ? anim.pause() : anim.play()));
+        });
+      };
       const showSlide = (next) => {
         index = (next + frames.length) % frames.length;
         frames.forEach((img, i) => {
@@ -731,6 +774,7 @@
           dot.classList.toggle("is-on", on);
           dot.setAttribute("aria-current", on ? "true" : "false");
         });
+        playKen(index);
       };
       const stopSlides = () => {
         if (timer) {
@@ -741,7 +785,7 @@
       const startSlides = () => {
         stopSlides();
         if (reduce || frames.length < 2) return;
-        timer = window.setInterval(() => showSlide(index + 1), 6500);
+        timer = window.setInterval(() => showSlide(index + 1), 7000);
       };
       dots.forEach((dot) => {
         dot.addEventListener("click", () => {
@@ -749,10 +793,22 @@
           startSlides();
         });
       });
-      slides.addEventListener("mouseenter", stopSlides);
-      slides.addEventListener("mouseleave", startSlides);
-      slides.addEventListener("focusin", stopSlides);
-      slides.addEventListener("focusout", startSlides);
+      slides.addEventListener("mouseenter", () => {
+        stopSlides();
+        pauseKen(true);
+      });
+      slides.addEventListener("mouseleave", () => {
+        pauseKen(false);
+        startSlides();
+      });
+      slides.addEventListener("focusin", () => {
+        stopSlides();
+        pauseKen(true);
+      });
+      slides.addEventListener("focusout", () => {
+        pauseKen(false);
+        startSlides();
+      });
       showSlide(0);
       startSlides();
     }

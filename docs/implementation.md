@@ -68,9 +68,9 @@ The big date uses lining figures and a line height of 1, with space between the 
 The page uses these files in `assets/images/`:
 
 - `icon.png` in the header and as the browser icon. The same file is linked after the base-URL script so it resolves next to the page.
-- `terrace.jpg` and `feast.jpg` under the date line, each shown at a 16:9 frame. The first is the Vienna terrace with two friends looking at a phone. The second is the same terrace with food and beer on the table.
+- Six pictures under the date line. `terrace.jpg` is the Vienna terrace with two friends looking at a phone. `feast.jpg` is that terrace with food and beer. `table.jpg` is glasses, olives, crackers, and cheese. `party.jpg` is mugs and glasses under warm lights. `cosmos.jpg` is drinks under a starry sky. `snacks.jpg` is beer, pretzels, cheese, olives, and bread. Each large file has a 640 pixel sibling for narrower screens.
 
-The pictures crossfade every few seconds. Two controls under the frame pick a picture directly. Hovering or focusing the frame pauses the change. With reduced motion, the terrace picture stays until a control is used. The header icon is decorative because the lab name is already beside it.
+The frame crossfades and drifts slowly from one picture to the next. The dots under the frame pick a picture. Hovering or focusing the frame pauses the change and the drift. With reduced motion, the terrace picture stays still until a dot is used. The header icon is decorative because the lab name is already beside it.
 
 ## Addresses with no trailing slash
 
