@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#05040a">
-  <meta name="description" content="Happy Hour — Barozzi & Tardito Lab. Thursday, October 30, 2026 at 5:00 PM (Vienna time).">
-  <title>Happy Hour — Barozzi &amp; Tardito Lab</title>
+  <meta name="description" content="The Barozzi &amp; Tardito Lab is having a happy hour on Thursday, October 30, 2026 at 5:00 PM (Vienna time) in the CCR container.">
+  <title>Happy Hour with the Barozzi &amp; Tardito Lab</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%05040a'/%3E%3Cellipse cx='32' cy='32' rx='22' ry='7' fill='none' stroke='%23e7c56a' stroke-width='2' transform='rotate(-18 32 32)'/%3E%3Ccircle cx='32' cy='32' r='11' fill='%23c9b8ff'/%3E%3C/svg%3E">
   <style>
     @font-face {
@@ -153,32 +153,31 @@
     .seal { width: 58px; height: 42px; flex: none; }
 
     h1 {
-      margin: 1.15rem 0 .1rem;
+      margin: 1rem 0 0;
       font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
       font-weight: 400;
-      font-size: clamp(3.8rem, 13vw, 6.3rem);
-      line-height: .86;
+      font-size: clamp(3.4rem, 14vw, 6.3rem);
+      line-height: 1;
       letter-spacing: -.03em;
+      text-wrap: balance;
       color: #f3df9a;
       text-shadow: 0 0 24px rgba(231, 197, 106, .28);
     }
     .lede {
-      margin: .85rem 0 0;
-      max-width: 22ch;
+      margin: .6rem 0 0;
+      max-width: 34ch;
       font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
       font-style: italic;
       font-size: clamp(1.25rem, 3vw, 1.7rem);
+      line-height: 1.35;
       color: #ebe6fa;
     }
     .when-line {
       margin: .85rem 0 0;
+      text-wrap: pretty;
       color: var(--gold-2);
       font-size: .95rem;
       letter-spacing: .02em;
-    }
-    .vienna {
-      margin-top: .45rem;
-      letter-spacing: .08em;
     }
 
     .rule {
@@ -201,8 +200,12 @@
       grid-template-columns: auto 1fr 1fr;
       gap: .75rem;
       align-items: stretch;
+      font-variant-numeric: lining-nums;
     }
     .when > div {
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
       padding: .85rem .9rem .95rem;
       border-radius: 18px;
       background: rgba(255,255,255,.06);
@@ -212,19 +215,18 @@
       display: block;
       color: var(--lilac);
       font-size: .66rem;
+      line-height: 1.4;
       letter-spacing: .16em;
       text-transform: uppercase;
     }
     .dom {
-      margin: .1rem 0 .05rem;
       font-family: "Cormorant Garamond", Georgia, serif;
       font-size: clamp(3.4rem, 8vw, 4.4rem);
-      line-height: .85;
+      line-height: 1;
       color: var(--gold-2);
     }
     .when strong {
       display: block;
-      margin-top: .4rem;
       font-family: "Cormorant Garamond", Georgia, serif;
       font-size: clamp(1.25rem, 2.5vw, 1.55rem);
       font-weight: 400;
@@ -234,13 +236,14 @@
       border-bottom: 1px dashed rgba(231,197,106,.55);
       color: var(--gold-2);
     }
+    .nw { white-space: nowrap; }
 
     .letter {
       margin: 1.2rem 0 0;
       color: #efeafc;
       font-size: 1.02rem;
     }
-    .letter p { margin: 0 0 .75rem; }
+    .letter p { margin: 0 0 .75rem; text-wrap: pretty; }
     .letter p:last-child { margin: 0; }
 
     .actions {
@@ -284,6 +287,7 @@
 
     .thanks {
       display: none;
+      text-wrap: pretty;
       margin-top: .95rem;
       padding: .85rem 1rem;
       border-radius: 14px;
@@ -352,8 +356,8 @@
       </div>
 
       <h1>Happy Hour</h1>
-      <p class="lede">An out-of-this-world evening among the stars</p>
-      <p class="when-line">Thursday, October 30, 2026 at 5:00 PM (Vienna time)</p>
+      <p class="lede">Join us for a drink after work.</p>
+      <p class="when-line">Thursday, <span class="nw">October 30,</span> 2026 at <span class="nw">5:00 PM</span> <span class="nw">(Vienna time)</span> in the <span class="nw">CCR container</span></p>
 
       <div class="rule" aria-hidden="true">✦</div>
 
@@ -366,40 +370,41 @@
         <div>
           <span>Time</span>
           <strong>5:00 PM</strong>
-          <span class="vienna">Vienna time</span>
+          <span>Vienna time</span>
         </div>
         <div>
           <span>Place</span>
-          <strong class="ph">[VENUE]</strong>
+          <strong>CCR container</strong>
         </div>
       </div>
 
       <div class="letter">
-        <p>Dear crew,</p>
-        <p>Prepare for launch! The <strong>Barozzi &amp; Tardito labs</strong> are aligning their orbits for a cosmic Happy Hour. Come float by for drinks, snacks and stellar company — no spacesuit required.</p>
+        <p>Hi everyone,</p>
+        <p>The Barozzi &amp; Tardito Lab is having a happy hour and we’d love for you to come. There will be drinks and snacks in the <span class="nw">CCR container</span>.</p>
+        <p>Please reply to <span class="ph">[RSVP_EMAIL]</span> if you can make it, so we know how much to get.</p>
       </div>
 
       <div class="actions" id="rsvp">
         <button class="btn btn-gold" type="button" data-rsvp>I’ll be there</button>
-        <a class="btn btn-line" href="mailto:[RSVP_EMAIL]?subject=RSVP%3A%20Happy%20Hour%20%E2%80%94%20Oct%2030">Email RSVP</a>
+        <a class="btn btn-line" href="mailto:[RSVP_EMAIL]?subject=Happy%20hour%20on%20October%2030">Email RSVP</a>
         <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
       </div>
-      <p class="thanks" data-thanks>You’re marked as going on this device. See you among the stars.</p>
+      <p class="thanks" data-thanks>Thanks, see you there! Please also send us a quick email so we can count you in.</p>
     </article>
 
     <footer>
-      <span>See you among the stars.</span>
+      <span>Hope to see you there!</span>
       <span>Barozzi &amp; Tardito Lab</span>
     </footer>
   </main>
 
   <script>
     const EVENT = {
-      title: "Happy Hour — Barozzi & Tardito Lab",
+      title: "Happy Hour with the Barozzi & Tardito Lab",
       start: "20261030T170000",
       end: "20261030T190000",
-      location: "[VENUE]",
-      description: "An out-of-this-world evening among the stars. Drinks, snacks and stellar company — no spacesuit required."
+      location: "CCR container",
+      description: "Drinks and snacks with the Barozzi & Tardito Lab. Please reply to [RSVP_EMAIL] if you can make it."
     };
 
     const canvas = document.getElementById("stars");
@@ -449,21 +454,49 @@
     };
     settle();
 
-    function downloadIcs() {
-      const ics = [
+    const icsText = (s) => s.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/([,;])/g, "\\$1");
+
+    function buildIcs() {
+      const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+      return [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
         "PRODID:-//Barozzi & Tardito Lab//Happy Hour//EN",
         "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+        "BEGIN:VTIMEZONE",
+        "TZID:Europe/Vienna",
+        "BEGIN:STANDARD",
+        "DTSTART:19701025T030000",
+        "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU",
+        "TZOFFSETFROM:+0200",
+        "TZOFFSETTO:+0100",
+        "TZNAME:CET",
+        "END:STANDARD",
+        "BEGIN:DAYLIGHT",
+        "DTSTART:19700329T020000",
+        "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU",
+        "TZOFFSETFROM:+0100",
+        "TZOFFSETTO:+0200",
+        "TZNAME:CEST",
+        "END:DAYLIGHT",
+        "END:VTIMEZONE",
         "BEGIN:VEVENT",
+        "UID:happy-hour-20261030@barozzi-tardito-lab",
+        `DTSTAMP:${stamp}`,
         `DTSTART;TZID=Europe/Vienna:${EVENT.start}`,
         `DTEND;TZID=Europe/Vienna:${EVENT.end}`,
-        `SUMMARY:${EVENT.title}`,
-        `LOCATION:${EVENT.location}`,
-        `DESCRIPTION:${EVENT.description}`,
+        `SUMMARY:${icsText(EVENT.title)}`,
+        `LOCATION:${icsText(EVENT.location)}`,
+        `DESCRIPTION:${icsText(EVENT.description)}`,
         "END:VEVENT",
-        "END:VCALENDAR"
+        "END:VCALENDAR",
+        ""
       ].join("\r\n");
+    }
+
+    function downloadIcs() {
+      const ics = buildIcs();
       const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar" }));
       const a = Object.assign(document.createElement("a"), { href: url, download: "happy-hour-barozzi-tardito.ics" });
       a.click();

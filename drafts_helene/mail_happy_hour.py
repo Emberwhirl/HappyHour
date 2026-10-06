@@ -1,9 +1,8 @@
-"""Build the Happy Hour invitation page and (optionally) a sendable message.
+"""Build the Happy Hour invitation and, only if asked, send it.
 
-The invitation itself is the static page at the repo root: ``index.html``.
-This script keeps the original ``build_email()`` flow: it returns a subject
-and HTML, writes a local preview, and never sends mail unless you pass
-``--send`` with SMTP environment variables.
+The invitation itself is the static page ``index.html`` at the repo root.
+``build_email()`` returns a subject and that HTML, the script writes a local
+preview, and nothing is sent unless you pass ``--send`` with SMTP settings.
 """
 
 from __future__ import annotations
@@ -22,7 +21,7 @@ PREVIEW_PATH = HERE / "happy_hour_preview.html"
 
 DEFAULT_DATE = "Thursday, October 30, 2026"
 DEFAULT_TIME = "5:00 PM (Vienna time)"
-DEFAULT_PLACE = "[VENUE]"
+DEFAULT_PLACE = "CCR container"
 DEFAULT_RSVP = "[RSVP_EMAIL]"
 
 
@@ -32,19 +31,18 @@ def build_plain_text(
     place_str: str | None = DEFAULT_PLACE,
     rsvp_email: str = DEFAULT_RSVP,
 ) -> str:
-    """Plain-text fallback for a later multipart email."""
+    """Plain-text version of the invitation for a multipart email."""
     return (
-        "Happy Hour — Barozzi & Tardito Lab\n"
-        "An out-of-this-world evening among the stars\n\n"
-        f"Date: {date_str}\n"
-        f"Time: {time_str or DEFAULT_TIME}\n"
-        f"Place: {place_str or DEFAULT_PLACE}\n\n"
-        "Dear crew,\n\n"
-        "Prepare for launch! The Barozzi & Tardito labs are aligning their "
-        "orbits for a cosmic Happy Hour. Come float by for drinks, snacks "
-        "and stellar company — no spacesuit required.\n\n"
-        f"RSVP: {rsvp_email}\n\n"
-        "See you among the stars!\n"
+        "Happy Hour with the Barozzi & Tardito Lab\n\n"
+        f"{date_str} at {time_str or DEFAULT_TIME}\n"
+        f"{place_str or DEFAULT_PLACE}\n\n"
+        "Hi everyone,\n\n"
+        "The Barozzi & Tardito Lab is having a happy hour and we'd love for "
+        "you to come. There will be drinks and snacks in the "
+        f"{place_str or DEFAULT_PLACE}.\n\n"
+        f"Please reply to {rsvp_email} if you can make it, so we know how "
+        "much to get.\n\n"
+        "Hope to see you there!\n"
         "Barozzi & Tardito Lab\n"
     )
 
@@ -56,10 +54,10 @@ def build_email(
 ) -> tuple[str, str]:
     """Return ``(subject, html_body)`` from the static invitation page."""
     if not INVITE_PATH.is_file():
-        raise FileNotFoundError(f"Invitation page not found: {INVITE_PATH}")
+        raise FileNotFoundError(f"Could not find the invitation page at {INVITE_PATH}")
 
     html = INVITE_PATH.read_text(encoding="utf-8")
-    subject = f"🪐 Happy Hour — Barozzi & Tardito Lab — {date_str}"
+    subject = f"Happy hour with the Barozzi & Tardito Lab on {date_str}"
     # Keep unused kwargs in the original signature so existing call sites work.
     _ = (time_str, place_str)
     return subject, html
@@ -94,7 +92,7 @@ def send_email(msg: EmailMessage) -> None:
     user = os.environ.get("SMTP_USER")
     password = os.environ.get("SMTP_PASSWORD")
     if not host:
-        raise SystemExit("Refusing to send: SMTP_HOST is not set.")
+        raise SystemExit("Not sending because SMTP_HOST is not set.")
     with smtplib.SMTP(host, port, timeout=30) as smtp:
         smtp.starttls()
         if user:
@@ -103,28 +101,30 @@ def send_email(msg: EmailMessage) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Preview the Happy Hour invitation. Does not send by default.")
+    parser = argparse.ArgumentParser(
+        description="Preview the happy hour invitation. Nothing is sent unless you pass --send."
+    )
     parser.add_argument(
         "--send",
         action="store_true",
-        help="Actually send via SMTP (requires SMTP_HOST, MAIL_FROM, MAIL_TO). Default is preview only.",
+        help="Send the email over SMTP. Needs SMTP_HOST, MAIL_FROM and MAIL_TO.",
     )
     args = parser.parse_args(argv)
 
     subject, html = build_email()
     preview = write_preview(html)
     print(subject)
-    print(f"Invitation page: {INVITE_PATH}")
+    print(f"Invitation page is at {INVITE_PATH}")
     print(f"Preview written to {preview}")
 
     if not args.send:
-        print("No email sent (preview only).")
+        print("No email was sent.")
         return 0
 
     from_addr = os.environ.get("MAIL_FROM")
     to_raw = os.environ.get("MAIL_TO")
     if not from_addr or not to_raw:
-        raise SystemExit("Refusing to send: set MAIL_FROM and MAIL_TO.")
+        raise SystemExit("Not sending because MAIL_FROM or MAIL_TO is missing.")
     msg = compose_message(
         subject,
         html,
