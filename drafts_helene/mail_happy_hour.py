@@ -1,115 +1,223 @@
-def build_email(date_str: str = "Friday, 30th October",
-                time_str: str | None = None,
-                place_str: str | None = None) -> tuple[str, str]:
-    """Return (subject, html_body)."""
+"""Build the Happy Hour invitation and, only if asked, send a plain note.
 
-    # Optional event details: only shown when provided.
-    details = ""
-    for icon, label, value in (("🗓", "Date", date_str),
-                               ("🕔", "Time", time_str),
-                               ("📍", "Place", place_str)):
-        if value:
-            details += f"""
-            <tr>
-              <td style="padding:10px 14px;font-size:18px;width:32px;
-                         vertical-align:middle;">{icon}</td>
-              <td style="padding:10px 4px;font-size:11px;letter-spacing:2px;
-                         color:#9fa8ff;text-transform:uppercase;width:70px;
-                         vertical-align:middle;">{label}</td>
-              <td style="padding:10px 14px;font-size:17px;font-weight:bold;
-                         color:#ffffff;font-family:Georgia,serif;
-                         vertical-align:middle;">{value}</td>
-            </tr>"""
+The invitation itself is the static page ``index.html`` at the repo root.
+``build_email()`` returns a subject and that HTML, the script writes a local
+preview, and nothing is sent unless you pass ``--send``.
 
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:24px;background:#05061a;font-family:Georgia,serif;">
-  <div style="max-width:600px;margin:0 auto;background:#0b0d2e;
-              border-radius:14px;overflow:hidden;border:1px solid #2a2f6b;
-              box-shadow:0 8px 30px rgba(90,70,200,0.35);">
+Set ``hh-rsvp-email`` and ``hh-page-url`` in ``index.html`` before sending.
+``--send`` refuses while either value, or any other ``[PLACEHOLDER]``, remains.
+The message is plain text plus the hosted page link. It does not attach the
+invitation HTML.
+"""
 
-    <!-- Deep-space nebula header with scattered stars -->
-    <div style="background:#1a1050;
-                background:radial-gradient(ellipse at 20% 10%,#6b3fa0 0%,transparent 55%),
-                           radial-gradient(ellipse at 85% 80%,#1f5fa8 0%,transparent 55%),
-                           linear-gradient(180deg,#140a3a 0%,#0b0d2e 100%);
-                padding:30px 28px 38px;text-align:center;">
-      <div style="font-size:12px;color:#ffffff;letter-spacing:14px;opacity:0.75;">
-        ✦ · ✧ &nbsp; · ✦ &nbsp; ✧ · &nbsp; ✦
-      </div>
-      <div style="font-size:54px;line-height:1;margin:18px 0 10px;">🪐</div>
-      <div style="font-size:11px;letter-spacing:4px;color:#c9b8ff;
-                  text-transform:uppercase;margin-bottom:8px;">
-        Barozzi &amp; Tardito Lab
-      </div>
-      <h1 style="margin:0;color:#ffffff;font-size:34px;letter-spacing:1px;
-                 text-shadow:0 0 12px rgba(170,140,255,0.8);">
-        Happy Hour
-      </h1>
-      <p style="margin:10px 0 0;color:#b8c4ff;font-size:14px;font-style:italic;">
-        An out-of-this-world evening among the stars
-      </p>
-      <div style="font-size:12px;color:#ffffff;letter-spacing:14px;
-                  opacity:0.6;margin-top:18px;">
-        · ✧ &nbsp; ✦ · &nbsp; · ✧ &nbsp; ✦ ·
-      </div>
-    </div>
+from __future__ import annotations
 
-    <!-- Intro -->
-    <div style="padding:26px 30px 6px;">
-      <p style="color:#dfe3ff;font-size:15px;margin:0;line-height:1.6;">
-        Dear crew,
-      </p>
-      <p style="color:#c3c8ef;font-size:15px;margin:10px 0 0;line-height:1.6;">
-        Prepare for launch! 🚀 The <strong style="color:#ffffff;">Barozzi
-        &amp; Tardito labs</strong> are aligning their orbits for a cosmic
-        Happy Hour. Come float by for drinks, snacks and stellar company —
-        no spacesuit required.
-      </p>
-    </div>
+import argparse
+import os
+import re
+import smtplib
+import ssl
+import sys
+from email.message import EmailMessage
+from pathlib import Path
 
-    <!-- Mission details -->
-    <div style="padding:20px 24px 4px;">
-      <div style="font-size:12px;letter-spacing:3px;color:#9fa8ff;
-                  text-transform:uppercase;font-weight:bold;
-                  padding:0 8px 8px;border-bottom:1px solid #3a3f8f;">
-        ✦ Mission Details
-      </div>
-      <div style="background:#141850;border-radius:10px;margin-top:12px;
-                  border:1px solid #2e3480;">
-        <table style="width:100%;border-collapse:collapse;">
-          <tbody>{details}
-          </tbody>
-        </table>
-      </div>
-    </div>
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+INVITE_PATH = ROOT / "index.html"
+PREVIEW_PATH = HERE / "happy_hour_preview.html"
 
-    <!-- Orbit divider -->
-    <div style="text-align:center;padding:26px 28px 6px;">
-      <span style="font-size:20px;letter-spacing:10px;">🌑🌒🌓🌔🌕</span>
-    </div>
+DEFAULT_DATE = "Friday, October 30, 2026"
+DEFAULT_START = "5:00 PM"
+DEFAULT_PLACE = "CCR container"
+DEFAULT_RSVP = "[RSVP_EMAIL]"
+DEFAULT_PAGE_URL = "[PAGE_URL]"
+PLACEHOLDER_RE = re.compile(r"\[[A-Z][A-Z0-9_]*\]")
+ANGLE_ADDR_RE = re.compile(r"<([^<>\s]+@[^<>\s]+)>")
+BARE_ADDR_RE = re.compile(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}")
 
-    <!-- Footer -->
-    <div style="padding:14px 28px 28px;text-align:center;">
-      <p style="color:#dfe3ff;font-size:16px;margin:0 0 6px;">
-        See you among the stars! ✨
-      </p>
-      <p style="color:#7c84c4;font-size:12px;margin:0;letter-spacing:1px;">
-        Barozzi &amp; Tardito Lab
-      </p>
-    </div>
-  </div>
-</body>
-</html>"""
 
-    subject = f"🪐 Happy Hour — Barozzi & Tardito Lab — {date_str}"
+def build_plain_text(
+    date_str: str = DEFAULT_DATE,
+    time_str: str | None = None,
+    place_str: str | None = DEFAULT_PLACE,
+    rsvp_email: str = DEFAULT_RSVP,
+    page_url: str = DEFAULT_PAGE_URL,
+) -> str:
+    """Plain-text note with a link to the hosted invitation."""
+    when = time_str or f"at {DEFAULT_START} (Vienna time)"
+    place = place_str or DEFAULT_PLACE
+    return (
+        "Happy Hour with the Barozzi & Tardito Lab\n\n"
+        f"{date_str} {when}\n"
+        f"{place}\n\n"
+        "Hi everyone,\n\n"
+        "The Barozzi & Tardito Lab is having a happy hour and we'd love for "
+        f"you to come. There will be drinks and snacks in the {place}.\n\n"
+        f"Please reply to {rsvp_email} if you can make it, so we know how "
+        "much to get.\n\n"
+        f"The invitation page is at {page_url}\n\n"
+        "Hope to see you there!\n"
+        "Barozzi & Tardito Lab\n"
+    )
+
+
+def build_email(
+    date_str: str = DEFAULT_DATE,
+    time_str: str | None = DEFAULT_START,
+    place_str: str | None = DEFAULT_PLACE,
+) -> tuple[str, str]:
+    """Return ``(subject, html_body)`` from the static invitation page."""
+    if not INVITE_PATH.is_file():
+        raise FileNotFoundError(f"Could not find the invitation page at {INVITE_PATH}")
+
+    html = INVITE_PATH.read_text(encoding="utf-8")
+    subject = f"Happy hour with the Barozzi & Tardito Lab on {date_str}"
+    _ = (time_str, place_str)
     return subject, html
 
 
-if __name__ == "__main__":
+def read_meta(html: str, name: str) -> str | None:
+    """Read one meta tag from the invitation page."""
+    pattern = rf'<meta\s+name="{re.escape(name)}"\s+content="([^"]*)"\s*/?>'
+    match = re.search(pattern, html)
+    return match.group(1) if match else None
+
+
+def invitation_text_for_placeholders(html: str) -> str:
+    """HTML with scripts and styles removed, so code is not treated as copy."""
+    without_script = re.sub(r"<script\b[^>]*>.*?</script>", " ", html, flags=re.S | re.I)
+    return re.sub(r"<style\b[^>]*>.*?</style>", " ", without_script, flags=re.S | re.I)
+
+
+def find_placeholders(*parts: str) -> list[str]:
+    found: list[str] = []
+    for part in parts:
+        for item in PLACEHOLDER_RE.findall(part or ""):
+            if item not in found:
+                found.append(item)
+    return found
+
+
+def ensure_no_placeholders(html: str, plain: str) -> None:
+    found = find_placeholders(invitation_text_for_placeholders(html), plain)
+    if not found:
+        return
+    listed = ", ".join(found)
+    raise SystemExit(
+        "Not sending because a placeholder is still in the invitation. "
+        f"Still present are {listed}. "
+        "Set hh-rsvp-email and hh-page-url in index.html."
+    )
+
+
+def parse_recipients(raw: str) -> list[str]:
+    """Accept display names that contain commas, then keep the bare addresses."""
+    found: list[str] = []
+    for match in ANGLE_ADDR_RE.finditer(raw or ""):
+        addr = match.group(1).strip()
+        if addr not in found:
+            found.append(addr)
+    without_angles = ANGLE_ADDR_RE.sub(" ", raw or "")
+    for match in BARE_ADDR_RE.finditer(without_angles):
+        addr = match.group(0)
+        if addr not in found:
+            found.append(addr)
+    if not found:
+        raise SystemExit("Not sending because MAIL_TO has no usable address.")
+    return found
+
+
+def smtp_port() -> int:
+    raw = os.environ.get("SMTP_PORT", "").strip()
+    if not raw:
+        return 587
+    try:
+        return int(raw)
+    except ValueError:
+        raise SystemExit("Not sending because SMTP_PORT is not a number.") from None
+
+
+def write_preview(html: str) -> Path:
+    """Write a drafts_helene preview that can resolve shared assets."""
+    preview_html = html.replace("assets/images/", "../assets/images/")
+    preview_html = preview_html.replace('url("assets/', 'url("../assets/')
+    preview_html = preview_html.replace('src="assets/', 'src="../assets/')
+    preview_html = preview_html.replace('href="assets/', 'href="../assets/')
+    PREVIEW_PATH.write_text(preview_html, encoding="utf-8")
+    return PREVIEW_PATH
+
+
+def compose_message(
+    subject: str,
+    text_body: str,
+    from_addr: str,
+    to_addrs: list[str],
+) -> EmailMessage:
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = from_addr
+    msg["To"] = ", ".join(to_addrs)
+    msg.set_content(text_body)
+    return msg
+
+
+def send_email(msg: EmailMessage) -> None:
+    host = os.environ.get("SMTP_HOST", "").strip()
+    if not host:
+        raise SystemExit("Not sending because SMTP_HOST is not set.")
+    port = smtp_port()
+    user = os.environ.get("SMTP_USER", "").strip()
+    password = os.environ.get("SMTP_PASSWORD")
+    if user and not password:
+        raise SystemExit("Not sending because SMTP_USER is set and SMTP_PASSWORD is empty.")
+    context = ssl.create_default_context()
+    if port == 465:
+        smtp_cm = smtplib.SMTP_SSL(host, port, timeout=30, context=context)
+    else:
+        smtp_cm = smtplib.SMTP(host, port, timeout=30)
+    with smtp_cm as smtp:
+        if port != 465:
+            smtp.starttls(context=context)
+        if user:
+            smtp.login(user, password or "")
+        smtp.send_message(msg)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Preview the happy hour invitation. Nothing is sent unless you pass --send."
+    )
+    parser.add_argument(
+        "--send",
+        action="store_true",
+        help="Send a plain text note with the page link. Needs SMTP_HOST, MAIL_FROM and MAIL_TO. Refuses while a placeholder remains.",
+    )
+    args = parser.parse_args(argv)
+
     subject, html = build_email()
-    with open("happy_hour_preview.html", "w", encoding="utf-8") as f:
-        f.write(html)
+    preview = write_preview(html)
     print(subject)
-    print("Preview written to happy_hour_preview.html")
+    print(f"Invitation page is at {INVITE_PATH}")
+    print(f"Preview written to {preview}")
+
+    if not args.send:
+        print("No email was sent.")
+        return 0
+
+    rsvp = read_meta(html, "hh-rsvp-email") or DEFAULT_RSVP
+    page_url = read_meta(html, "hh-page-url") or DEFAULT_PAGE_URL
+    plain = build_plain_text(rsvp_email=rsvp, page_url=page_url)
+    ensure_no_placeholders(html, plain)
+
+    from_addr = os.environ.get("MAIL_FROM", "").strip()
+    to_raw = os.environ.get("MAIL_TO", "")
+    if not from_addr or not to_raw.strip():
+        raise SystemExit("Not sending because MAIL_FROM or MAIL_TO is missing.")
+    msg = compose_message(subject, plain, from_addr, parse_recipients(to_raw))
+    send_email(msg)
+    print(f"Sent to {to_raw.strip()}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
