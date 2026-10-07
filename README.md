@@ -9,7 +9,8 @@ The RSVP address and the public page URL are still placeholders. Both live in `i
 | Path | What it is |
 | --- | --- |
 | `index.html` | The hosted invitation. |
-| `assets/` | Fonts and pictures. |
+| `assets/` | Fonts, pictures, and posters. |
+| `assets/posters/` | Poster 1 from the note in `drafts_helene/README.md`. |
 | `docs/` | Event facts, the open plan, and implementation notes. Start with `docs/overview.md`. |
 | `scripts/` | `preview.sh` serves the page. `check_invitation.py` checks copy, assets, and the send gate. |
 | `drafts_helene/` | Legacy mail drafts. They stay in this folder. |
