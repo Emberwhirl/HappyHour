@@ -108,6 +108,7 @@ def check_page(html: str) -> None:
         "Saved in this browser. The lab will only know if you email them.",
         "The reminder could not be stored in this browser. Email the lab if you are coming.",
         "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM.",
+        "There will be a glowing gin tonic fountain.",
     ):
         if snippet not in html:
             fail(f"index.html is missing guest text: {snippet}")
