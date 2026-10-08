@@ -1,1 +1,1 @@
-Take the image in HappyHour/docs/upscaling and enhance the quality so it can be printed on A4 in high quality. keep all parts of the image and dont add anything, just enhance the quality. the rendering should look like in a real photograph with many details. 
+Take the image in HappyHour/docs/upscaling and enhance the quality so it can be printed on A4 in high quality. keep all parts of the image and dont add anything, just enhance the quality. the rendering should look like in a real photograph with many details. save the new image in the folder HappyHour/docs/upscaling.
