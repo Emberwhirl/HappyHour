@@ -76,6 +76,10 @@ The frame crossfades, and the picture eases across the frame while it is showing
 
 Font and image URLs are relative (`assets/...`). If a host serves the page at a path with no trailing slash and no filename, those URLs would otherwise resolve one folder too high. A blocking script at the top of `<head>` inserts `<base href>` pointing at the page directory before the icon and the style sheet are requested.
 
-## Preview copy
+## Email draft
 
-`drafts_helene/happy_hour_preview.html` is generated from `index.html`. The generator rewrites `url("assets/` , `src="assets/` , and `href="assets/` so the preview, which lives one folder down, still loads fonts and pictures. Regenerate it with `python3 drafts_helene/mail_happy_hour.py`. That command does not send mail.
+`drafts_helene/happy_hour_preview.html` is the email invitation. It keeps this dark gold card and does not follow `index.html` after the draft changes. The picture is the static file `assets/images/Science Supernova-4.png`, placed first. Headers use Courier New. Body copy stays in Outfit. The draft does not mention Vienna time and does not offer an email RSVP.
+
+Names go in `drafts_helene/rsvp-names.html`. That page is light, and each name is a line in the file.
+
+`python3 drafts_helene/mail_happy_hour.py` prints the subject and reads the draft. It does not rebuild the draft from `index.html`, and it does not send mail.

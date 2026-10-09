@@ -1,11 +1,13 @@
-"""Build the Happy Hour invitation and, only if asked, send a plain note.
+"""Build the Happy Hour email draft and, only if asked, send a plain note.
 
-The invitation itself is the static page ``index.html`` at the repo root.
-``build_email()`` returns a subject and that HTML, the script writes a local
-preview, and nothing is sent unless you pass ``--send``.
+The email invitation is ``happy_hour_preview.html`` in this folder.
+Production ``index.html`` stays separate and is not rewritten.
+``build_email()`` returns a subject and the draft HTML.
+Nothing is sent unless you pass ``--send``.
 
-Set ``hh-rsvp-email`` and ``hh-page-url`` in ``index.html`` before sending.
-``--send`` refuses while either value, or any other ``[PLACEHOLDER]``, remains.
+Names go in ``rsvp-names.html`` beside the draft.
+``hh-page-url`` in the draft is the hosted invitation link.
+``--send`` refuses while a ``[PLACEHOLDER]`` remains.
 The message is plain text plus the hosted page link. It does not attach the
 invitation HTML.
 """
@@ -23,13 +25,13 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-INVITE_PATH = ROOT / "index.html"
-PREVIEW_PATH = HERE / "happy_hour_preview.html"
+INVITE_PATH = HERE / "happy_hour_preview.html"
+PREVIEW_PATH = INVITE_PATH
+SIGNUP_FILE = "drafts_helene/rsvp-names.html"
 
 DEFAULT_DATE = "Friday, October 30, 2026"
 DEFAULT_START = "5:00 PM"
 DEFAULT_PLACE = "CCR container"
-DEFAULT_RSVP = "[RSVP_EMAIL]"
 DEFAULT_PAGE_URL = "[PAGE_URL]"
 PLACEHOLDER_RE = re.compile(r"\[[A-Z][A-Z0-9_]*\]")
 ANGLE_ADDR_RE = re.compile(r"<([^<>\s]+@[^<>\s]+)>")
@@ -40,11 +42,10 @@ def build_plain_text(
     date_str: str = DEFAULT_DATE,
     time_str: str | None = None,
     place_str: str | None = DEFAULT_PLACE,
-    rsvp_email: str = DEFAULT_RSVP,
     page_url: str = DEFAULT_PAGE_URL,
 ) -> str:
-    """Plain-text note with a link to the hosted invitation."""
-    when = time_str or f"at {DEFAULT_START} (Vienna time)"
+    """Plain-text note with the signup file and a link to the hosted invitation."""
+    when = time_str or f"at {DEFAULT_START}"
     place = place_str or DEFAULT_PLACE
     return (
         "Happy Hour with the Barozzi & Tardito Lab\n\n"
@@ -54,8 +55,9 @@ def build_plain_text(
         "The Barozzi & Tardito Lab is having a happy hour and we'd love for "
         f"you to come. There will be drinks and snacks in the {place}. "
         "There will be a glowing gin tonic fountain.\n\n"
-        f"Please reply to {rsvp_email} if you can make it, so we know how "
-        "much to get.\n\n"
+        "Add your name in the signup file "
+        f"{SIGNUP_FILE} "
+        "if you can make it, so we know how much to get.\n\n"
         f"The invitation page is at {page_url}\n\n"
         "Hope to see you there!\n"
         "Barozzi & Tardito Lab\n"
@@ -67,7 +69,7 @@ def build_email(
     time_str: str | None = DEFAULT_START,
     place_str: str | None = DEFAULT_PLACE,
 ) -> tuple[str, str]:
-    """Return ``(subject, html_body)`` from the static invitation page."""
+    """Return ``(subject, html_body)`` from the email draft."""
     if not INVITE_PATH.is_file():
         raise FileNotFoundError(f"Could not find the invitation page at {INVITE_PATH}")
 
@@ -106,8 +108,7 @@ def ensure_no_placeholders(html: str, plain: str) -> None:
     listed = ", ".join(found)
     raise SystemExit(
         "Not sending because a placeholder is still in the invitation. "
-        f"Still present are {listed}. "
-        "Set hh-rsvp-email and hh-page-url in index.html."
+        f"Still present are {listed}."
     )
 
 
@@ -139,12 +140,11 @@ def smtp_port() -> int:
 
 
 def write_preview(html: str) -> Path:
-    """Write a drafts_helene preview that can resolve shared assets."""
-    preview_html = html.replace("assets/images/", "../assets/images/")
-    preview_html = preview_html.replace('url("assets/', 'url("../assets/')
-    preview_html = preview_html.replace('src="assets/', 'src="../assets/')
-    preview_html = preview_html.replace('href="assets/', 'href="../assets/')
-    PREVIEW_PATH.write_text(preview_html, encoding="utf-8")
+    """Save the email draft. Asset paths already point at ``../assets/``.
+
+    Production ``index.html`` is not read or rewritten here.
+    """
+    PREVIEW_PATH.write_text(html, encoding="utf-8")
     return PREVIEW_PATH
 
 
@@ -191,7 +191,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--send",
         action="store_true",
-        help="Send a plain text note with the page link. Needs SMTP_HOST, MAIL_FROM and MAIL_TO. Refuses while a placeholder remains.",
+        help="Send a plain text note with the signup file and the page link. Needs SMTP_HOST, MAIL_FROM and MAIL_TO. Refuses while a placeholder remains.",
     )
     args = parser.parse_args(argv)
 
@@ -205,9 +205,8 @@ def main(argv: list[str] | None = None) -> int:
         print("No email was sent.")
         return 0
 
-    rsvp = read_meta(html, "hh-rsvp-email") or DEFAULT_RSVP
     page_url = read_meta(html, "hh-page-url") or DEFAULT_PAGE_URL
-    plain = build_plain_text(rsvp_email=rsvp, page_url=page_url)
+    plain = build_plain_text(page_url=page_url)
     ensure_no_placeholders(html, plain)
 
     from_addr = os.environ.get("MAIL_FROM", "").strip()
