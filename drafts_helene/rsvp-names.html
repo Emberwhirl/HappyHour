@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Happy hour names</title>
+  <style>
+    @font-face {
+      font-family: "Outfit";
+      font-style: normal;
+      font-weight: 300 700;
+      font-display: swap;
+      src: url("../assets/fonts/outfit.woff2") format("woff2");
+    }
+
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #f7f3ea;
+      color: #1b1730;
+      font-family: Outfit, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main {
+      width: min(40rem, calc(100% - 2rem));
+      margin: 2.5rem auto 3rem;
+    }
+    h1 {
+      margin: 0;
+      font-family: "Courier New", Courier, "Liberation Mono", Cousine, ui-monospace, monospace;
+      font-weight: 400;
+      font-size: clamp(2rem, 6vw, 2.8rem);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+    p { margin: .8rem 0 0; }
+    .names {
+      margin: 1.2rem 0 0;
+      padding: 1rem 1.1rem;
+      min-height: 12rem;
+      background-color: #fff;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent calc(1.6rem - 1px),
+        #efe8da calc(1.6rem - 1px),
+        #efe8da 1.6rem
+      );
+      background-attachment: local;
+      border: 1px solid #d9d0c0;
+      border-radius: 12px;
+      font-family: Outfit, "Segoe UI", sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.6rem;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Happy hour names</h1>
+    <p>Friday, October 30, 2026 at 5:00 PM in the CCR container.</p>
+    <p>Put your name on its own line in the list below. This file is the shared signup.</p>
+    <pre class="names">
+</pre>
+  </main>
+</body>
+</html>

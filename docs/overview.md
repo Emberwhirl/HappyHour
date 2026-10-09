@@ -20,9 +20,9 @@ October 30, 2026 is a Friday. Europe switches from summer time to standard time 
 | `assets/images/` | Header icon and the six pictures that switch under the date line. |
 | `docs/` | Event facts, the open plan, and implementation notes. |
 | `scripts/` | Local preview server and the invitation check. |
-| `drafts_helene/` | Legacy mail drafts. Leave this folder where it is. |
+| `drafts_helene/` | Email invite draft, the names signup file, and the legacy mail script. Leave this folder where it is. |
 
-`drafts_helene/mail_happy_hour.py` builds a local preview and, only with `--send`, a plain-text note. `drafts_helene/mail_example_html.py` is an older quiz mailer kept as a reference. Neither file moves into `scripts/`.
+`drafts_helene/mail_happy_hour.py` reads the email draft and, only with `--send`, builds a plain-text note. `drafts_helene/mail_example_html.py` is an older quiz mailer kept as a reference. Neither file moves into `scripts/`.
 
 ## Reading order
 

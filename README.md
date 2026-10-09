@@ -25,7 +25,7 @@ Open `index.html` in a browser, or serve the repo root and visit [http://127.0.0
 
 `python3 -m http.server 8000` from the repo root does the same thing.
 
-To refresh the copy in `drafts_helene/`, run the script below. It writes `drafts_helene/happy_hour_preview.html` and prints the email subject. It does **not** send anything.
+The email invite draft is `drafts_helene/happy_hour_preview.html`. It keeps the dark gold card, shows `assets/images/Science Supernova-4.png` as one static picture, and points people to `drafts_helene/rsvp-names.html` to add their names. Running the script below prints the email subject. It does **not** send anything, and it does not rebuild the draft from `index.html`.
 
 ```bash
 python3 drafts_helene/mail_happy_hour.py
@@ -41,9 +41,9 @@ python3 scripts/check_invitation.py
 
 ## Sending later
 
-`build_email()` returns the subject and the HTML from `index.html` for the local preview. `build_plain_text()` is the note that `--send` actually mails. That note is plain text and includes the hosted page link. It does not attach the invitation page.
+`build_email()` returns the subject and the HTML from `drafts_helene/happy_hour_preview.html`. `build_plain_text()` is the note that `--send` actually mails. That note is plain text, points at `drafts_helene/rsvp-names.html`, and includes the hosted page link. It does not attach the invitation page.
 
-`--send` stops if `[RSVP_EMAIL]`, `[PAGE_URL]`, or any similar placeholder is still present. It also stops when `SMTP_PORT` is not a number, when `SMTP_USER` is set without `SMTP_PASSWORD`, or when `MAIL_TO` has no usable address. An empty `SMTP_PORT` means port 587. Port 465 uses implicit TLS. Other ports use STARTTLS.
+`--send` stops if `[PAGE_URL]` or any similar placeholder is still present. It also stops when `SMTP_PORT` is not a number, when `SMTP_USER` is set without `SMTP_PASSWORD`, or when `MAIL_TO` has no usable address. An empty `SMTP_PORT` means port 587. Port 465 uses implicit TLS. Other ports use STARTTLS.
 
 Details, including display names that contain commas, are in `docs/sending.md`.
 

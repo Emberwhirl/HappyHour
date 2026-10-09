@@ -209,8 +209,12 @@ def check_sender() -> None:
 
     plain = mail.build_plain_text()
     check_copy("plain text note", plain)
-    if "[PAGE_URL]" not in plain or "[RSVP_EMAIL]" not in plain:
-        fail("the default plain note should still carry the placeholders")
+    if "[PAGE_URL]" not in plain:
+        fail("the default plain note should still carry the page placeholder")
+    if "[RSVP_EMAIL]" in plain or "Vienna time" in plain or "reply to" in plain.lower():
+        fail("the plain note still asks for an email RSVP or names Vienna time")
+    if "drafts_helene/rsvp-names.html" not in plain:
+        fail("the plain note does not point at the names signup file")
     html = read(INDEX)
     try:
         mail.ensure_no_placeholders(html, plain)
@@ -221,17 +225,51 @@ def check_sender() -> None:
         fail("ensure_no_placeholders allowed the current placeholders")
 
     preview = read(PREVIEW)
-    for name in ("icon.png", "terrace.jpg", "feast.jpg", "table.jpg", "party.jpg", "cosmos.jpg", "snacks.jpg", "terrace-640.jpg"):
-        if f"../assets/images/{name}" not in preview:
-            fail(f"preview HTML does not point at {name}")
+    check_email_draft(preview)
     if 'url("../assets/fonts/' not in preview:
         fail("preview HTML does not point fonts at ../assets/")
-    if 'url("assets/' in preview or 'src="assets/' in preview:
+    if 'url("assets/' in preview or 'src="assets/' in preview or 'href="assets/' in preview:
         fail("preview HTML still has repo-root asset paths")
 
     example = read(ROOT / "drafts_helene" / "mail_example_html.py")
     if "escape(" not in example:
         fail("mail_example_html.py does not escape interpolated text")
+
+
+def check_email_draft(preview: str) -> None:
+    """The email draft is separate from production index.html."""
+    if "Science%20Supernova-4.png" not in preview and "Science Supernova-4.png" not in preview:
+        fail("email draft does not use Science Supernova-4.png")
+    if "data-slides" in preview or "still-nav" in preview or "data-slide-to" in preview:
+        fail("email draft still has a picture slideshow")
+    lowered = preview.lower()
+    if "vienna time" in lowered:
+        fail("email draft still mentions Vienna time")
+    if "mailto:" in lowered or "[RSVP_EMAIL]" in preview or "Email RSVP" in preview:
+        fail("email draft still asks for an email RSVP")
+    if "rsvp-names.html" not in preview:
+        fail("email draft does not link to the names signup file")
+    image_at = preview.find("Science%20Supernova-4.png")
+    if image_at < 0:
+        image_at = preview.find("Science Supernova-4.png")
+    title_at = preview.find("<h1>")
+    if image_at < 0 or title_at < 0 or image_at > title_at:
+        fail("email draft does not place the picture before the other info")
+    if "Courier New" not in preview:
+        fail("email draft headers do not use a computer font")
+    if 'font-family: Outfit, "Segoe UI", sans-serif' not in preview:
+        fail("email draft lost the basic body font")
+    check_copy("email draft", guest_text(preview))
+    signup_path = ROOT / "drafts_helene" / "rsvp-names.html"
+    signup = read(signup_path)
+    if not signup.strip():
+        fail("names signup file is empty")
+        return
+    if 'content="light"' not in signup and "color-scheme: light" not in signup:
+        fail("names signup file is not a light page")
+    check_copy("names signup", guest_text(signup))
+    if "Put your name" not in signup:
+        fail("names signup file does not ask people to add a name")
 
 
 def main() -> int:

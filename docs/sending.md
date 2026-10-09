@@ -1,6 +1,6 @@
 # Preview and sending
 
-The sender stays in `drafts_helene/mail_happy_hour.py`. Default runs write a preview and print the subject. They do not open a socket.
+The sender stays in `drafts_helene/mail_happy_hour.py`. Default runs read `drafts_helene/happy_hour_preview.html` and print the subject. They do not open a socket and they do not rebuild that draft from `index.html`.
 
 ```bash
 python3 drafts_helene/mail_happy_hour.py
@@ -8,7 +8,7 @@ python3 drafts_helene/mail_happy_hour.py
 
 ## What `--send` mails
 
-`--send` sends one plain-text message. The body is the date, the place, a short note, and the hosted page link from `hh-page-url`. It does not attach `index.html`. The HTML page is for the browser. The email is only the pointer.
+`--send` sends one plain-text message. The body is the date, the place, a short note, the signup file `drafts_helene/rsvp-names.html`, and the hosted page link from `hh-page-url` on the email draft. It does not attach the invitation HTML. The HTML page is for the browser. The email is only the pointer.
 
 `build_email()` still returns `(subject, html)` for the preview file. `build_plain_text()` is the body that is actually mailed.
 
@@ -18,7 +18,7 @@ The script checks these before it connects:
 
 | Condition | Result |
 | --- | --- |
-| `[RSVP_EMAIL]`, `[PAGE_URL]`, or any other `[A-Z0-9_]` token remains in the page text or the plain note | Stop. Script and style blocks are ignored, so code is not treated as copy. |
+| `[PAGE_URL]` or any other `[A-Z0-9_]` token remains in the draft text or the plain note | Stop. Script and style blocks are ignored, so code is not treated as copy. |
 | `MAIL_FROM` or `MAIL_TO` is missing | Stop. |
 | `MAIL_TO` has no email address | Stop. |
 | `SMTP_HOST` is missing | Stop. |
@@ -43,7 +43,7 @@ export MAIL_TO="Tardito, Lab <team@example.com>"
 python3 drafts_helene/mail_happy_hour.py --send
 ```
 
-Set the two meta tags in `index.html` first. The script reads them from the page. It does not take the address from the command line.
+Set `hh-page-url` in `drafts_helene/happy_hour_preview.html` first. The script reads it from that draft. It does not take the address from the command line. Names are added in `drafts_helene/rsvp-names.html`.
 
 ## Legacy quiz mailer
 

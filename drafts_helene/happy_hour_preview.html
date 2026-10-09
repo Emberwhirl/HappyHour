@@ -4,10 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#05040a">
-  <meta name="description" content="The Barozzi &amp; Tardito Lab is having a happy hour on Friday, October 30, 2026 at 5:00 PM (Vienna time) in the CCR container.">
+  <meta name="description" content="The Barozzi &amp; Tardito Lab is having a happy hour on Friday, October 30, 2026 at 5:00 PM in the CCR container.">
   <title>Happy Hour with the Barozzi &amp; Tardito Lab</title>
-  <!-- Set these two values before sending. hh-rsvp-email becomes the RSVP link. hh-page-url is the hosted invitation. -->
-  <meta name="hh-rsvp-email" content="[RSVP_EMAIL]">
+  <!-- hh-page-url is the hosted invitation. Names go in rsvp-names.html. -->
   <meta name="hh-page-url" content="[PAGE_URL]">
   <script>
     (function () {
@@ -27,20 +26,6 @@
   <link rel="icon" type="image/png" href="../assets/images/icon.png">
   <style>
     @font-face {
-      font-family: "Cormorant Garamond";
-      font-style: normal;
-      font-weight: 300 700;
-      font-display: swap;
-      src: url("../assets/fonts/cormorant-garamond.woff2") format("woff2");
-    }
-    @font-face {
-      font-family: "Cormorant Garamond";
-      font-style: italic;
-      font-weight: 400;
-      font-display: swap;
-      src: url("../assets/fonts/cormorant-garamond-italic.woff2") format("woff2");
-    }
-    @font-face {
       font-family: "Outfit";
       font-style: normal;
       font-weight: 300 700;
@@ -55,6 +40,7 @@
       --cream: #f7f1e4;
       --lilac: #cbb8ff;
       --ok: #c5ebcf;
+      --computer: "Courier New", Courier, "Liberation Mono", Cousine, ui-monospace, monospace;
       color-scheme: dark;
     }
 
@@ -164,8 +150,9 @@
       justify-content: space-between;
       gap: 1rem;
       color: var(--lilac);
-      font-size: .68rem;
-      letter-spacing: .28em;
+      font-family: var(--computer);
+      font-size: .72rem;
+      letter-spacing: .12em;
       text-transform: uppercase;
     }
     .invite-top span { min-width: 0; }
@@ -178,76 +165,36 @@
       box-shadow: 0 0 0 1px rgba(231, 197, 106, .45);
     }
     .still {
-      margin: 1.15rem 0 0;
+      margin: 0 0 1.2rem;
       border-radius: 18px;
       overflow: hidden;
       border: 1px solid rgba(243, 223, 154, .16);
+      background: #0b0a14;
     }
-    .still-frame {
-      position: relative;
-      aspect-ratio: 16 / 9;
-      background: #1a1730;
-    }
-    .still-frame img {
-      position: absolute;
-      inset: 0;
+    .still img {
       display: block;
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: 50% 50%;
-      opacity: 0;
-      transition: opacity 1.15s ease;
-    }
-    .still-frame img.is-on { opacity: 1; }
-    .still-nav {
-      display: flex;
-      justify-content: center;
-      gap: 0;
-      padding: .2rem 0 .05rem;
-    }
-    .still-nav button {
-      width: 2rem;
-      height: 2rem;
-      padding: 0;
-      border: 0;
-      border-radius: 999px;
-      background: transparent;
-      cursor: pointer;
-    }
-    .still-nav button::after {
-      content: "";
-      display: block;
-      width: .55rem;
-      height: .55rem;
-      margin: 0 auto;
-      border-radius: 50%;
-      background: rgba(231, 197, 106, .38);
-    }
-    .still-nav button.is-on::after { background: #e7c56a; }
-    .still-nav button:focus-visible {
-      outline: 2px solid var(--gold);
-      outline-offset: 2px;
+      height: auto;
     }
 
     h1 {
       margin: 1rem 0 0;
-      font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+      font-family: var(--computer);
       font-weight: 400;
-      font-size: clamp(3.4rem, 14vw, 6.3rem);
-      line-height: 1;
-      letter-spacing: -.03em;
+      font-size: clamp(2.4rem, 10vw, 4.4rem);
+      line-height: 1.05;
+      letter-spacing: 0;
       text-wrap: balance;
       color: #f3df9a;
       text-shadow: 0 0 24px rgba(231, 197, 106, .28);
     }
     .lede {
-      margin: .6rem 0 0;
-      max-width: 34ch;
-      font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-      font-style: italic;
-      font-size: clamp(1.25rem, 3vw, 1.7rem);
-      line-height: 1.35;
+      margin: .7rem 0 0;
+      max-width: 28ch;
+      font-family: var(--computer);
+      font-style: normal;
+      font-size: clamp(1.02rem, 2.4vw, 1.28rem);
+      line-height: 1.4;
       color: #ebe6fa;
     }
     .when-line {
@@ -292,27 +239,24 @@
     .when > div > span {
       display: block;
       color: var(--lilac);
+      font-family: var(--computer);
       font-size: .66rem;
       line-height: 1.4;
-      letter-spacing: .16em;
+      letter-spacing: .12em;
       text-transform: uppercase;
     }
     .dom {
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: clamp(3.4rem, 8vw, 4.4rem);
+      font-family: var(--computer);
+      font-size: clamp(2.6rem, 8vw, 3.6rem);
       line-height: 1;
       color: var(--gold-2);
     }
     .when strong {
       display: block;
-      font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: clamp(1.25rem, 2.5vw, 1.55rem);
+      font-family: var(--computer);
+      font-size: clamp(1.05rem, 2.4vw, 1.3rem);
       font-weight: 400;
-      line-height: 1.2;
-    }
-    .ph {
-      border-bottom: 1px dashed rgba(231,197,106,.55);
-      color: var(--gold-2);
+      line-height: 1.3;
     }
     .nw { white-space: nowrap; }
 
@@ -426,7 +370,6 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .blob, .invite, .thanks:not(:empty), .glow { animation: none !important; }
-      .still-frame img { transition: none; }
       .invite, .thanks:not(:empty) {
         opacity: 1;
         transform: none;
@@ -435,7 +378,7 @@
   </style>
 </head>
 <body>
-  <a class="skip" href="#rsvp">Skip to RSVP</a>
+  <a class="skip" href="#signup">Skip to the names list</a>
   <div class="sky" aria-hidden="true">
     <div class="blob blob-a"></div>
     <div class="blob blob-b"></div>
@@ -447,6 +390,10 @@
 
   <main class="wrap">
     <article class="invite">
+      <figure class="still">
+        <img src="../assets/images/Science%20Supernova-4.png" alt="Friends raising glasses around a glowing fountain under a night sky of stars, molecules, and computer code." width="1414" height="2000">
+      </figure>
+
       <div class="invite-top">
         <span>Barozzi &amp; Tardito Lab</span>
         <img class="seal" src="../assets/images/icon.png" alt="" width="74" height="74">
@@ -454,26 +401,7 @@
 
       <h1>Happy Hour</h1>
       <p class="lede">Join us for a drink after work.</p>
-      <p class="when-line">Friday, <span class="nw">October 30,</span> 2026 at <span class="nw">5:00 PM</span> <span class="nw">(Vienna time)</span> in the <span class="nw">CCR container</span></p>
-
-      <figure class="still" data-slides>
-        <div class="still-frame">
-          <img class="is-on" src="../assets/images/terrace.jpg" srcset="../assets/images/terrace-640.jpg 640w, ../assets/images/terrace.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Friends on a Vienna terrace at dusk, two of them looking at a phone." width="1280" height="720">
-          <img src="../assets/images/feast.jpg" srcset="../assets/images/feast-640.jpg 640w, ../assets/images/feast.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Food and beer on a Vienna terrace at dusk." width="1280" height="720" aria-hidden="true">
-          <img src="../assets/images/table.jpg" srcset="../assets/images/table-640.jpg 640w, ../assets/images/table.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Two glasses beside olives, crackers, and cheese." width="1280" height="720" aria-hidden="true">
-          <img src="../assets/images/party.jpg" srcset="../assets/images/party-640.jpg 640w, ../assets/images/party.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Beer mugs and glasses under warm party lights." width="1280" height="720" aria-hidden="true">
-          <img src="../assets/images/cosmos.jpg" srcset="../assets/images/cosmos-640.jpg 640w, ../assets/images/cosmos.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Drinks on a ledge under a starry sky." width="1280" height="720" aria-hidden="true">
-          <img src="../assets/images/snacks.jpg" srcset="../assets/images/snacks-640.jpg 640w, ../assets/images/snacks.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Beer, pretzels, cheese, olives, and bread." width="1280" height="720" aria-hidden="true">
-        </div>
-        <div class="still-nav">
-          <button type="button" class="is-on" data-slide-to="0" aria-label="Show the terrace" aria-current="true"></button>
-          <button type="button" data-slide-to="1" aria-label="Show the food and beer" aria-current="false"></button>
-          <button type="button" data-slide-to="2" aria-label="Show the quiet table" aria-current="false"></button>
-          <button type="button" data-slide-to="3" aria-label="Show the party lights" aria-current="false"></button>
-          <button type="button" data-slide-to="4" aria-label="Show the starry drinks" aria-current="false"></button>
-          <button type="button" data-slide-to="5" aria-label="Show the snacks" aria-current="false"></button>
-        </div>
-      </figure>
+      <p class="when-line">Friday, <span class="nw">October 30,</span> 2026 at <span class="nw">5:00 PM</span> in the <span class="nw">CCR container</span></p>
 
       <div class="rule" aria-hidden="true">✦</div>
 
@@ -486,7 +414,6 @@
         <div>
           <span>Time</span>
           <strong><span class="nw">5:00 PM</span></strong>
-          <span>Vienna time</span>
         </div>
         <div>
           <span>Place</span>
@@ -498,12 +425,12 @@
         <p>Hi everyone,</p>
         <p>The Barozzi &amp; Tardito Lab is having a happy hour and we’d love for you to come. There will be drinks and snacks in the <span class="nw">CCR container</span>.</p>
         <p>There will be a glowing gin tonic fountain.</p>
-        <p>Please reply to <span class="ph" data-rsvp-slot></span> if you can make it, so we know how much to get.</p>
+        <p>Please add your name on the <a href="rsvp-names.html">signup list</a> if you can make it, so we know how much to get.</p>
       </div>
 
-      <div class="actions" id="rsvp">
+      <div class="actions" id="signup">
         <button class="btn btn-gold" type="button" data-remind aria-pressed="false">Save on this device</button>
-        <button class="btn btn-line" type="button" data-email-rsvp disabled aria-disabled="true">Email RSVP</button>
+        <a class="btn btn-line" href="rsvp-names.html">Add your name</a>
         <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
       </div>
       <p class="thanks" data-thanks role="status" aria-live="polite"></p>
@@ -516,43 +443,12 @@
   </main>
 
   <script>
-    const metaValue = (name) => {
-      const tag = document.querySelector(`meta[name="${name}"]`);
-      return tag ? tag.content.trim() : "";
-    };
-    const HH = {
-      rsvpEmail: metaValue("hh-rsvp-email"),
-      pageUrl: metaValue("hh-page-url"),
-    };
-    const isPlaceholder = (value) => /\[[A-Z][A-Z0-9_]*\]/.test(value || "");
-    const isRealEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || "") && !isPlaceholder(value);
-
     const EVENT = {
       title: "Happy Hour with the Barozzi & Tardito Lab",
       start: "20261030T170000",
       location: "CCR container",
-      description: isRealEmail(HH.rsvpEmail)
-        ? `Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain. Please reply to ${HH.rsvpEmail} if you can make it.`
-        : "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain."
+      description: "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain. Add your name on the signup list if you can make it."
     };
-
-    const rsvpSlot = document.querySelector("[data-rsvp-slot]");
-    const emailBtn = document.querySelector("[data-email-rsvp]");
-    if (isRealEmail(HH.rsvpEmail)) {
-      const href = `mailto:${HH.rsvpEmail}?subject=${encodeURIComponent("Happy hour on October 30")}`;
-      const address = document.createElement("a");
-      address.href = href;
-      address.textContent = HH.rsvpEmail;
-      rsvpSlot.replaceWith(address);
-      const action = document.createElement("a");
-      action.className = "btn btn-line";
-      action.href = href;
-      action.textContent = "Email RSVP";
-      emailBtn.replaceWith(action);
-    } else {
-      rsvpSlot.textContent = HH.rsvpEmail || "[RSVP_EMAIL]";
-      emailBtn.setAttribute("aria-label", "Email RSVP is unavailable until an address is set");
-    }
 
     const canvas = document.getElementById("stars");
     const ctx = canvas ? canvas.getContext("2d") : null;
@@ -691,8 +587,8 @@
     const status = document.querySelector("[data-thanks]");
     const remindBtn = document.querySelector("[data-remind]");
     const storageKey = "happyhour-2026-10-30-reminder";
-    const savedText = "Saved in this browser. The lab will only know if you email them.";
-    const unsavedText = "The reminder could not be stored in this browser. Email the lab if you are coming.";
+    const savedText = "Saved in this browser. Add your name on the signup list so the lab knows you are coming.";
+    const unsavedText = "The reminder could not be stored in this browser. Add your name on the signup list if you are coming.";
 
     function storageGet(key) {
       try { return localStorage.getItem(key); }
@@ -723,81 +619,6 @@
       }
     });
 
-    const slides = document.querySelector("[data-slides]");
-    if (slides) {
-      const frames = [...slides.querySelectorAll(".still-frame img")];
-      const dots = [...slides.querySelectorAll("[data-slide-to]")];
-      const kenFrom = ["50% 50%", "42% 46%", "58% 50%", "50% 42%", "46% 58%", "54% 48%"];
-      const kenTo = ["44% 47%", "56% 52%", "46% 44%", "48% 56%", "55% 46%", "45% 54%"];
-      let index = 0;
-      let timer = 0;
-      const playKen = (i) => {
-        const img = frames[i];
-        img.getAnimations().forEach((anim) => anim.cancel());
-        if (reduce) {
-          img.style.objectPosition = "50% 50%";
-          return;
-        }
-        img.animate(
-          [{ objectPosition: kenFrom[i] || kenFrom[0] }, { objectPosition: kenTo[i] || kenTo[0] }],
-          { duration: 8500, easing: "ease-out", fill: "forwards" }
-        );
-      };
-      const pauseKen = (paused) => {
-        frames.forEach((img) => {
-          img.getAnimations().forEach((anim) => (paused ? anim.pause() : anim.play()));
-        });
-      };
-      const showSlide = (next) => {
-        index = (next + frames.length) % frames.length;
-        frames.forEach((img, i) => {
-          const on = i === index;
-          img.classList.toggle("is-on", on);
-          img.toggleAttribute("aria-hidden", !on);
-        });
-        dots.forEach((dot, i) => {
-          const on = i === index;
-          dot.classList.toggle("is-on", on);
-          dot.setAttribute("aria-current", on ? "true" : "false");
-        });
-        playKen(index);
-      };
-      const stopSlides = () => {
-        if (timer) {
-          clearInterval(timer);
-          timer = 0;
-        }
-      };
-      const startSlides = () => {
-        stopSlides();
-        if (reduce || frames.length < 2) return;
-        timer = window.setInterval(() => showSlide(index + 1), 7000);
-      };
-      dots.forEach((dot) => {
-        dot.addEventListener("click", () => {
-          showSlide(Number(dot.dataset.slideTo));
-          startSlides();
-        });
-      });
-      slides.addEventListener("mouseenter", () => {
-        stopSlides();
-        pauseKen(true);
-      });
-      slides.addEventListener("mouseleave", () => {
-        pauseKen(false);
-        startSlides();
-      });
-      slides.addEventListener("focusin", () => {
-        stopSlides();
-        pauseKen(true);
-      });
-      slides.addEventListener("focusout", () => {
-        pauseKen(false);
-        startSlides();
-      });
-      showSlide(0);
-      startSlides();
-    }
   </script>
 </body>
 </html>
