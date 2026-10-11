@@ -32,8 +32,6 @@ PROBLEMS: list[str] = []
 
 RSVP_ASK = "Please RSVP using the form so we know how much to get."
 RSVP_SOON = "RSVP opens soon"
-SAVED_TEXT = "Reminder saved on this device. It is not an RSVP, so please use the RSVP button too."
-UNSAVED_TEXT = "The reminder could not be saved on this device. Please use the RSVP button to tell us you are coming."
 EVENT_TEXT = "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain."
 DATA_LINK_RE = re.compile(r"[?&]act=[A-Za-z0-9_-]{6,}")
 SOSCI_URL_KEY = re.compile(r"\bHH_SOSCI_URL\s*:\s*[\"']")
@@ -149,12 +147,13 @@ def check_rsvp(label: str, html: str, source: str, config_src: str) -> None:
             fail(f"{label} RSVP button is not the primary gold button")
     actions = re.search(r'<div class="actions">(.*?)</div>', html, re.S)
     if actions:
-        order = [m.group(1) for m in re.finditer(r"\b(data-rsvp|data-remind|data-ics)\b", actions.group(1))]
-        if order != ["data-rsvp", "data-remind", "data-ics"]:
-            fail(f"{label} buttons are not in the order RSVP, save, calendar ({order})")
-        remind = re.search(r"<button\b([^>]*\bdata-remind\b[^>]*)>", actions.group(1))
-        if remind and "btn-line" not in remind.group(1):
-            fail(f"{label} Save on this device is not a secondary button")
+        controls = re.findall(r"<(?:button|a)\b([^>]*)>", actions.group(1))
+        order = [m.group(1) for m in re.finditer(r"\b(data-rsvp|data-ics)\b", actions.group(1))]
+        if order != ["data-rsvp", "data-ics"] or len(controls) != 2:
+            fail(f"{label} actions should be exactly RSVP then Add to calendar ({order})")
+        calendar = re.search(r"<button\b([^>]*\bdata-ics\b[^>]*)>Add to calendar</button>", actions.group(1))
+        if not calendar or "btn-line" not in calendar.group(1):
+            fail(f"{label} Add to calendar is not the secondary button")
     else:
         fail(f"{label} has no action buttons")
 
@@ -175,17 +174,37 @@ def check_rsvp(label: str, html: str, source: str, config_src: str) -> None:
         "`${EVENT_TEXT} ${RSVP_ASK}\\n${rsvpUrl}`",
         "`${EVENT_TEXT} ${RSVP_ASK} The form opens soon.`",
         "...(EVENT.url ? [`URL:${EVENT.url}`] : []),",
-        f'const savedText = "{SAVED_TEXT}";',
-        f'const unsavedText = "{UNSAVED_TEXT}";',
     ):
         if item not in html:
             fail(f"{label} script is missing {item}")
-    for snippet in (RSVP_ASK, EVENT_TEXT, "The form opens soon.", SAVED_TEXT, UNSAVED_TEXT):
+    for snippet in (RSVP_ASK, EVENT_TEXT, "The form opens soon."):
         check_copy(f"{label} script", snippet)
-    if "not an RSVP" not in SAVED_TEXT or "RSVP button" not in SAVED_TEXT:
-        fail("the save message does not say it is not an RSVP")
-    if "email" in SAVED_TEXT.lower() or "email" in UNSAVED_TEXT.lower():
-        fail("a save message still gives an email instruction")
+    check_no_save_feature(label, html)
+
+
+SAVE_FEATURE_TRACES = (
+    "on this device",
+    "data-remind",
+    "remindbtn",
+    "data-thanks",
+    'class="thanks"',
+    ".thanks",
+    "localstorage",
+    "happyhour-2026-10-30-reminder",
+    "storagekey",
+    "savedtext",
+    "unsavedtext",
+    "marksaved",
+    "reminder",
+)
+
+
+def check_no_save_feature(label: str, text: str) -> None:
+    """The "Save on this device" reminder was removed. Nothing of it may remain."""
+    lowered = text.lower()
+    for trace in SAVE_FEATURE_TRACES:
+        if trace in lowered:
+            fail(f"{label} still has the removed save feature ({trace})")
 
 
 def check_page(html: str) -> None:
@@ -194,10 +213,9 @@ def check_page(html: str) -> None:
         "5:00 PM",
         "CCR container",
         'name="hh-page-url"',
-        'data-remind',
         'data-rsvp',
         'data-rsvp-count',
-        'aria-live="polite"',
+        'data-ics',
         "font-weight: 300 700",
         "assets/images/icon.png",
         "assets/images/terrace.jpg",
@@ -496,6 +514,8 @@ def main() -> int:
         check_page(html)
     check_assets()
     check_weekday()
+    for doc in (ROOT / "README.md", *sorted((ROOT / "docs").glob("*.md"))):
+        check_no_save_feature(str(doc.relative_to(ROOT)), read(doc))
     sosci_url = check_config()
     check_count_api()
     check_no_data_link()
