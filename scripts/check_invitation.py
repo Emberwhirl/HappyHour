@@ -508,9 +508,10 @@ def main() -> int:
     print("Invitation check passed.")
     if sosci_url:
         print(f"RSVP is configured with {sosci_url}")
+        print("--send will refuse until hh-page-url is set.")
     else:
         print("RSVP is not configured, so both pages show RSVP opens soon.")
-    print("--send will refuse until hh-page-url is set and HH_SOSCI_URL in assets/hh-config.js is filled in.")
+        print("--send will refuse until hh-page-url is set and HH_SOSCI_URL in assets/hh-config.js is filled in.")
     return 0
 
 
