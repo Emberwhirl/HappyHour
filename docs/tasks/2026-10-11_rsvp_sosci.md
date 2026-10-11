@@ -55,6 +55,20 @@ A local server served the repo and ran the real `GET` handler for `/api/rsvp-cou
 - The email version never requests `/api/`.
 - `rsvp-names.html` forwards to the invite's RSVP section when the link is empty, and to the questionnaire with `?r=mail` when it is set.
 
+### Switched on, 11 October 2026
+
+The questionnaire is public at `https://s2survey.net/ccr/`. `HH_SOSCI_URL` is set to it. `HH_LIVE_COUNT` stays `false`, because the data link and variable names are not available yet. Only `assets/hh-config.js` changed for this step.
+
+Checked again in Chrome at 390 by 844 and 1280 by 900. Requests to s2survey.net were answered by a local stub, so no test case reached the real questionnaire data.
+
+- The main page RSVP opens `https://s2survey.net/ccr/?r=web` in a new tab, and the invite stays open.
+- The email version RSVP opens `https://s2survey.net/ccr/?r=mail` in a new tab.
+- The `.ics` description ends with the RSVP sentence and the matching link, and the `URL` property carries the same link on both pages.
+- `drafts_helene/rsvp-names.html` redirects to `https://s2survey.net/ccr/?r=mail`.
+- Neither page requests `/api/rsvp-count`, and no count is shown.
+- The save message, skip link, full-width RSVP button on phones, and the absence of horizontal scroll and `[...]` text are unchanged.
+- `--send` still refuses because `[PAGE_URL]` is a placeholder. No email was sent.
+
 ### Not done here
 
-Acceptance criterion 8, a live deployment, waits for the real questionnaire. The one Vercel project visible to this run was deployed from the CLI with no Git link, so this branch is not deployed anywhere yet.
+Acceptance criterion 8, a live deployment, is still open. The one Vercel project visible to this run was deployed from the CLI with no Git link, so this branch is not deployed anywhere yet.
