@@ -23,4 +23,38 @@ Unchanged on purpose, per the spec: venue address or map, end time and `DTEND`, 
 
 ## Implementation notes
 
-Filled in after the change lands.
+### Switching it on
+
+1. Put the questionnaire link in `HH_SOSCI_URL` in `assets/hh-config.js`. Both pages, both `.ics` files, and `rsvp-names.html` pick it up. No other file changes.
+2. For the count, add `SOSCI_DATA_API_URL`, `SOSCI_VAR_ATTENDING`, and the optional variables listed in [../implementation.md](../implementation.md) to the Vercel project env. Then set `HH_LIVE_COUNT` to `true`. Keep `SOSCI_SHOW_NAME_YES` unset until the consent question exists, because names stay hidden without it.
+3. Run `python3 scripts/check_invitation.py`. It accepts an empty value or an `https://` questionnaire link, and it reports which state it found. It fails if the value is a data link (`act=`) or if the count is on while the link is empty. The not-configured state is also checked in the static markup of both pages, so it stays covered after the link is filled in.
+
+### Decisions
+
+- **Config file instead of a meta tag.** One meta tag would only cover one page. `assets/hh-config.js` is a plain script so it also works when a page is opened from disk, and a missing file leaves the safe disabled state.
+- **Static markup is the not-configured state.** The disabled button is in the HTML. Script only upgrades it, so nothing can flash a working link before the config loads or show a placeholder if it fails.
+- **Disabled look.** Solid `#3a3748` with a dashed border and `#cfcadb` text (about 7 to 1 contrast). The old `opacity: .72` rule was too faint for R2.
+- **Copy.** The spec's example save message had a semicolon. It reads "Reminder saved on this device. It is not an RSVP, so please use the RSVP button too." The storage failure message used to say "Email the lab". R1 allows no email instructions, so it now points at the RSVP button. Nothing else about the save feature changed, and the storage key is the same.
+- **Calendar URL.** The questionnaire link sits on its own line in `DESCRIPTION` and in a `URL` property. A URL needs `https:`, so the colon rule applies to the sentence around it. `check_invitation.py` checks that sentence.
+- **Names need an explicit consent code.** A SoSci checkbox stores 2 when ticked, but a yes/no question often codes yes as 1. A wrong default could show the names of people who said no, so `SOSCI_SHOW_NAME_YES` has no default.
+- **Plus-ones.** Read as a number from 0 to 5 unless `SOSCI_PLUS_ONE_YES` marks it as a yes/no question.
+- **Function format.** `api/rsvp-count.mjs` exports a Web `GET` handler. The `.mjs` extension makes it an ES module without adding a `package.json` to a static site.
+- **Sender.** The plain note now asks guests to RSVP with the form on the invitation page. `--send` also refuses while `HH_SOSCI_URL` is empty. No email was sent.
+
+### Verification, 11 October 2026
+
+A local server served the repo and ran the real `GET` handler for `/api/rsvp-count`. Chrome checked both pages at 390 by 844 and 1280 by 900 in three setups. One was the shipped config. One had `HH_SOSCI_URL` set to `https://www.soscisurvey.de/demo/` and `HH_LIVE_COUNT` on, with no SoSci env vars. The last added a stubbed SoSci response.
+
+- Empty URL. Both pages show the grey "RSVP opens soon" button, its accessible name matches the text, and no `[...]` text appears.
+- Demo URL. "RSVP" opens `https://www.soscisurvey.de/demo/?r=web` from the main page and `?r=mail` from the email version in a new tab. The invite stays open.
+- `.ics` in both states and on both pages. The description ends with the RSVP sentence, plus the link and a `URL` line when set. Lines are folded at 75 octets.
+- Save on this device shows the not-an-RSVP message.
+- The skip link lands on `#rsvp` of the same page and focuses it.
+- No horizontal scroll at 390px. The RSVP button is full width on phones.
+- `/api/rsvp-count` without the env var returns `503` and `{"error":"unavailable"}` with `Cache-Control: no-store`. The main page shows no count and no error. With the stub it returns only `count` and `names`, and the page shows "4 people coming" and the consented names.
+- The email version never requests `/api/`.
+- `rsvp-names.html` forwards to the invite's RSVP section when the link is empty, and to the questionnaire with `?r=mail` when it is set.
+
+### Not done here
+
+Acceptance criterion 8, a live deployment, waits for the real questionnaire. The one Vercel project visible to this run was deployed from the CLI with no Git link, so this branch is not deployed anywhere yet.
