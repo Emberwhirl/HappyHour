@@ -4,6 +4,6 @@
 // HH_LIVE_COUNT turns on the attendee count on index.html. It needs SOSCI_DATA_API_URL in the Vercel env.
 // Never put the SoSci data link (?act=...) in this file. It is a secret.
 window.HH_CONFIG = Object.freeze({
-  HH_SOSCI_URL: "",
+  HH_SOSCI_URL: "https://s2survey.net/ccr/",
   HH_LIVE_COUNT: false,
 });
