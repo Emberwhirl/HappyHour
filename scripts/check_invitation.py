@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
-"""Check the invitation page, its assets, and the legacy sender.
+"""Check the invitation page, its assets, the RSVP setup, and the legacy sender.
 
 Exit 0 when the guest-facing text and the send gate still match the plan.
 This script does not send mail and does not open a network connection.
+When node is installed it also runs scripts/check_rsvp_count.mjs, which
+replaces fetch and stays offline.
 """
 
 from __future__ import annotations
 
 import os
 import re
+import shutil
+import subprocess
 import sys
 from html import unescape
 from pathlib import Path
@@ -20,7 +24,18 @@ import mail_happy_hour as mail  # noqa: E402
 
 INDEX = ROOT / "index.html"
 PREVIEW = ROOT / "drafts_helene" / "happy_hour_preview.html"
+SIGNUP = ROOT / "drafts_helene" / "rsvp-names.html"
+CONFIG = ROOT / "assets" / "hh-config.js"
+COUNT_API = ROOT / "api" / "rsvp-count.mjs"
+COUNT_CHECK = ROOT / "scripts" / "check_rsvp_count.mjs"
 PROBLEMS: list[str] = []
+
+RSVP_ASK = "Please RSVP using the form so we know how much to get."
+RSVP_SOON = "RSVP opens soon"
+SAVED_TEXT = "Reminder saved on this device. It is not an RSVP, so please use the RSVP button too."
+UNSAVED_TEXT = "The reminder could not be saved on this device. Please use the RSVP button to tell us you are coming."
+EVENT_TEXT = "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain."
+DATA_LINK_RE = re.compile(r"[?&]act=[A-Za-z0-9_-]{6,}")
 
 BANNED_WORDS = (
     "stellar",
@@ -81,14 +96,95 @@ def check_skip_link(label: str, html: str) -> None:
     name = re.search(r'aria-label="([^"]+)"', attrs)
     if not name or text != f"Skip to {name.group(1)}":
         fail(f"{label} skip link text does not match the name of #{target_id}")
-    if not re.search(r"<p\b[^>]*>[^<]*(add your name|reply to)", inner, re.I):
-        fail(f"{label} skip target does not hold the request to sign up")
+    if not re.search(rf"<p\b[^>]*>\s*{re.escape(RSVP_ASK)}", inner):
+        fail(f"{label} skip target does not hold the request to RSVP")
     if 'class="actions"' not in inner:
         fail(f"{label} skip target does not hold the action buttons")
+    if "data-rsvp " not in inner and "data-rsvp>" not in inner:
+        fail(f"{label} skip target does not hold the RSVP button")
     if 'document.createElement("base")' in html and (
         'new URL(link.getAttribute("href"), document.URL)' not in html
     ):
         fail(f"{label} adds a <base> but does not keep in-page links on this document")
+
+
+def check_rsvp(label: str, html: str, source: str, config_src: str) -> None:
+    """Both pages share one RSVP button that ships disabled until HH_SOSCI_URL is set."""
+    if f'<script src="{config_src}"></script>' not in html:
+        fail(f"{label} does not load the shared config {config_src}")
+    for banned in (
+        "[RSVP_EMAIL]",
+        "Email RSVP",
+        "hh-rsvp-email",
+        "data-email-rsvp",
+        "data-rsvp-slot",
+        "mailto:",
+        "rsvp-names.html",
+        "signup list",
+        "Add your name",
+        "s2survey.net/",
+        "soscisurvey.de/",
+    ):
+        if banned in html:
+            fail(f"{label} still contains {banned}")
+    visible = guest_text(html)
+    if re.search(r"\[[^\]]*\]", visible):
+        fail(f"{label} shows a raw [placeholder] to guests")
+    if RSVP_ASK not in visible:
+        fail(f"{label} does not ask guests to RSVP with the form")
+
+    button = re.search(r"<button\b([^>]*\bdata-rsvp\b[^>]*)>([^<]*)</button>", html)
+    if not button:
+        fail(f"{label} has no static RSVP button")
+    else:
+        attrs, text = button.groups()
+        if text.strip() != RSVP_SOON:
+            fail(f"{label} RSVP button does not read {RSVP_SOON} before it is configured")
+        if not re.search(r"\bdisabled\b", attrs):
+            fail(f"{label} RSVP button is not disabled in the static markup")
+        if "aria-label" in attrs:
+            fail(f"{label} RSVP button has an accessible name that differs from its text")
+        if "btn-gold" not in attrs:
+            fail(f"{label} RSVP button is not the primary gold button")
+    actions = re.search(r'<div class="actions">(.*?)</div>', html, re.S)
+    if actions:
+        order = [m.group(1) for m in re.finditer(r"\b(data-rsvp|data-remind|data-ics)\b", actions.group(1))]
+        if order != ["data-rsvp", "data-remind", "data-ics"]:
+            fail(f"{label} buttons are not in the order RSVP, save, calendar ({order})")
+        remind = re.search(r"<button\b([^>]*\bdata-remind\b[^>]*)>", actions.group(1))
+        if remind and "btn-line" not in remind.group(1):
+            fail(f"{label} Save on this device is not a secondary button")
+    else:
+        fail(f"{label} has no action buttons")
+
+    style = re.search(r"\.btn-rsvp:disabled[^{]*\{([^}]*)\}", html)
+    if not style or "opacity: 1" not in style.group(1) or "#3a3748" not in style.group(1):
+        fail(f"{label} disabled RSVP button is not clearly greyed out")
+
+    for item in (
+        f'const RSVP_ASK = "{RSVP_ASK}";',
+        f'const rsvpUrl = questionnaireUrl("{source}");',
+        'url.searchParams.set("r", source);',
+        'if (url.protocol !== "https:") return "";',
+        "if (!raw || isPlaceholder(raw)) return \"\";",
+        'link.target = "_blank";',
+        'link.rel = "noopener";',
+        'link.textContent = "RSVP";',
+        f'const EVENT_TEXT = "{EVENT_TEXT}";',
+        "`${EVENT_TEXT} ${RSVP_ASK}\\n${rsvpUrl}`",
+        "`${EVENT_TEXT} ${RSVP_ASK} The form opens soon.`",
+        "...(EVENT.url ? [`URL:${EVENT.url}`] : []),",
+        f'const savedText = "{SAVED_TEXT}";',
+        f'const unsavedText = "{UNSAVED_TEXT}";',
+    ):
+        if item not in html:
+            fail(f"{label} script is missing {item}")
+    for snippet in (RSVP_ASK, EVENT_TEXT, "The form opens soon.", SAVED_TEXT, UNSAVED_TEXT):
+        check_copy(f"{label} script", snippet)
+    if "not an RSVP" not in SAVED_TEXT or "RSVP button" not in SAVED_TEXT:
+        fail("the save message does not say it is not an RSVP")
+    if "email" in SAVED_TEXT.lower() or "email" in UNSAVED_TEXT.lower():
+        fail("a save message still gives an email instruction")
 
 
 def check_page(html: str) -> None:
@@ -96,10 +192,10 @@ def check_page(html: str) -> None:
         "Friday, October 30, 2026",
         "5:00 PM",
         "CCR container",
-        'name="hh-rsvp-email"',
         'name="hh-page-url"',
         'data-remind',
-        'data-email-rsvp',
+        'data-rsvp',
+        'data-rsvp-count',
         'aria-live="polite"',
         "font-weight: 300 700",
         "assets/images/icon.png",
@@ -113,17 +209,15 @@ def check_page(html: str) -> None:
         "20261030T170000",
         "Europe/Vienna",
         "function foldIcs",
-        "Saved in this browser. The lab will only know if you email them.",
-        "The reminder could not be stored in this browser. Email the lab if you are coming.",
-        "Email RSVP is unavailable until an address is set",
     )
     for item in required:
         if item not in html:
             fail(f"index.html is missing {item}")
-    if 'href="mailto:' in html or "href='mailto:" in html:
-        fail("index.html has a live mailto link in the markup")
-    if "disabled" not in html.split("data-email-rsvp", 1)[-1][:80]:
-        fail("Email RSVP is not disabled in the static markup")
+    check_rsvp("index.html", html, "web", "assets/hh-config.js")
+    if 'if (HH.HH_LIVE_COUNT === true && rsvpUrl && /^https?:$/.test(location.protocol)) showCount();' not in html:
+        fail("index.html does not keep the live count behind HH_LIVE_COUNT")
+    if not re.search(r'<p class="rsvp-count" data-rsvp-count hidden></p>', html):
+        fail("index.html does not hide the live count until it loads")
     if "%05040a" in html:
         fail("favicon still uses a broken percent encoding")
     if "<svg" in html.split("<body>", 1)[-1]:
@@ -133,8 +227,6 @@ def check_page(html: str) -> None:
     check_copy("invitation page", guest_text(html))
     check_skip_link("index.html", html)
     for snippet in (
-        "Saved in this browser. The lab will only know if you email them.",
-        "The reminder could not be stored in this browser. Email the lab if you are coming.",
         "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM.",
         "There will be a glowing gin tonic fountain.",
     ):
@@ -241,8 +333,21 @@ def check_sender() -> None:
         fail("the default plain note should still carry the page placeholder")
     if "[RSVP_EMAIL]" in plain or "Vienna time" in plain or "reply to" in plain.lower():
         fail("the plain note still asks for an email RSVP or names Vienna time")
-    if "drafts_helene/rsvp-names.html" not in plain:
-        fail("the plain note does not point at the names signup file")
+    if "rsvp-names" in plain or "signup" in plain.lower():
+        fail("the plain note still points at the retired names signup file")
+    if "Please RSVP using the form on the invitation page" not in plain:
+        fail("the plain note does not send guests to the RSVP form")
+    try:
+        mail.ensure_rsvp_configured("")
+    except SystemExit as exc:
+        if "HH_SOSCI_URL" not in str(exc):
+            fail(f"RSVP refusal had an unexpected message: {exc}")
+    else:
+        fail("--send would run while HH_SOSCI_URL is empty")
+    try:
+        mail.ensure_rsvp_configured("https://www.soscisurvey.de/demo/")
+    except SystemExit:
+        fail("--send refused a real questionnaire URL")
     html = read(INDEX)
     try:
         mail.ensure_no_placeholders(html, plain)
@@ -275,8 +380,12 @@ def check_email_draft(preview: str) -> None:
         fail("email draft still mentions Vienna time")
     if "mailto:" in lowered or "[RSVP_EMAIL]" in preview or "Email RSVP" in preview:
         fail("email draft still asks for an email RSVP")
-    if "rsvp-names.html" not in preview:
-        fail("email draft does not link to the names signup file")
+    check_rsvp("email draft", preview, "mail", "../assets/hh-config.js")
+    if "rsvp-count" in preview or "/api/" in preview or "fetch(" in preview:
+        fail("email draft calls the live count API")
+    first_lines = preview.split("<head>", 1)[0]
+    if not re.search(r"<!--[^>]*only as a link to the hosted page[^>]*-->", first_lines):
+        fail("email draft has no link-only comment at the top")
     image_at = preview.find("Science%20Supernova-4.png")
     if image_at < 0:
         image_at = preview.find("Science Supernova-4.png")
@@ -289,16 +398,86 @@ def check_email_draft(preview: str) -> None:
         fail("email draft lost the basic body font")
     check_copy("email draft", guest_text(preview))
     check_skip_link("email draft", preview)
-    signup_path = ROOT / "drafts_helene" / "rsvp-names.html"
-    signup = read(signup_path)
-    if not signup.strip():
-        fail("names signup file is empty")
+    check_retired_signup()
+
+
+def check_retired_signup() -> None:
+    """rsvp-names.html only forwards old links. It is never a dead end."""
+    signup = read(SIGNUP)
+    if not signup:
         return
-    if 'content="light"' not in signup and "color-scheme: light" not in signup:
-        fail("names signup file is not a light page")
-    check_copy("names signup", guest_text(signup))
-    if "Put your name" not in signup:
-        fail("names signup file does not ask people to add a name")
+    if "<pre" in signup or "Put your name" in signup:
+        fail("rsvp-names.html is still a static names list")
+    for item in (
+        '<script src="../assets/hh-config.js"></script>',
+        'url.searchParams.set("r", "mail");',
+        'var target = "happy_hour_preview.html#rsvp";',
+        "location.replace(target);",
+        'url=happy_hour_preview.html#rsvp',
+        'href="happy_hour_preview.html#rsvp"',
+    ):
+        if item not in signup:
+            fail(f"rsvp-names.html redirect is missing {item}")
+    check_copy("retired names page", guest_text(signup))
+
+
+def check_config() -> None:
+    """One config file feeds both pages. It ships in the not-configured state."""
+    config = read(CONFIG)
+    if not config:
+        return
+    if mail.read_sosci_url(config) != "":
+        fail("assets/hh-config.js should ship with HH_SOSCI_URL empty")
+    if not re.search(r"\bHH_LIVE_COUNT\s*:\s*false\b", config):
+        fail("assets/hh-config.js should ship with HH_LIVE_COUNT false")
+    if mail.read_sosci_url('HH_SOSCI_URL: "https://www.soscisurvey.de/demo/",') != "https://www.soscisurvey.de/demo/":
+        fail("read_sosci_url cannot read a configured URL")
+
+
+def check_count_api() -> None:
+    api = read(COUNT_API)
+    if not api:
+        return
+    for item in (
+        "process.env",
+        '"SOSCI_DATA_API_URL"',
+        'url.searchParams.set("vList"',
+        '"FINISHED"',
+        "s-maxage=60, stale-while-revalidate",
+        "json(503,",
+        "return json(200, summary, CACHE_OK);",
+        "export async function GET(",
+    ):
+        if item not in api:
+            fail(f"api/rsvp-count.mjs is missing {item}")
+    if re.search(r"console\.\w+\([^)]*(apiUrl|requestUrl|SOSCI_DATA_API_URL)", api):
+        fail("api/rsvp-count.mjs may log the data link")
+    if not shutil.which("node"):
+        print("node is not installed, so scripts/check_rsvp_count.mjs was skipped.")
+        return
+    result = subprocess.run(
+        ["node", str(COUNT_CHECK)], cwd=ROOT, capture_output=True, text=True, timeout=60
+    )
+    if result.returncode != 0:
+        fail(f"scripts/check_rsvp_count.mjs failed\n{result.stderr.strip() or result.stdout.strip()}")
+
+
+def check_no_data_link() -> None:
+    """The SoSci data link is a secret. It lives only in the Vercel env."""
+    skip_dirs = {".git", "node_modules", ".vercel", "__pycache__"}
+    for path in ROOT.rglob("*"):
+        if not path.is_file() or skip_dirs.intersection(path.relative_to(ROOT).parts):
+            continue
+        if path == COUNT_CHECK or path.suffix.lower() in {".png", ".jpg", ".woff2", ".ico"}:
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        if DATA_LINK_RE.search(text):
+            fail(f"{path.relative_to(ROOT)} contains what looks like a SoSci data link")
+        if re.search(r"SOSCI_DATA_API_URL\s*=\s*\S", text):
+            fail(f"{path.relative_to(ROOT)} assigns SOSCI_DATA_API_URL")
 
 
 def main() -> int:
@@ -307,6 +486,9 @@ def main() -> int:
         check_page(html)
     check_assets()
     check_weekday()
+    check_config()
+    check_count_api()
+    check_no_data_link()
     check_sender()
     if PROBLEMS:
         print(f"{len(PROBLEMS)} problem(s)")
@@ -314,7 +496,7 @@ def main() -> int:
             print(f"- {item}")
         return 1
     print("Invitation check passed.")
-    print("Placeholders remain, so --send will refuse until hh-rsvp-email and hh-page-url are set.")
+    print("--send will refuse until hh-page-url is set and HH_SOSCI_URL in assets/hh-config.js is filled in.")
     return 0
 
 
