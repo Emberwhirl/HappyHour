@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Share this invite only as a link to the hosted page. Do not paste this HTML into an email body. -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -6,7 +7,7 @@
   <meta name="theme-color" content="#05040a">
   <meta name="description" content="The Barozzi &amp; Tardito Lab is having a happy hour on Friday, October 30, 2026 at 5:00 PM in the CCR container.">
   <title>Happy Hour with the Barozzi &amp; Tardito Lab</title>
-  <!-- hh-page-url is the hosted invitation. Names go in rsvp-names.html. -->
+  <!-- hh-page-url is the hosted invitation. The RSVP questionnaire link lives in ../assets/hh-config.js. -->
   <meta name="hh-page-url" content="[PAGE_URL]">
   <script>
     (function () {
@@ -23,6 +24,7 @@
       document.head.prepend(base);
     })();
   </script>
+  <script src="../assets/hh-config.js"></script>
   <link rel="icon" type="image/png" href="../assets/images/icon.png">
   <style>
     @font-face {
@@ -333,6 +335,15 @@
       border-color: rgba(231,197,106,.45);
       box-shadow: none;
     }
+    .btn-rsvp { min-width: 11rem; }
+    .btn-rsvp:disabled,
+    .btn-rsvp:disabled:hover {
+      opacity: 1;
+      background: #3a3748;
+      border: 1px dashed #77728c;
+      color: #cfcadb;
+      box-shadow: none;
+    }
 
     .thanks {
       text-wrap: pretty;
@@ -442,10 +453,10 @@
       </div>
 
       <section class="rsvp" id="rsvp" tabindex="-1" aria-label="RSVP">
-        <p class="rsvp-ask">Please add your name on the <a href="rsvp-names.html">signup list</a> if you can make it, so we know how much to get.</p>
+        <p class="rsvp-ask">Please RSVP using the form so we know how much to get.</p>
         <div class="actions">
-          <button class="btn btn-gold" type="button" data-remind aria-pressed="false">Save on this device</button>
-          <a class="btn btn-line" href="rsvp-names.html">Add your name</a>
+          <button class="btn btn-gold btn-rsvp" type="button" data-rsvp disabled>RSVP opens soon</button>
+          <button class="btn btn-line" type="button" data-remind aria-pressed="false">Save on this device</button>
           <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
         </div>
       </section>
@@ -464,11 +475,42 @@
       link.href = new URL(link.getAttribute("href"), document.URL).href;
     });
 
+    const HH = window.HH_CONFIG || {};
+    const isPlaceholder = (value) => /\[[A-Z][A-Z0-9_]*\]/.test(value || "");
+    const RSVP_ASK = "Please RSVP using the form so we know how much to get.";
+
+    function questionnaireUrl(source) {
+      const raw = String(HH.HH_SOSCI_URL || "").trim();
+      if (!raw || isPlaceholder(raw)) return "";
+      let url;
+      try { url = new URL(raw); } catch (err) { return ""; }
+      if (url.protocol !== "https:") return "";
+      url.searchParams.set("r", source);
+      return url.href;
+    }
+
+    const rsvpUrl = questionnaireUrl("mail");
+    if (rsvpUrl) {
+      const rsvpBtn = document.querySelector("[data-rsvp]");
+      const link = document.createElement("a");
+      link.className = rsvpBtn.className;
+      link.href = rsvpUrl;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.dataset.rsvp = "";
+      link.textContent = "RSVP";
+      rsvpBtn.replaceWith(link);
+    }
+
+    const EVENT_TEXT = "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain.";
     const EVENT = {
       title: "Happy Hour with the Barozzi & Tardito Lab",
       start: "20261030T170000",
       location: "CCR container",
-      description: "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain. Add your name on the signup list if you can make it."
+      url: rsvpUrl,
+      description: rsvpUrl
+        ? `${EVENT_TEXT} ${RSVP_ASK}\n${rsvpUrl}`
+        : `${EVENT_TEXT} ${RSVP_ASK} The form opens soon.`
     };
 
     const canvas = document.getElementById("stars");
@@ -580,6 +622,7 @@
         `SUMMARY:${icsText(EVENT.title)}`,
         `LOCATION:${icsText(EVENT.location)}`,
         `DESCRIPTION:${icsText(EVENT.description)}`,
+        ...(EVENT.url ? [`URL:${EVENT.url}`] : []),
         "END:VEVENT",
         "END:VCALENDAR",
         ""
@@ -608,8 +651,8 @@
     const status = document.querySelector("[data-thanks]");
     const remindBtn = document.querySelector("[data-remind]");
     const storageKey = "happyhour-2026-10-30-reminder";
-    const savedText = "Saved in this browser. Add your name on the signup list so the lab knows you are coming.";
-    const unsavedText = "The reminder could not be stored in this browser. Add your name on the signup list if you are coming.";
+    const savedText = "Reminder saved on this device. It is not an RSVP, so please use the RSVP button too.";
+    const unsavedText = "The reminder could not be saved on this device. Please use the RSVP button to tell us you are coming.";
 
     function storageGet(key) {
       try { return localStorage.getItem(key); }

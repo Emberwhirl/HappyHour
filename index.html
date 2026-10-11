@@ -6,8 +6,7 @@
   <meta name="theme-color" content="#05040a">
   <meta name="description" content="The Barozzi &amp; Tardito Lab is having a happy hour on Friday, October 30, 2026 at 5:00 PM (Vienna time) in the CCR container.">
   <title>Happy Hour with the Barozzi &amp; Tardito Lab</title>
-  <!-- Set these two values before sending. hh-rsvp-email becomes the RSVP link. hh-page-url is the hosted invitation. -->
-  <meta name="hh-rsvp-email" content="[RSVP_EMAIL]">
+  <!-- hh-page-url is the hosted invitation. The RSVP questionnaire link lives in assets/hh-config.js. -->
   <meta name="hh-page-url" content="[PAGE_URL]">
   <script>
     (function () {
@@ -24,6 +23,7 @@
       document.head.prepend(base);
     })();
   </script>
+  <script src="assets/hh-config.js"></script>
   <link rel="icon" type="image/png" href="assets/images/icon.png">
   <style>
     @font-face {
@@ -310,10 +310,6 @@
       font-weight: 400;
       line-height: 1.2;
     }
-    .ph {
-      border-bottom: 1px dashed rgba(231,197,106,.55);
-      color: var(--gold-2);
-    }
     .nw { white-space: nowrap; }
 
     .letter {
@@ -389,6 +385,23 @@
       border-color: rgba(231,197,106,.45);
       box-shadow: none;
     }
+    .btn-rsvp { min-width: 11rem; }
+    .btn-rsvp:disabled,
+    .btn-rsvp:disabled:hover {
+      opacity: 1;
+      background: #3a3748;
+      border: 1px dashed #77728c;
+      color: #cfcadb;
+      box-shadow: none;
+    }
+    .rsvp-count {
+      margin: .85rem 0 0;
+      color: var(--gold-2);
+      font-size: .95rem;
+      text-wrap: pretty;
+    }
+    .rsvp-count[hidden] { display: none; }
+    .rsvp-count strong { font-weight: 600; }
 
     .thanks {
       text-wrap: pretty;
@@ -515,12 +528,13 @@
       </div>
 
       <section class="rsvp" id="rsvp" tabindex="-1" aria-label="RSVP">
-        <p class="rsvp-ask">Please reply to <span class="ph" data-rsvp-slot></span> if you can make it, so we know how much to get.</p>
+        <p class="rsvp-ask">Please RSVP using the form so we know how much to get.</p>
         <div class="actions">
-          <button class="btn btn-gold" type="button" data-remind aria-pressed="false">Save on this device</button>
-          <button class="btn btn-line" type="button" data-email-rsvp disabled aria-disabled="true">Email RSVP</button>
+          <button class="btn btn-gold btn-rsvp" type="button" data-rsvp disabled>RSVP opens soon</button>
+          <button class="btn btn-line" type="button" data-remind aria-pressed="false">Save on this device</button>
           <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
         </div>
+        <p class="rsvp-count" data-rsvp-count hidden></p>
       </section>
       <p class="thanks" data-thanks role="status" aria-live="polite"></p>
     </article>
@@ -537,43 +551,68 @@
       link.href = new URL(link.getAttribute("href"), document.URL).href;
     });
 
-    const metaValue = (name) => {
-      const tag = document.querySelector(`meta[name="${name}"]`);
-      return tag ? tag.content.trim() : "";
-    };
-    const HH = {
-      rsvpEmail: metaValue("hh-rsvp-email"),
-      pageUrl: metaValue("hh-page-url"),
-    };
+    const HH = window.HH_CONFIG || {};
     const isPlaceholder = (value) => /\[[A-Z][A-Z0-9_]*\]/.test(value || "");
-    const isRealEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value || "") && !isPlaceholder(value);
+    const RSVP_ASK = "Please RSVP using the form so we know how much to get.";
 
+    function questionnaireUrl(source) {
+      const raw = String(HH.HH_SOSCI_URL || "").trim();
+      if (!raw || isPlaceholder(raw)) return "";
+      let url;
+      try { url = new URL(raw); } catch (err) { return ""; }
+      if (url.protocol !== "https:") return "";
+      url.searchParams.set("r", source);
+      return url.href;
+    }
+
+    const rsvpUrl = questionnaireUrl("web");
+    if (rsvpUrl) {
+      const rsvpBtn = document.querySelector("[data-rsvp]");
+      const link = document.createElement("a");
+      link.className = rsvpBtn.className;
+      link.href = rsvpUrl;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.dataset.rsvp = "";
+      link.textContent = "RSVP";
+      rsvpBtn.replaceWith(link);
+    }
+
+    const EVENT_TEXT = "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain.";
     const EVENT = {
       title: "Happy Hour with the Barozzi & Tardito Lab",
       start: "20261030T170000",
       location: "CCR container",
-      description: isRealEmail(HH.rsvpEmail)
-        ? `Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain. Please reply to ${HH.rsvpEmail} if you can make it.`
-        : "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain."
+      url: rsvpUrl,
+      description: rsvpUrl
+        ? `${EVENT_TEXT} ${RSVP_ASK}\n${rsvpUrl}`
+        : `${EVENT_TEXT} ${RSVP_ASK} The form opens soon.`
     };
 
-    const rsvpSlot = document.querySelector("[data-rsvp-slot]");
-    const emailBtn = document.querySelector("[data-email-rsvp]");
-    if (isRealEmail(HH.rsvpEmail)) {
-      const href = `mailto:${HH.rsvpEmail}?subject=${encodeURIComponent("Happy hour on October 30")}`;
-      const address = document.createElement("a");
-      address.href = href;
-      address.textContent = HH.rsvpEmail;
-      rsvpSlot.replaceWith(address);
-      const action = document.createElement("a");
-      action.className = "btn btn-line";
-      action.href = href;
-      action.textContent = "Email RSVP";
-      emailBtn.replaceWith(action);
-    } else {
-      rsvpSlot.textContent = HH.rsvpEmail || "[RSVP_EMAIL]";
-      emailBtn.setAttribute("aria-label", "Email RSVP is unavailable until an address is set");
+    const countEl = document.querySelector("[data-rsvp-count]");
+    async function showCount() {
+      try {
+        const res = await fetch("/api/rsvp-count", { headers: { accept: "application/json" } });
+        if (!res.ok) return;
+        const data = await res.json();
+        const count = Number(data.count);
+        if (!Number.isInteger(count) || count < 1) return;
+        const names = Array.isArray(data.names)
+          ? data.names.filter((name) => typeof name === "string" && name.trim()).map((name) => name.trim())
+          : [];
+        const total = document.createElement("strong");
+        total.textContent = count === 1 ? "1 person coming" : `${count} people coming`;
+        countEl.replaceChildren(total);
+        if (names.length) {
+          const list = new Intl.ListFormat("en", { style: "long", type: "conjunction" });
+          countEl.append(document.createElement("br"), list.format(names));
+        }
+        countEl.hidden = false;
+      } catch (err) {
+        countEl.hidden = true;
+      }
     }
+    if (HH.HH_LIVE_COUNT === true && rsvpUrl && /^https?:$/.test(location.protocol)) showCount();
 
     const canvas = document.getElementById("stars");
     const ctx = canvas ? canvas.getContext("2d") : null;
@@ -684,6 +723,7 @@
         `SUMMARY:${icsText(EVENT.title)}`,
         `LOCATION:${icsText(EVENT.location)}`,
         `DESCRIPTION:${icsText(EVENT.description)}`,
+        ...(EVENT.url ? [`URL:${EVENT.url}`] : []),
         "END:VEVENT",
         "END:VCALENDAR",
         ""
@@ -712,8 +752,8 @@
     const status = document.querySelector("[data-thanks]");
     const remindBtn = document.querySelector("[data-remind]");
     const storageKey = "happyhour-2026-10-30-reminder";
-    const savedText = "Saved in this browser. The lab will only know if you email them.";
-    const unsavedText = "The reminder could not be stored in this browser. Email the lab if you are coming.";
+    const savedText = "Reminder saved on this device. It is not an RSVP, so please use the RSVP button too.";
+    const unsavedText = "The reminder could not be saved on this device. Please use the RSVP button to tell us you are coming.";
 
     function storageGet(key) {
       try { return localStorage.getItem(key); }
