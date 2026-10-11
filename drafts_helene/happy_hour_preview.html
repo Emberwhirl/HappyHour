@@ -269,6 +269,20 @@
     .letter a { overflow-wrap: anywhere; }
     .letter p:last-child { margin: 0; }
 
+    .rsvp {
+      margin-top: .75rem;
+      border-radius: 18px;
+      scroll-margin-top: 1rem;
+    }
+    .rsvp:focus { outline: 2px solid rgba(231,197,106,.6); outline-offset: 8px; }
+    .rsvp-ask {
+      margin: 0;
+      color: #efeafc;
+      font-size: 1.02rem;
+      text-wrap: pretty;
+    }
+    .rsvp-ask a { overflow-wrap: anywhere; }
+
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -378,7 +392,7 @@
   </style>
 </head>
 <body>
-  <a class="skip" href="#signup">Skip to the names list</a>
+  <a class="skip" href="#rsvp">Skip to RSVP</a>
   <div class="sky" aria-hidden="true">
     <div class="blob blob-a"></div>
     <div class="blob blob-b"></div>
@@ -425,14 +439,16 @@
         <p>Hi everyone,</p>
         <p>The Barozzi &amp; Tardito Lab is having a happy hour and we’d love for you to come. There will be drinks and snacks in the <span class="nw">CCR container</span>.</p>
         <p>There will be a glowing gin tonic fountain.</p>
-        <p>Please add your name on the <a href="rsvp-names.html">signup list</a> if you can make it, so we know how much to get.</p>
       </div>
 
-      <div class="actions" id="signup">
-        <button class="btn btn-gold" type="button" data-remind aria-pressed="false">Save on this device</button>
-        <a class="btn btn-line" href="rsvp-names.html">Add your name</a>
-        <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
-      </div>
+      <section class="rsvp" id="rsvp" tabindex="-1" aria-label="RSVP">
+        <p class="rsvp-ask">Please add your name on the <a href="rsvp-names.html">signup list</a> if you can make it, so we know how much to get.</p>
+        <div class="actions">
+          <button class="btn btn-gold" type="button" data-remind aria-pressed="false">Save on this device</button>
+          <a class="btn btn-line" href="rsvp-names.html">Add your name</a>
+          <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
+        </div>
+      </section>
       <p class="thanks" data-thanks role="status" aria-live="polite"></p>
     </article>
 
@@ -443,6 +459,11 @@
   </main>
 
   <script>
+    // The <base> added in <head> points at the folder, so a bare "#id" would leave this page.
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.href = new URL(link.getAttribute("href"), document.URL).href;
+    });
+
     const EVENT = {
       title: "Happy Hour with the Barozzi & Tardito Lab",
       start: "20261030T170000",
