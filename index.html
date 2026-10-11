@@ -325,6 +325,20 @@
     .letter a { overflow-wrap: anywhere; }
     .letter p:last-child { margin: 0; }
 
+    .rsvp {
+      margin-top: .75rem;
+      border-radius: 18px;
+      scroll-margin-top: 1rem;
+    }
+    .rsvp:focus { outline: 2px solid rgba(231,197,106,.6); outline-offset: 8px; }
+    .rsvp-ask {
+      margin: 0;
+      color: #efeafc;
+      font-size: 1.02rem;
+      text-wrap: pretty;
+    }
+    .rsvp-ask a { overflow-wrap: anywhere; }
+
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -498,14 +512,16 @@
         <p>Hi everyone,</p>
         <p>The Barozzi &amp; Tardito Lab is having a happy hour and we’d love for you to come. There will be drinks and snacks in the <span class="nw">CCR container</span>.</p>
         <p>There will be a glowing gin tonic fountain.</p>
-        <p>Please reply to <span class="ph" data-rsvp-slot></span> if you can make it, so we know how much to get.</p>
       </div>
 
-      <div class="actions" id="rsvp">
-        <button class="btn btn-gold" type="button" data-remind aria-pressed="false">Save on this device</button>
-        <button class="btn btn-line" type="button" data-email-rsvp disabled aria-disabled="true">Email RSVP</button>
-        <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
-      </div>
+      <section class="rsvp" id="rsvp" tabindex="-1" aria-label="RSVP">
+        <p class="rsvp-ask">Please reply to <span class="ph" data-rsvp-slot></span> if you can make it, so we know how much to get.</p>
+        <div class="actions">
+          <button class="btn btn-gold" type="button" data-remind aria-pressed="false">Save on this device</button>
+          <button class="btn btn-line" type="button" data-email-rsvp disabled aria-disabled="true">Email RSVP</button>
+          <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
+        </div>
+      </section>
       <p class="thanks" data-thanks role="status" aria-live="polite"></p>
     </article>
 
@@ -516,6 +532,11 @@
   </main>
 
   <script>
+    // The <base> added in <head> points at the folder, so a bare "#id" would leave this page.
+    document.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.href = new URL(link.getAttribute("href"), document.URL).href;
+    });
+
     const metaValue = (name) => {
       const tag = document.querySelector(`meta[name="${name}"]`);
       return tag ? tag.content.trim() : "";
