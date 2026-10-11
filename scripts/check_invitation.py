@@ -36,6 +36,7 @@ SAVED_TEXT = "Reminder saved on this device. It is not an RSVP, so please use th
 UNSAVED_TEXT = "The reminder could not be saved on this device. Please use the RSVP button to tell us you are coming."
 EVENT_TEXT = "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain."
 DATA_LINK_RE = re.compile(r"[?&]act=[A-Za-z0-9_-]{6,}")
+SOSCI_URL_KEY = re.compile(r"\bHH_SOSCI_URL\s*:\s*[\"']")
 
 BANNED_WORDS = (
     "stellar",
@@ -421,17 +422,26 @@ def check_retired_signup() -> None:
     check_copy("retired names page", guest_text(signup))
 
 
-def check_config() -> None:
-    """One config file feeds both pages. It ships in the not-configured state."""
+def check_config() -> str:
+    """One config file feeds both pages. Filling it in is the only step to switch RSVP on."""
     config = read(CONFIG)
     if not config:
-        return
-    if mail.read_sosci_url(config) != "":
-        fail("assets/hh-config.js should ship with HH_SOSCI_URL empty")
-    if not re.search(r"\bHH_LIVE_COUNT\s*:\s*false\b", config):
-        fail("assets/hh-config.js should ship with HH_LIVE_COUNT false")
+        return ""
+    if "window.HH_CONFIG" not in config or not SOSCI_URL_KEY.search(config):
+        fail("assets/hh-config.js does not define HH_CONFIG.HH_SOSCI_URL")
+    if not re.search(r"\bHH_LIVE_COUNT\s*:\s*(true|false)\b", config):
+        fail("assets/hh-config.js does not set HH_LIVE_COUNT to true or false")
+    url = mail.read_sosci_url(config)
+    if url:
+        if not url.startswith("https://") or mail.PLACEHOLDER_RE.search(url):
+            fail("HH_SOSCI_URL must be empty or an https:// questionnaire link")
+        if "act=" in url:
+            fail("HH_SOSCI_URL holds a data link. Use the public questionnaire link.")
+    elif re.search(r"\bHH_LIVE_COUNT\s*:\s*true\b", config):
+        fail("HH_LIVE_COUNT is on while HH_SOSCI_URL is empty")
     if mail.read_sosci_url('HH_SOSCI_URL: "https://www.soscisurvey.de/demo/",') != "https://www.soscisurvey.de/demo/":
         fail("read_sosci_url cannot read a configured URL")
+    return url
 
 
 def check_count_api() -> None:
@@ -486,7 +496,7 @@ def main() -> int:
         check_page(html)
     check_assets()
     check_weekday()
-    check_config()
+    sosci_url = check_config()
     check_count_api()
     check_no_data_link()
     check_sender()
@@ -496,6 +506,10 @@ def main() -> int:
             print(f"- {item}")
         return 1
     print("Invitation check passed.")
+    if sosci_url:
+        print(f"RSVP is configured with {sosci_url}")
+    else:
+        print("RSVP is not configured, so both pages show RSVP opens soon.")
     print("--send will refuse until hh-page-url is set and HH_SOSCI_URL in assets/hh-config.js is filled in.")
     return 0
 
