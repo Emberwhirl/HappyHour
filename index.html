@@ -54,7 +54,6 @@
       --gold-2: #f6e7b2;
       --cream: #f7f1e4;
       --lilac: #cbb8ff;
-      --ok: #c5ebcf;
       color-scheme: dark;
     }
 
@@ -403,26 +402,6 @@
     .rsvp-count[hidden] { display: none; }
     .rsvp-count strong { font-weight: 600; }
 
-    .thanks {
-      text-wrap: pretty;
-      margin-top: .95rem;
-      padding: .85rem 1rem;
-      border-radius: 14px;
-      background: rgba(197,235,207,.1);
-      color: var(--ok);
-    }
-    .thanks:empty {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      clip-path: inset(50%);
-      white-space: nowrap;
-    }
-    .thanks:not(:empty) { animation: rise .4s ease; }
-
     footer {
       display: flex;
       justify-content: space-between;
@@ -452,9 +431,9 @@
 
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      .blob, .invite, .thanks:not(:empty), .glow { animation: none !important; }
+      .blob, .invite, .glow { animation: none !important; }
       .still-frame img { transition: none; }
-      .invite, .thanks:not(:empty) {
+      .invite {
         opacity: 1;
         transform: none;
       }
@@ -531,12 +510,10 @@
         <p class="rsvp-ask">Please RSVP using the form so we know how much to get.</p>
         <div class="actions">
           <button class="btn btn-gold btn-rsvp" type="button" data-rsvp disabled>RSVP opens soon</button>
-          <button class="btn btn-line" type="button" data-remind aria-pressed="false">Save on this device</button>
           <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
         </div>
         <p class="rsvp-count" data-rsvp-count hidden></p>
       </section>
-      <p class="thanks" data-thanks role="status" aria-live="polite"></p>
     </article>
 
     <footer>
@@ -748,41 +725,6 @@
     }
 
     document.querySelectorAll("[data-ics]").forEach((el) => el.addEventListener("click", downloadIcs));
-
-    const status = document.querySelector("[data-thanks]");
-    const remindBtn = document.querySelector("[data-remind]");
-    const storageKey = "happyhour-2026-10-30-reminder";
-    const savedText = "Reminder saved on this device. It is not an RSVP, so please use the RSVP button too.";
-    const unsavedText = "The reminder could not be saved on this device. Please use the RSVP button to tell us you are coming.";
-
-    function storageGet(key) {
-      try { return localStorage.getItem(key); }
-      catch (err) { return null; }
-    }
-    function storageSet(key, value) {
-      try {
-        localStorage.setItem(key, value);
-        return true;
-      } catch (err) {
-        return false;
-      }
-    }
-    function markSaved() {
-      remindBtn.textContent = "Saved on this device";
-      remindBtn.setAttribute("aria-pressed", "true");
-    }
-    if (storageGet(storageKey) === "yes") {
-      markSaved();
-      status.textContent = savedText;
-    }
-    remindBtn.addEventListener("click", () => {
-      if (storageSet(storageKey, "yes")) {
-        markSaved();
-        status.textContent = savedText;
-      } else {
-        status.textContent = unsavedText;
-      }
-    });
 
     const slides = document.querySelector("[data-slides]");
     if (slides) {
