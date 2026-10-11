@@ -2,7 +2,7 @@
 
 A static invitation page for the Barozzi & Tardito Lab happy hour on **Friday, October 30, 2026 at 5:00 PM (Vienna time)** in the **CCR container**.
 
-Guests RSVP through a SoSci Survey questionnaire. Its public link is `HH_SOSCI_URL` in `assets/hh-config.js`, the one config file that both `index.html` and the email version read. It ships empty, so both pages show a disabled "RSVP opens soon" button. Paste the questionnaire link there when it exists and the button turns into "RSVP". See [docs/implementation.md](docs/implementation.md) for the optional live count and its Vercel env vars.
+Guests RSVP through a SoSci Survey questionnaire. Its public link is `HH_SOSCI_URL` in `assets/hh-config.js`, the one config file that both `index.html` and the email version read. It is set to [https://s2survey.net/ccr/](https://s2survey.net/ccr/), so the RSVP button opens the questionnaire. If the value is emptied, both pages fall back to a disabled "RSVP opens soon" button. The live count is off until the SoSci data link and variable names are in the Vercel env. See [docs/implementation.md](docs/implementation.md) for the optional live count and its Vercel env vars.
 
 The public page URL is still the `[PAGE_URL]` placeholder in the `hh-page-url` meta tag.
 

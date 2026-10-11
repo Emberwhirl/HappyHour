@@ -12,7 +12,7 @@ Guests RSVP in a SoSci Survey questionnaire. Both pages read its link from one f
 
 ```js
 window.HH_CONFIG = Object.freeze({
-  HH_SOSCI_URL: "",
+  HH_SOSCI_URL: "https://s2survey.net/ccr/",
   HH_LIVE_COUNT: false,
 });
 ```
