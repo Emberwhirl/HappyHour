@@ -52,15 +52,9 @@ When the data link or attending variable is missing, the data link is not `https
 
 `node scripts/check_rsvp_count.mjs` tests the function with a stubbed `fetch`.
 
-## Personal reminder
+## Actions
 
-"Save on this device" is a secondary button after RSVP. It writes `happyhour-2026-10-30-reminder` in `localStorage` on this browser only. The lab is not told.
-
-Success text: "Reminder saved on this device. It is not an RSVP, so please use the RSVP button too."
-
-If storage throws or refuses the write, the click still finishes. The status line says the reminder could not be saved and points the guest at the RSVP button. Reads are guarded the same way, so a blocked `localStorage` does not skip the click listener.
-
-The status element is `role="status"` and `aria-live="polite"`. It stays in the accessibility tree when empty (clipped, not `display: none`) so a later message can be announced.
+The RSVP section has two controls, in this order. RSVP is the gold primary button. "Add to calendar" is the outlined secondary button. On phones both are full width. Neither page stores anything in the browser.
 
 ## Calendar file
 
@@ -101,7 +95,7 @@ Font and image URLs are relative (`assets/...`). If a host serves the page at a 
 
 ## Email draft
 
-`drafts_helene/happy_hour_preview.html` is the email invitation. It keeps this dark gold card and does not follow `index.html` after the draft changes. The picture is the static file `assets/images/Science Supernova-4.png`, placed first. Headers use Courier New. Body copy stays in Outfit. The draft does not mention Vienna time and does not offer an email RSVP. It has the same RSVP button, save button, and calendar file as the main page, with `?r=mail`. It has no live count.
+`drafts_helene/happy_hour_preview.html` is the email invitation. It keeps this dark gold card and does not follow `index.html` after the draft changes. The picture is the static file `assets/images/Science Supernova-4.png`, placed first. Headers use Courier New. Body copy stays in Outfit. The draft does not mention Vienna time and does not offer an email RSVP. It has the same RSVP button and calendar file as the main page, with `?r=mail`. It has no live count.
 
 The draft is shared only as a link to the hosted page. A comment at the top of the file says so.
 
