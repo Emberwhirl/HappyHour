@@ -1,5 +1,7 @@
 # RSVP through SoSci Survey, 11 October 2026
 
+Later the same day the "Save on this device" button described under R3 was removed from both pages. See [2026-10-11_remove_save_on_device.md](2026-10-11_remove_save_on_device.md).
+
 Spec: `PRD-rsvp-sosci.md` (approved by Yu-Tian on 2026-10-11). Both pages move to one RSVP method, a SoSci Survey questionnaire on s2survey.net. The questionnaire and its data link do not exist yet, so this change ships in the "not configured" state and switches on through config only.
 
 ## Plan

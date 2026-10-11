@@ -5,7 +5,7 @@
 - The invitation is a static page, `index.html`, meant to be hosted and linked from a short email later.
 - The page does not have to survive inside an email client. Layout, fonts, and pictures are normal web assets.
 - Date, time, and place are fixed. See [overview.md](overview.md).
-- Guests can save a personal reminder in the browser and can download a calendar file.
+- Guests RSVP with the questionnaire and can download a calendar file. The page keeps nothing in the browser.
 - Guests RSVP only through a SoSci Survey questionnaire on MedUni's SoSci Pro server (s2survey.net). There is no email RSVP. See [tasks/2026-10-11_rsvp_sosci.md](tasks/2026-10-11_rsvp_sosci.md).
 - Both pages read the questionnaire link from `HH_SOSCI_URL` in `assets/hh-config.js`. It is `https://s2survey.net/ccr/`. If it is ever emptied, both show a disabled "RSVP opens soon" button.
 - The email version is shared only as a link to the hosted page.
@@ -22,7 +22,7 @@
 
 ## Copy rules for the invitation
 
-Guest-facing sentences stay plain. That includes the page, the calendar description, the plain-text note, and the status lines in the page script.
+Guest-facing sentences stay plain. That includes the page, the calendar description, the plain-text note, and any text the page script shows.
 
 - No em dashes and no en dashes.
 - No colons, except in a time such as `5:00 PM`.
