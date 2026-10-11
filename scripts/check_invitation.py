@@ -64,6 +64,33 @@ def check_copy(label: str, text: str) -> None:
         fail(f"{label} uses a not-X-but-Y construction")
 
 
+def check_skip_link(label: str, html: str) -> None:
+    """The skip link must land on the RSVP section of the same document."""
+    link = re.search(r'<a class="skip" href="#([\w-]+)">([^<]+)</a>', html)
+    if not link:
+        fail(f"{label} has no in-page skip link")
+        return
+    target_id, text = link.groups()
+    section = re.search(rf'<section\b([^>]*\bid="{target_id}"[^>]*)>(.*?)</section>', html, re.S)
+    if not section:
+        fail(f"{label} skip link points at #{target_id}, which is not a section")
+        return
+    attrs, inner = section.groups()
+    if 'tabindex="-1"' not in attrs:
+        fail(f"{label} skip target #{target_id} cannot take focus")
+    name = re.search(r'aria-label="([^"]+)"', attrs)
+    if not name or text != f"Skip to {name.group(1)}":
+        fail(f"{label} skip link text does not match the name of #{target_id}")
+    if not re.search(r"<p\b[^>]*>[^<]*(add your name|reply to)", inner, re.I):
+        fail(f"{label} skip target does not hold the request to sign up")
+    if 'class="actions"' not in inner:
+        fail(f"{label} skip target does not hold the action buttons")
+    if 'document.createElement("base")' in html and (
+        'new URL(link.getAttribute("href"), document.URL)' not in html
+    ):
+        fail(f"{label} adds a <base> but does not keep in-page links on this document")
+
+
 def check_page(html: str) -> None:
     required = (
         "Friday, October 30, 2026",
@@ -104,6 +131,7 @@ def check_page(html: str) -> None:
     if "7:00" in html:
         fail("the page still mentions an end time")
     check_copy("invitation page", guest_text(html))
+    check_skip_link("index.html", html)
     for snippet in (
         "Saved in this browser. The lab will only know if you email them.",
         "The reminder could not be stored in this browser. Email the lab if you are coming.",
@@ -260,6 +288,7 @@ def check_email_draft(preview: str) -> None:
     if 'font-family: Outfit, "Segoe UI", sans-serif' not in preview:
         fail("email draft lost the basic body font")
     check_copy("email draft", guest_text(preview))
+    check_skip_link("email draft", preview)
     signup_path = ROOT / "drafts_helene" / "rsvp-names.html"
     signup = read(signup_path)
     if not signup.strip():
