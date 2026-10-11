@@ -5,9 +5,9 @@ Production ``index.html`` stays separate and is not rewritten.
 ``build_email()`` returns a subject and the draft HTML.
 Nothing is sent unless you pass ``--send``.
 
-Names go in ``rsvp-names.html`` beside the draft.
-``hh-page-url`` in the draft is the hosted invitation link.
-``--send`` refuses while a ``[PLACEHOLDER]`` remains.
+Guests RSVP through the SoSci questionnaire set as ``HH_SOSCI_URL`` in
+``assets/hh-config.js``. ``hh-page-url`` in the draft is the hosted invitation link.
+``--send`` refuses while a ``[PLACEHOLDER]`` remains or ``HH_SOSCI_URL`` is empty.
 The message is plain text plus the hosted page link. It does not attach the
 invitation HTML.
 """
@@ -27,7 +27,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 INVITE_PATH = HERE / "happy_hour_preview.html"
 PREVIEW_PATH = INVITE_PATH
-SIGNUP_FILE = "drafts_helene/rsvp-names.html"
+CONFIG_PATH = ROOT / "assets" / "hh-config.js"
 
 DEFAULT_DATE = "Friday, October 30, 2026"
 DEFAULT_START = "5:00 PM"
@@ -36,6 +36,7 @@ DEFAULT_PAGE_URL = "[PAGE_URL]"
 PLACEHOLDER_RE = re.compile(r"\[[A-Z][A-Z0-9_]*\]")
 ANGLE_ADDR_RE = re.compile(r"<([^<>\s]+@[^<>\s]+)>")
 BARE_ADDR_RE = re.compile(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}")
+SOSCI_URL_RE = re.compile(r"""\bHH_SOSCI_URL\s*:\s*(["'])(.*?)\1""")
 
 
 def build_plain_text(
@@ -44,7 +45,7 @@ def build_plain_text(
     place_str: str | None = DEFAULT_PLACE,
     page_url: str = DEFAULT_PAGE_URL,
 ) -> str:
-    """Plain-text note with the signup file and a link to the hosted invitation."""
+    """Plain-text note that sends guests to the RSVP form on the hosted invitation."""
     when = time_str or f"at {DEFAULT_START}"
     place = place_str or DEFAULT_PLACE
     return (
@@ -55,9 +56,7 @@ def build_plain_text(
         "The Barozzi & Tardito Lab is having a happy hour and we'd love for "
         f"you to come. There will be drinks and snacks in the {place}. "
         "There will be a glowing gin tonic fountain.\n\n"
-        "Add your name in the signup file "
-        f"{SIGNUP_FILE} "
-        "if you can make it, so we know how much to get.\n\n"
+        "Please RSVP using the form on the invitation page so we know how much to get.\n\n"
         f"The invitation page is at {page_url}\n\n"
         "Hope to see you there!\n"
         "Barozzi & Tardito Lab\n"
@@ -109,6 +108,23 @@ def ensure_no_placeholders(html: str, plain: str) -> None:
     raise SystemExit(
         "Not sending because a placeholder is still in the invitation. "
         f"Still present are {listed}."
+    )
+
+
+def read_sosci_url(config_text: str | None = None) -> str:
+    """Return ``HH_SOSCI_URL`` from ``assets/hh-config.js``, or an empty string."""
+    if config_text is None:
+        config_text = CONFIG_PATH.read_text(encoding="utf-8") if CONFIG_PATH.is_file() else ""
+    match = SOSCI_URL_RE.search(config_text)
+    return match.group(2).strip() if match else ""
+
+
+def ensure_rsvp_configured(sosci_url: str) -> None:
+    if sosci_url.startswith("https://") and not PLACEHOLDER_RE.search(sosci_url):
+        return
+    raise SystemExit(
+        "Not sending because HH_SOSCI_URL in assets/hh-config.js is not set, "
+        "so guests would have no way to RSVP."
     )
 
 
@@ -191,7 +207,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--send",
         action="store_true",
-        help="Send a plain text note with the signup file and the page link. Needs SMTP_HOST, MAIL_FROM and MAIL_TO. Refuses while a placeholder remains.",
+        help="Send a plain text note with the page link. Needs SMTP_HOST, MAIL_FROM and MAIL_TO. Refuses while a placeholder remains or HH_SOSCI_URL is empty.",
     )
     args = parser.parse_args(argv)
 
@@ -208,6 +224,7 @@ def main(argv: list[str] | None = None) -> int:
     page_url = read_meta(html, "hh-page-url") or DEFAULT_PAGE_URL
     plain = build_plain_text(page_url=page_url)
     ensure_no_placeholders(html, plain)
+    ensure_rsvp_configured(read_sosci_url())
 
     from_addr = os.environ.get("MAIL_FROM", "").strip()
     to_raw = os.environ.get("MAIL_TO", "")
