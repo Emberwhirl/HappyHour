@@ -25,6 +25,7 @@
     })();
   </script>
   <script src="../assets/hh-config.js"></script>
+  <script src="../assets/hh-facts.js"></script>
   <link rel="icon" type="image/png" href="../assets/images/icon.png">
   <style>
     @font-face {
@@ -46,6 +47,7 @@
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     html { scroll-behavior: smooth; }
     html, body { margin: 0; min-height: 100%; }
     body {
@@ -246,6 +248,15 @@
       letter-spacing: .12em;
       text-transform: uppercase;
     }
+    .when > div > .fact-sub {
+      color: #e4def5;
+      font-family: Outfit, "Segoe UI", sans-serif;
+      font-size: .92rem;
+      letter-spacing: 0;
+      text-transform: none;
+      overflow-wrap: anywhere;
+    }
+    .when > div > a.fact-sub { color: var(--gold-2); text-decoration: underline; text-underline-offset: .18em; }
     .dom {
       font-family: var(--computer);
       font-size: clamp(2.6rem, 8vw, 3.6rem);
@@ -421,11 +432,14 @@
         </div>
         <div>
           <span>Time</span>
-          <strong><span class="nw">5:00 PM</span></strong>
+          <strong><span class="nw" data-fact="time">5:00 PM</span></strong>
         </div>
         <div>
           <span>Place</span>
           <strong>CCR container</strong>
+          <span class="fact-sub" data-fact="address" data-needs="address" hidden></span>
+          <span class="fact-sub" data-fact="entrance" data-needs="entrance" hidden></span>
+          <a class="fact-sub" data-fact-href="map" data-needs="map" target="_blank" rel="noopener" hidden>Map</a>
         </div>
       </div>
 
@@ -457,6 +471,8 @@
     });
 
     const HH = window.HH_CONFIG || {};
+    const FACTS = window.HH_FACTS || null;
+    if (FACTS) FACTS.apply();
     const isPlaceholder = (value) => /\[[A-Z][A-Z0-9_]*\]/.test(value || "");
     const RSVP_ASK = "Please RSVP using the form so we know how much to get.";
 
@@ -487,7 +503,9 @@
     const EVENT = {
       title: "Happy Hour with the Barozzi & Tardito Lab",
       start: "20261030T170000",
-      location: "CCR container",
+      // Without an end time the calendar entry lasts 3 hours.
+      timing: FACTS ? FACTS.icsTiming() : "DURATION:PT3H",
+      location: FACTS ? FACTS.location("CCR container") : "CCR container",
       url: rsvpUrl,
       description: rsvpUrl
         ? `${EVENT_TEXT} ${RSVP_ASK}\n${rsvpUrl}`
@@ -600,6 +618,7 @@
         "UID:happy-hour-20261030@barozzi-tardito-lab",
         `DTSTAMP:${stamp}`,
         `DTSTART;TZID=Europe/Vienna:${EVENT.start}`,
+        EVENT.timing,
         `SUMMARY:${icsText(EVENT.title)}`,
         `LOCATION:${icsText(EVENT.location)}`,
         `DESCRIPTION:${icsText(EVENT.description)}`,
