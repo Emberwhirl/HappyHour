@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05040a">
   <meta name="description" content="The Barozzi &amp; Tardito Lab is having a happy hour on Friday, October 30, 2026 at 5:00 PM (Vienna time) in the CCR container.">
   <title>Happy Hour with the Barozzi &amp; Tardito Lab</title>
-  <!-- hh-page-url is the hosted invitation. The RSVP questionnaire link lives in assets/hh-config.js. -->
+  <!-- hh-page-url is the hosted invitation. The RSVP link and the event facts live in assets/hh-config.js. -->
   <meta name="hh-page-url" content="[PAGE_URL]">
   <script>
     (function () {
@@ -24,7 +24,8 @@
     })();
   </script>
   <script src="assets/hh-config.js"></script>
-  <link rel="icon" type="image/png" href="assets/images/icon.png">
+  <script src="assets/hh-facts.js"></script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='11' fill='%2312101f'/%3E%3Cg fill='none' stroke='%23e7c56a' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 10h20l-2.7 28.3a2 2 0 0 1-2 1.7H18.7a2 2 0 0 1-2-1.7z'/%3E%3Cpath d='M15.1 21h17.8'/%3E%3Cpath d='M29.5 5l-3.6 16'/%3E%3C/g%3E%3Cg fill='%23e7c56a'%3E%3Ccircle cx='20.5' cy='28' r='1.6'/%3E%3Ccircle cx='26.5' cy='33' r='1.4'/%3E%3Ccircle cx='27' cy='26' r='1.1'/%3E%3C/g%3E%3C/svg%3E">
   <style>
     @font-face {
       font-family: "Cormorant Garamond";
@@ -54,10 +55,17 @@
       --gold-2: #f6e7b2;
       --cream: #f7f1e4;
       --lilac: #cbb8ff;
+      --ink: #f5f2fc;
+      --teal: #8fe3ef;
+      --card: #12101f;
+      --card-top: #1c1830;
+      --ring: 0 0 0 1px rgba(231, 197, 106, .42);
+      --radius: 32px;
       color-scheme: dark;
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     html { scroll-behavior: smooth; }
     html, body { margin: 0; min-height: 100%; }
     body {
@@ -69,6 +77,17 @@
     }
     a { color: inherit; }
     button, a { -webkit-tap-highlight-color: transparent; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
     .skip {
       position: absolute;
@@ -127,6 +146,7 @@
       position: relative;
       z-index: 1;
       display: grid;
+      row-gap: 1.25rem;
       align-content: center;
       min-height: 100svh;
       width: min(780px, calc(100% - 1.4rem));
@@ -134,17 +154,21 @@
       padding: 1.4rem 0 1.6rem;
     }
 
-    .invite {
+    .card {
       position: relative;
-      overflow: hidden;
-      padding: clamp(1.45rem, 4vw, 2.35rem);
-      border-radius: 32px;
-      background-color: #12101f;
-      background-image: linear-gradient(180deg, #1c1830 0%, #12101f 100%);
+      border-radius: var(--radius);
+      background-color: var(--card);
+      background-image: linear-gradient(180deg, var(--card-top) 0%, var(--card) 100%);
       box-shadow:
-        0 0 0 1px rgba(231, 197, 106, .42),
+        var(--ring),
         0 0 0 8px rgba(5, 4, 10, .32),
         0 28px 80px rgba(0, 0, 0, .48);
+    }
+    .invite {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: clamp(1.45rem, 4vw, 2.35rem);
       opacity: 1;
       animation: rise .4s ease;
     }
@@ -162,86 +186,31 @@
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
+    }
+    .lab {
+      min-width: 0;
       color: var(--lilac);
-      font-size: .68rem;
-      letter-spacing: .28em;
+      font-size: .86rem;
+      font-weight: 500;
+      line-height: 1.4;
+      letter-spacing: .22em;
       text-transform: uppercase;
     }
-    .invite-top span { min-width: 0; }
     .seal {
-      width: 74px;
-      height: 74px;
+      display: grid;
+      place-items: center;
+      width: 64px;
+      height: 64px;
       flex: none;
       border-radius: 16px;
-      object-fit: cover;
+      background: rgba(231, 197, 106, .07);
       box-shadow: 0 0 0 1px rgba(231, 197, 106, .45);
+      color: var(--gold);
     }
-    .still {
-      margin: 1.15rem 0 0;
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid rgba(243, 223, 154, .16);
-    }
-    .still-frame {
-      position: relative;
-      aspect-ratio: 16 / 9;
-      background: #1a1730;
-      touch-action: pan-y;
-      user-select: none;
-      -webkit-user-select: none;
-      cursor: grab;
-    }
-    .still-frame.is-dragging { cursor: grabbing; }
-    .still-frame img {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: 50% 50%;
-      opacity: 0;
-      -webkit-user-drag: none;
-    }
-    .still-frame img.is-leaving { z-index: 1; opacity: 1; }
-    .still-frame img.is-on {
-      z-index: 2;
-      opacity: 1;
-      transition: opacity .9s cubic-bezier(.4, 0, .2, 1);
-    }
-    .still-nav {
-      display: flex;
-      justify-content: center;
-      gap: 0;
-      padding: .2rem 0 .05rem;
-    }
-    .still-nav button {
-      width: 2rem;
-      height: 2rem;
-      padding: 0;
-      border: 0;
-      border-radius: 999px;
-      background: transparent;
-      cursor: pointer;
-    }
-    .still-nav button::after {
-      content: "";
-      display: block;
-      width: .55rem;
-      height: .55rem;
-      margin: 0 auto;
-      border-radius: 50%;
-      background: rgba(231, 197, 106, .38);
-    }
-    .still-nav button.is-on::after { background: #e7c56a; }
-    .still-nav button:focus-visible {
-      outline: 2px solid var(--gold);
-      outline-offset: 2px;
-    }
+    .seal svg { width: 40px; height: 40px; }
 
     h1 {
-      margin: 1rem 0 0;
+      margin: .9rem 0 0;
       font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
       font-weight: 400;
       font-size: clamp(3.4rem, 14vw, 6.3rem);
@@ -260,19 +229,12 @@
       line-height: 1.35;
       color: #ebe6fa;
     }
-    .when-line {
-      margin: .85rem 0 0;
-      text-wrap: pretty;
-      color: var(--gold-2);
-      font-size: .95rem;
-      letter-spacing: .02em;
-    }
 
     .rule {
       display: flex;
       align-items: center;
       gap: .8rem;
-      margin: 1.35rem 0 1.2rem;
+      margin: 1.2rem 0 1.1rem;
       color: var(--gold);
       font-size: .7rem;
     }
@@ -283,73 +245,116 @@
       background: linear-gradient(90deg, transparent, rgba(231,197,106,.45), transparent);
     }
 
-    .when {
+    .facts { font-variant-numeric: lining-nums; }
+    .facts-cards {
       display: grid;
-      grid-template-columns: auto 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: .75rem;
-      align-items: stretch;
-      font-variant-numeric: lining-nums;
     }
-    .when > div {
+    .fact {
       display: flex;
       flex-direction: column;
-      gap: .45rem;
-      padding: .85rem .9rem .95rem;
+      gap: .4rem;
+      min-width: 0;
+      padding: .85rem .95rem .95rem;
       border-radius: 18px;
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(243, 223, 154, .16);
     }
-    .when > div > span {
-      display: block;
+    .fact-label, .details dt {
       color: var(--lilac);
-      font-size: .66rem;
+      font-size: .7rem;
       line-height: 1.4;
       letter-spacing: .16em;
       text-transform: uppercase;
     }
     .dom {
       font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: clamp(3.4rem, 8vw, 4.4rem);
+      font-size: clamp(3rem, 6vw, 3.9rem);
       line-height: 1;
       color: var(--gold-2);
     }
-    .when strong {
+    .fact strong {
       display: block;
       font-family: "Cormorant Garamond", Georgia, serif;
-      font-size: clamp(1.25rem, 2.5vw, 1.55rem);
-      font-weight: 400;
+      font-size: clamp(1.3rem, 2.5vw, 1.55rem);
+      font-weight: 500;
       line-height: 1.2;
+      color: var(--ink);
     }
+    .fact-sub {
+      color: #e4def5;
+      font-size: .92rem;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+    .fact-link, .facts-line a, .details a:not(.btn) {
+      color: var(--gold-2);
+      text-decoration: underline;
+      text-underline-offset: .18em;
+    }
+    .facts-line { display: none; }
     .nw { white-space: nowrap; }
+    .sep { color: var(--gold); }
 
     .letter {
-      margin: 1.2rem 0 0;
-      color: #efeafc;
-      font-size: 1.02rem;
+      margin: 1.5rem 0 0;
+      color: var(--ink);
+      font-size: 1.125rem;
+      line-height: 1.65;
     }
-    .letter p { margin: 0 0 .75rem; text-wrap: pretty; }
-    .letter a { overflow-wrap: anywhere; }
+    .letter p { margin: 0 0 1.05rem; text-wrap: pretty; }
     .letter p:last-child { margin: 0; }
 
+    .callout {
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+      margin: 1.25rem 0 0;
+      padding: 1rem 1.15rem;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(64, 190, 214, .17), rgba(64, 190, 214, .06));
+      box-shadow:
+        0 0 0 1px rgba(143, 227, 239, .55),
+        0 0 32px rgba(64, 190, 214, .24);
+      color: var(--ink);
+      font-size: 1.125rem;
+      line-height: 1.5;
+    }
+    .callout svg { flex: none; width: 2.1rem; height: 2.1rem; color: var(--teal); }
+    .callout p { margin: 0; }
+
     .rsvp {
-      margin-top: .75rem;
+      margin-top: 1.6rem;
       border-radius: 18px;
       scroll-margin-top: 1rem;
     }
     .rsvp:focus { outline: 2px solid rgba(231,197,106,.6); outline-offset: 8px; }
     .rsvp-ask {
       margin: 0;
-      color: #efeafc;
-      font-size: 1.02rem;
+      color: var(--ink);
+      font-size: 1.125rem;
+      line-height: 1.55;
       text-wrap: pretty;
     }
-    .rsvp-ask a { overflow-wrap: anywhere; }
+    .rsvp-terms {
+      margin: .45rem 0 0;
+      color: var(--gold-2);
+      font-size: 1rem;
+      overflow-wrap: anywhere;
+    }
+    .rsvp-note {
+      margin: .65rem 0 0;
+      color: #ddd7ee;
+      font-size: .95rem;
+    }
 
     .actions {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: .65rem;
-      margin-top: 1.35rem;
+      margin-top: 1rem;
     }
     .btn {
       appearance: none;
@@ -362,7 +367,7 @@
       border-radius: 999px;
       background: none;
       color: inherit;
-      font: 600 .9rem/1 Outfit, "Segoe UI", sans-serif;
+      font: 600 .95rem/1 Outfit, "Segoe UI", sans-serif;
       letter-spacing: .03em;
       text-decoration: none;
       cursor: pointer;
@@ -395,7 +400,11 @@
       border-color: rgba(231,197,106,.45);
       box-shadow: none;
     }
-    .btn-rsvp { min-width: 11rem; }
+    .btn-rsvp {
+      min-width: 16rem;
+      min-height: 3.25rem;
+      font-size: 1.05rem;
+    }
     .btn-rsvp:disabled,
     .btn-rsvp:disabled:hover {
       opacity: 1;
@@ -410,18 +419,214 @@
       font-size: .95rem;
       text-wrap: pretty;
     }
-    .rsvp-count[hidden] { display: none; }
     .rsvp-count strong { font-weight: 600; }
+
+    .poster {
+      width: min(100%, 560px);
+      margin: 0;
+      justify-self: center;
+      overflow: hidden;
+    }
+    .poster-link {
+      display: block;
+      color: var(--lilac);
+      text-decoration: none;
+    }
+    .poster-link:focus-visible { outline: 2px solid var(--gold); outline-offset: -4px; border-radius: var(--radius); }
+    .poster img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1414 / 2000;
+      background: #1a1730;
+    }
+    .poster-hint {
+      display: block;
+      padding: .7rem 1rem 0;
+      font-size: .9rem;
+      letter-spacing: .04em;
+      text-align: center;
+      text-decoration: underline;
+      text-decoration-color: rgba(203, 184, 255, .45);
+      text-underline-offset: .2em;
+    }
+    .poster-link:hover .poster-hint { text-decoration-color: currentColor; }
+    .poster-caption {
+      padding: .45rem 1.25rem 1.2rem;
+      text-align: center;
+    }
+    .poster-title {
+      display: block;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 1.3rem;
+      font-weight: 500;
+      line-height: 1.25;
+      color: #f3df9a;
+      text-wrap: balance;
+    }
+    .poster-recap {
+      display: block;
+      margin-top: .3rem;
+      color: #e9e4f7;
+      font-size: .95rem;
+      text-wrap: balance;
+    }
+
+    .details { display: none; }
+
+    .gallery {
+      width: min(100%, 720px);
+      justify-self: center;
+      padding: 1.05rem 1.05rem .35rem;
+    }
+    .gallery-title {
+      margin: 0 0 .75rem .2rem;
+      color: var(--lilac);
+      font-size: .86rem;
+      font-weight: 500;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+    .still {
+      margin: 0;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(243, 223, 154, .16);
+    }
+    .still-frame {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #1a1730;
+      touch-action: pan-y;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: grab;
+    }
+    .still-frame.is-dragging { cursor: grabbing; }
+    .still-frame:focus { outline: none; }
+    .still-frame:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
+    .still-frame img {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 50%;
+      opacity: 0;
+      -webkit-user-drag: none;
+    }
+    .still-frame img.is-leaving { z-index: 1; opacity: 1; }
+    .still-frame img.is-on {
+      z-index: 2;
+      opacity: 1;
+      transition: opacity .9s cubic-bezier(.4, 0, .2, 1);
+    }
+    .still-arrow {
+      position: absolute;
+      top: 50%;
+      z-index: 3;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      margin-top: -22px;
+      padding: 0;
+      border: 1px solid rgba(231, 197, 106, .7);
+      border-radius: 50%;
+      background: rgba(10, 8, 20, .66);
+      color: var(--gold);
+      cursor: pointer;
+    }
+    .still-arrow:hover { background: rgba(10, 8, 20, .85); }
+    .still-prev { left: .55rem; }
+    .still-next { right: .55rem; }
+    .still-arrow svg, .still-toggle svg { width: 20px; height: 20px; }
+    .swipe-hint {
+      position: absolute;
+      left: 50%;
+      bottom: .7rem;
+      z-index: 3;
+      margin: 0;
+      padding: .35rem .85rem;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: rgba(10, 8, 20, .78);
+      color: var(--ink);
+      font-size: .88rem;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .still-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: .15rem 0;
+    }
+    .still-nav button {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--gold);
+      cursor: pointer;
+    }
+    .still-nav [data-slide-to]::after {
+      content: "";
+      display: block;
+      width: 12px;
+      height: 12px;
+      margin: 0 auto;
+      border: 2px solid #c9b57d;
+      border-radius: 50%;
+    }
+    .still-nav [data-slide-to].is-on::after { border-color: var(--gold); background: var(--gold); }
+    .still-toggle {
+      display: grid;
+      place-items: center;
+      margin-right: .3rem;
+    }
+    .still-toggle::before {
+      content: "";
+      grid-area: 1 / 1;
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(231, 197, 106, .7);
+      border-radius: 50%;
+    }
+    .still-toggle svg { grid-area: 1 / 1; }
+    .still-toggle[data-state="playing"] .icon-play,
+    .still-toggle[data-state="paused"] .icon-pause { display: none; }
+    .still-nav button:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: -2px;
+    }
 
     footer {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
-      gap: .6rem;
-      margin-top: 1rem;
+      gap: .3rem 1rem;
       padding: 0 .35rem;
-      color: #8c86a8;
-      font-size: .82rem;
+      color: #ebe7f6;
+      font-size: 1.125rem;
     }
+
+    .rsvp-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 6;
+      padding: .7rem max(.7rem, env(safe-area-inset-right)) calc(.7rem + env(safe-area-inset-bottom)) max(.7rem, env(safe-area-inset-left));
+      background: rgba(10, 8, 20, .94);
+      box-shadow: 0 -1px 0 rgba(231, 197, 106, .4), 0 -14px 30px rgba(0, 0, 0, .45);
+    }
+    .rsvp-bar .btn { width: 100%; min-width: 0; }
 
     @keyframes drift {
       from { transform: translate3d(0,0,0) scale(1); }
@@ -432,77 +637,107 @@
       to { transform: translateY(0); }
     }
 
-    .poster {
-      width: min(100%, 420px);
-      margin: 1.25rem auto 0;
-    }
-    .poster-link {
-      display: block;
-      overflow: hidden;
-      border-radius: 22px;
-      background: #12101f;
-      color: var(--lilac);
-      text-decoration: none;
-      box-shadow:
-        0 0 0 1px rgba(231, 197, 106, .42),
-        0 22px 60px rgba(0, 0, 0, .45);
-      transition: transform .22s ease, box-shadow .22s ease;
-    }
-    .poster-link:hover {
-      transform: translateY(-2px);
-      box-shadow:
-        0 0 0 1px rgba(231, 197, 106, .6),
-        0 26px 66px rgba(0, 0, 0, .5);
-    }
-    .poster-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
-    .poster img {
-      display: block;
-      width: 100%;
-      height: auto;
-      aspect-ratio: 1414 / 2000;
-      background: #1a1730;
-    }
-    .poster-hint {
-      display: block;
-      padding: .7rem 1rem .8rem;
-      font-size: .8rem;
-      letter-spacing: .04em;
-      text-align: center;
+    /* One column. The card reads header, facts, RSVP, letter, callout. */
+    @media (max-width: 1179px) {
+      .facts { order: 1; }
+      .rsvp { order: 2; }
+      .letter { order: 3; }
+      .callout { order: 4; }
     }
 
+    /* Two columns that end on the same line. The card spans the poster and Details rows, and Details
+       spans down to the gallery row, so the DOM keeps the phone order (card, poster, Details, gallery). */
     @media (min-width: 1180px) {
       .wrap {
-        width: min(1140px, calc(100% - 3rem));
-        grid-template-columns: minmax(0, 780px) minmax(0, 320px);
-        justify-content: center;
-        align-items: start;
+        --side: 470px;
+        width: min(1180px, calc(100% - 3rem));
+        grid-template-columns: minmax(0, 1fr) var(--side);
+        grid-template-rows: auto auto auto auto;
+        grid-template-areas:
+          "card poster"
+          "card details"
+          "gallery details"
+          "footer footer";
         column-gap: 1.75rem;
+        row-gap: 1.5rem;
+        align-content: start;
       }
-      .invite, footer { grid-column: 1; }
-      .poster {
-        grid-column: 2;
-        grid-row: 1 / span 2;
-        position: sticky;
-        top: 1.4rem;
-        width: 100%;
-        margin: 0;
+      .invite { grid-area: card; }
+      .poster { grid-area: poster; width: 100%; align-self: start; }
+      .details {
+        grid-area: details;
+        display: flex;
+        flex-direction: column;
+        padding: 1.4rem 1.6rem 1.6rem;
       }
+      .gallery { grid-area: gallery; width: 100%; }
+      .gallery .still-frame { aspect-ratio: 2 / 1; }
+      footer { grid-area: footer; }
     }
+    .details h2 {
+      margin: 0;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 1.75rem;
+      font-weight: 500;
+      line-height: 1.1;
+      color: #f3df9a;
+    }
+    .details dl {
+      display: grid;
+      gap: .85rem;
+      margin: 1rem 0 1.3rem;
+    }
+    .details dd {
+      margin: .15rem 0 0;
+      color: var(--ink);
+      font-size: 1.02rem;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+    .details dd > span { display: block; }
+    .details-actions {
+      display: grid;
+      gap: .65rem;
+      margin-top: auto;
+    }
+    .details-actions .btn { width: 100%; min-width: 0; }
 
     @media (max-width: 680px) {
-      .when { grid-template-columns: 1fr; }
-      .invite { padding: 1.25rem 1.05rem 1.35rem; border-radius: 26px; }
-      .invite-top { letter-spacing: .16em; }
-      .actions { flex-direction: column; }
-      .btn { width: 100%; }
+      :root { --radius: 26px; }
+      .invite { padding: 1.25rem 1.05rem 1.35rem; }
+      .invite-top { gap: .75rem; }
+      .lab { font-size: .8rem; letter-spacing: .18em; }
+      .seal { width: 56px; height: 56px; border-radius: 14px; }
+      .seal svg { width: 34px; height: 34px; }
+      .rule { margin: .9rem 0 .85rem; }
+      .facts-cards { display: none; }
+      .facts-line {
+        display: block;
+        padding: .75rem .95rem;
+        border-radius: 18px;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(243, 223, 154, .16);
+        font-size: 1.02rem;
+        line-height: 1.45;
+      }
+      .facts-line p { margin: 0; overflow-wrap: anywhere; }
+      .facts-line p:first-child { color: var(--gold-2); font-weight: 500; }
+      .facts-line p + p { margin-top: .2rem; color: var(--ink); }
+      .rsvp { margin-top: 1.15rem; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .btn { width: 100%; min-width: 0; }
+      .poster { width: 100%; }
+      .gallery { padding: .8rem .8rem .25rem; }
+    }
+    @media (min-width: 681px) {
+      .rsvp-bar { display: none !important; }
     }
 
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       .blob, .invite, .glow { animation: none !important; }
       .still-frame img.is-on { transition: none; }
-      .poster-link { transition: none; }
-      .poster-link:hover { transform: none; }
+      .btn, .btn:hover { transition: none; transform: none; }
       .invite {
         opacity: 1;
         transform: none;
@@ -522,85 +757,148 @@
   </div>
 
   <main class="wrap">
-    <article class="invite">
+    <article class="invite card">
       <div class="invite-top">
-        <span>Barozzi &amp; Tardito Lab</span>
-        <img class="seal" src="assets/images/icon.png" alt="" width="74" height="74">
+        <span class="lab">Barozzi &amp; Tardito Lab</span>
+        <span class="seal" aria-hidden="true">
+          <svg viewBox="0 0 48 48" focusable="false" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 10h20l-2.7 28.3a2 2 0 0 1-2 1.7H18.7a2 2 0 0 1-2-1.7z"/><path d="M15.1 21h17.8"/><path d="M29.5 5l-3.6 16"/></g><g fill="currentColor"><circle cx="20.5" cy="28" r="1.4"/><circle cx="26.5" cy="33" r="1.2"/><circle cx="27" cy="26" r="1"/></g></svg>
+        </span>
       </div>
 
       <h1>Happy Hour</h1>
       <p class="lede">Join us for a drink after work.</p>
-      <p class="when-line">Friday, <span class="nw">October 30,</span> 2026 at <span class="nw">5:00 PM</span> <span class="nw">(Vienna time)</span> in the <span class="nw">CCR container</span></p>
-
-      <figure class="still" data-slides>
-        <div class="still-frame">
-          <img class="is-on" src="assets/images/terrace.jpg" srcset="assets/images/terrace-640.jpg 640w, assets/images/terrace.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Friends on a Vienna terrace at dusk, two of them looking at a phone." width="1280" height="720">
-          <img src="assets/images/feast.jpg" srcset="assets/images/feast-640.jpg 640w, assets/images/feast.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Food and beer on a Vienna terrace at dusk." width="1280" height="720" aria-hidden="true">
-          <img src="assets/images/table.jpg" srcset="assets/images/table-640.jpg 640w, assets/images/table.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Two glasses beside olives, crackers, and cheese." width="1280" height="720" aria-hidden="true">
-          <img src="assets/images/party.jpg" srcset="assets/images/party-640.jpg 640w, assets/images/party.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Beer mugs and glasses under warm party lights." width="1280" height="720" aria-hidden="true">
-          <img src="assets/images/cosmos.jpg" srcset="assets/images/cosmos-640.jpg 640w, assets/images/cosmos.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Drinks on a ledge under a starry sky." width="1280" height="720" aria-hidden="true">
-          <img src="assets/images/snacks.jpg" srcset="assets/images/snacks-640.jpg 640w, assets/images/snacks.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Beer, pretzels, cheese, olives, and bread." width="1280" height="720" aria-hidden="true">
-        </div>
-        <div class="still-nav">
-          <button type="button" class="is-on" data-slide-to="0" aria-label="Show the terrace" aria-current="true"></button>
-          <button type="button" data-slide-to="1" aria-label="Show the food and beer" aria-current="false"></button>
-          <button type="button" data-slide-to="2" aria-label="Show the quiet table" aria-current="false"></button>
-          <button type="button" data-slide-to="3" aria-label="Show the party lights" aria-current="false"></button>
-          <button type="button" data-slide-to="4" aria-label="Show the starry drinks" aria-current="false"></button>
-          <button type="button" data-slide-to="5" aria-label="Show the snacks" aria-current="false"></button>
-        </div>
-      </figure>
 
       <div class="rule" aria-hidden="true">✦</div>
 
-      <div class="when" id="details">
-        <div>
-          <span>Friday</span>
-          <div class="dom">30</div>
-          <span>October 2026</span>
+      <div class="facts" id="details">
+        <div class="facts-cards">
+          <div class="fact">
+            <span class="fact-label">Friday</span>
+            <div class="dom">30</div>
+            <span class="fact-label">October 2026</span>
+          </div>
+          <div class="fact">
+            <span class="fact-label">Time</span>
+            <strong data-fact="time">5:00 PM</strong>
+            <span class="fact-sub">Vienna time</span>
+          </div>
+          <div class="fact">
+            <span class="fact-label">Place</span>
+            <strong>CCR container</strong>
+            <span class="fact-sub" data-fact="address" data-needs="address" hidden></span>
+            <span class="fact-sub" data-fact="entrance" data-needs="entrance" hidden></span>
+            <a class="fact-sub fact-link" data-fact-href="map" data-needs="map" target="_blank" rel="noopener" hidden>Map</a>
+          </div>
         </div>
-        <div>
-          <span>Time</span>
-          <strong><span class="nw">5:00 PM</span></strong>
-          <span>Vienna time</span>
-        </div>
-        <div>
-          <span>Place</span>
-          <strong>CCR container</strong>
+        <div class="facts-line">
+          <p><span class="nw">Fri 30 Oct</span> <span class="sep" aria-hidden="true">·</span> <span class="nw" data-fact="time">5:00 PM</span> <span class="nw">(Vienna time)</span></p>
+          <p><span class="nw">CCR container</span><span data-needs="address" hidden> <span class="sep" aria-hidden="true">·</span> <span data-fact="address"></span></span><span data-needs="entrance" hidden> <span class="sep" aria-hidden="true">·</span> <span data-fact="entrance"></span></span><span data-needs="map" hidden> <span class="sep" aria-hidden="true">·</span> <a data-fact-href="map" target="_blank" rel="noopener">Map</a></span></p>
         </div>
       </div>
 
       <div class="letter">
         <p>Hi everyone,</p>
         <p>The Barozzi &amp; Tardito Lab is having a happy hour and we’d love for you to come. There will be drinks and snacks in the <span class="nw">CCR container</span>.</p>
+      </div>
+
+      <div class="callout">
+        <svg viewBox="0 0 48 48" focusable="false" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 10h20l-2.7 28.3a2 2 0 0 1-2 1.7H18.7a2 2 0 0 1-2-1.7z"/><path d="M15.1 21h17.8"/><path d="M29.5 5l-3.6 16"/></g><g fill="currentColor"><circle cx="20.5" cy="28" r="1.5"/><circle cx="26.5" cy="33" r="1.3"/><circle cx="27" cy="26" r="1.1"/></g></svg>
         <p>There will be a glowing gin tonic fountain.</p>
       </div>
 
       <section class="rsvp" id="rsvp" tabindex="-1" aria-label="RSVP">
         <p class="rsvp-ask">Please RSVP using the form so we know how much to get.</p>
+        <p class="rsvp-terms" data-terms hidden></p>
         <div class="actions">
           <button class="btn btn-gold btn-rsvp" type="button" data-rsvp disabled>RSVP opens soon</button>
           <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
         </div>
+        <p class="rsvp-note" data-form-note hidden>Short form, about 1 minute.</p>
         <p class="rsvp-count" data-rsvp-count hidden></p>
       </section>
     </article>
 
-    <figure class="poster">
+    <figure class="poster card">
       <a class="poster-link" href="assets/images/science-supernova-4-2828.jpg" target="_blank" rel="noopener">
         <picture>
-          <source type="image/avif" srcset="assets/images/science-supernova-4-480.avif 480w, assets/images/science-supernova-4-960.avif 960w, assets/images/science-supernova-4-1414.avif 1414w, assets/images/science-supernova-4-2000.avif 2000w, assets/images/science-supernova-4-2828.avif 2828w" sizes="(min-width: 1180px) 320px, (min-width: 443px) 420px, calc(100vw - 1.4rem)">
-          <source type="image/webp" srcset="assets/images/science-supernova-4-480.webp 480w, assets/images/science-supernova-4-960.webp 960w, assets/images/science-supernova-4-1414.webp 1414w, assets/images/science-supernova-4-2000.webp 2000w, assets/images/science-supernova-4-2828.webp 2828w" sizes="(min-width: 1180px) 320px, (min-width: 443px) 420px, calc(100vw - 1.4rem)">
-          <img src="assets/images/science-supernova-4-960.jpg" srcset="assets/images/science-supernova-4-480.jpg 480w, assets/images/science-supernova-4-960.jpg 960w, assets/images/science-supernova-4-1414.jpg 1414w, assets/images/science-supernova-4-2000.jpg 2000w, assets/images/science-supernova-4-2828.jpg 2828w" sizes="(min-width: 1180px) 320px, (min-width: 443px) 420px, calc(100vw - 1.4rem)" width="1414" height="2000" loading="lazy" decoding="async" alt="Science Supernova poster. Five friends raise glasses around a glowing blue fountain outside the CCR container at night, under a colorful nebula with molecule drawings and playful lines of code.">
+          <source type="image/avif" srcset="assets/images/science-supernova-4-480.avif 480w, assets/images/science-supernova-4-960.avif 960w, assets/images/science-supernova-4-1414.avif 1414w, assets/images/science-supernova-4-2000.avif 2000w, assets/images/science-supernova-4-2828.avif 2828w" sizes="(min-width: 1180px) 470px, (min-width: 583px) 560px, calc(100vw - 1.4rem)">
+          <source type="image/webp" srcset="assets/images/science-supernova-4-480.webp 480w, assets/images/science-supernova-4-960.webp 960w, assets/images/science-supernova-4-1414.webp 1414w, assets/images/science-supernova-4-2000.webp 2000w, assets/images/science-supernova-4-2828.webp 2828w" sizes="(min-width: 1180px) 470px, (min-width: 583px) 560px, calc(100vw - 1.4rem)">
+          <img src="assets/images/science-supernova-4-960.jpg" srcset="assets/images/science-supernova-4-480.jpg 480w, assets/images/science-supernova-4-960.jpg 960w, assets/images/science-supernova-4-1414.jpg 1414w, assets/images/science-supernova-4-2000.jpg 2000w, assets/images/science-supernova-4-2828.jpg 2828w" sizes="(min-width: 1180px) 470px, (min-width: 583px) 560px, calc(100vw - 1.4rem)" width="1414" height="2000" loading="lazy" decoding="async" alt="Science Supernova poster. Five friends raise glasses around a glowing blue fountain outside the CCR container at night, under a colorful nebula with molecule drawings and playful lines of code.">
         </picture>
         <span class="poster-hint">Open the full-size poster</span>
       </a>
+      <figcaption class="poster-caption">
+        <span class="poster-title">Science Supernova, the Barozzi &amp; Tardito Lab happy hour poster</span>
+        <span class="poster-recap"><span class="nw">Friday, October 30, 2026</span> <span class="sep" aria-hidden="true">·</span> <span class="nw" data-fact="time">5:00 PM</span> <span class="nw">(Vienna time)</span> <span class="sep" aria-hidden="true">·</span> <span class="nw">CCR container</span></span>
+      </figcaption>
     </figure>
+
+    <aside class="details card" aria-labelledby="details-title">
+      <h2 id="details-title">Details</h2>
+      <dl>
+        <div>
+          <dt>When</dt>
+          <dd><span>Friday, October 30, 2026</span><span><span data-fact="time">5:00 PM</span> (Vienna time)</span></dd>
+        </div>
+        <div>
+          <dt>Where</dt>
+          <dd><span>CCR container</span><span data-fact="address" data-needs="address" hidden></span><span data-fact="entrance" data-needs="entrance" hidden></span><span data-needs="map" hidden><a data-fact-href="map" target="_blank" rel="noopener">Map</a></span></dd>
+        </div>
+        <div data-needs="cost" hidden>
+          <dt>Cost</dt>
+          <dd data-fact="cost"></dd>
+        </div>
+        <div data-needs="deadline" hidden>
+          <dt>RSVP by</dt>
+          <dd data-fact="deadline"></dd>
+        </div>
+        <div data-needs="contact" hidden>
+          <dt>Questions</dt>
+          <dd data-fact="contact"></dd>
+        </div>
+      </dl>
+      <div class="details-actions">
+        <button class="btn btn-gold btn-rsvp" type="button" data-rsvp disabled>RSVP opens soon</button>
+        <button class="btn btn-line" type="button" data-ics>Add to calendar</button>
+      </div>
+    </aside>
+
+    <section class="gallery card" aria-labelledby="gallery-title" aria-roledescription="carousel">
+      <h2 class="gallery-title" id="gallery-title">Gallery</h2>
+      <figure class="still" data-slides>
+        <div class="still-frame" tabindex="0" role="group" aria-label="Pictures" aria-describedby="gallery-keys">
+          <img class="is-on" src="assets/images/terrace.jpg" srcset="assets/images/terrace-640.jpg 640w, assets/images/terrace.jpg 1280w" sizes="(min-width: 760px) 685px, calc(100vw - 3.5rem)" alt="Anime-style illustration of four women in long gowns at a table on a rooftop terrace above Vienna at dusk, one of them showing the others her phone." width="1280" height="720" loading="lazy" decoding="async">
+          <img src="assets/images/feast.jpg" srcset="assets/images/feast-640.jpg 640w, assets/images/feast.jpg 1280w" sizes="(min-width: 760px) 685px, calc(100vw - 3.5rem)" alt="Anime-style illustration of the same four women on the rooftop terrace, now sharing beer, pretzels, bread, and cheese." width="1280" height="720" loading="lazy" decoding="async" aria-hidden="true">
+          <img src="assets/images/table.jpg" srcset="assets/images/table-640.jpg 640w, assets/images/table.jpg 1280w" sizes="(min-width: 760px) 685px, calc(100vw - 3.5rem)" alt="Painted still life of two glasses of white wine beside a plate of olives, crackers, and cheese." width="1280" height="720" loading="lazy" decoding="async" aria-hidden="true">
+          <img src="assets/images/party.jpg" srcset="assets/images/party-640.jpg 640w, assets/images/party.jpg 1280w" sizes="(min-width: 760px) 685px, calc(100vw - 3.5rem)" alt="Painted still life of beer mugs, two glasses of wine, candles, and lavender under string lights." width="1280" height="720" loading="lazy" decoding="async" aria-hidden="true">
+          <img src="assets/images/cosmos.jpg" srcset="assets/images/cosmos-640.jpg 640w, assets/images/cosmos.jpg 1280w" sizes="(min-width: 760px) 685px, calc(100vw - 3.5rem)" alt="Painted still life of two tumblers and a beer mug on a stone ledge under a starry purple sky." width="1280" height="720" loading="lazy" decoding="async" aria-hidden="true">
+          <img src="assets/images/snacks.jpg" srcset="assets/images/snacks-640.jpg 640w, assets/images/snacks.jpg 1280w" sizes="(min-width: 760px) 685px, calc(100vw - 3.5rem)" alt="Painted still life of two beers, olives, pretzels, blue cheese, a wedge of cheese, and bread." width="1280" height="720" loading="lazy" decoding="async" aria-hidden="true">
+          <button type="button" class="still-arrow still-prev" data-slide-step="-1" tabindex="-1" aria-label="Previous picture" hidden><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button type="button" class="still-arrow still-next" data-slide-step="1" tabindex="-1" aria-label="Next picture" hidden><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <p class="swipe-hint" data-swipe-hint aria-hidden="true" hidden>Swipe for more pictures</p>
+        </div>
+        <div class="still-nav">
+          <button type="button" class="still-toggle" data-slides-toggle data-state="playing" tabindex="-1" aria-label="Pause the gallery" hidden><svg class="icon-pause" viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M8 5v14M16 5v14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><svg class="icon-play" viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></button>
+          <button type="button" class="is-on" data-slide-to="0" tabindex="-1" aria-label="Show the terrace" aria-current="true"></button>
+          <button type="button" data-slide-to="1" tabindex="-1" aria-label="Show the terrace feast" aria-current="false"></button>
+          <button type="button" data-slide-to="2" tabindex="-1" aria-label="Show the wine and olives" aria-current="false"></button>
+          <button type="button" data-slide-to="3" tabindex="-1" aria-label="Show the string lights" aria-current="false"></button>
+          <button type="button" data-slide-to="4" tabindex="-1" aria-label="Show the starry ledge" aria-current="false"></button>
+          <button type="button" data-slide-to="5" tabindex="-1" aria-label="Show the snacks" aria-current="false"></button>
+        </div>
+        <p class="sr-only" id="gallery-keys">Left and right arrow keys change the picture. Space pauses or plays.</p>
+        <p class="sr-only" aria-live="polite" data-slide-status></p>
+      </figure>
+    </section>
 
     <footer>
       <span>Hope to see you there!</span>
       <span>Barozzi &amp; Tardito Lab</span>
     </footer>
+
+    <div class="rsvp-bar" data-rsvp-bar hidden>
+      <button class="btn btn-gold btn-rsvp" type="button" data-rsvp disabled>RSVP opens soon</button>
+    </div>
   </main>
 
   <script>
@@ -610,8 +908,26 @@
     });
 
     const HH = window.HH_CONFIG || {};
+    const FACTS = window.HH_FACTS || null;
     const isPlaceholder = (value) => /\[[A-Z][A-Z0-9_]*\]/.test(value || "");
     const RSVP_ASK = "Please RSVP using the form so we know how much to get.";
+
+    if (FACTS) {
+      FACTS.apply();
+      const terms = document.querySelector("[data-terms]");
+      if (terms && FACTS.rsvpTerms.length) {
+        terms.textContent = FACTS.rsvpTerms.join(" · ");
+        terms.hidden = false;
+      }
+    }
+
+    if (matchMedia("(min-width: 1180px)").matches) {
+      const posterImg = document.querySelector(".poster img");
+      if (posterImg) {
+        posterImg.loading = "eager";
+        posterImg.fetchPriority = "high";
+      }
+    }
 
     function questionnaireUrl(source) {
       const raw = String(HH.HH_SOSCI_URL || "").trim();
@@ -625,22 +941,38 @@
 
     const rsvpUrl = questionnaireUrl("web");
     if (rsvpUrl) {
-      const rsvpBtn = document.querySelector("[data-rsvp]");
-      const link = document.createElement("a");
-      link.className = rsvpBtn.className;
-      link.href = rsvpUrl;
-      link.target = "_blank";
-      link.rel = "noopener";
-      link.dataset.rsvp = "";
-      link.textContent = "RSVP";
-      rsvpBtn.replaceWith(link);
+      document.querySelectorAll("[data-rsvp]").forEach((rsvpBtn) => {
+        const link = document.createElement("a");
+        link.className = rsvpBtn.className;
+        link.href = rsvpUrl;
+        link.dataset.rsvp = "";
+        link.textContent = "RSVP";
+        rsvpBtn.replaceWith(link);
+      });
+      document.querySelectorAll("[data-form-note]").forEach((note) => { note.hidden = false; });
+    }
+
+    // Phones get a bottom RSVP bar only while the main RSVP button is still below the screen.
+    const rsvpBar = document.querySelector("[data-rsvp-bar]");
+    const mainRsvp = document.querySelector(".rsvp [data-rsvp]");
+    if (rsvpUrl && rsvpBar && mainRsvp && "IntersectionObserver" in window) {
+      const phone = matchMedia("(max-width: 680px)");
+      let below = false;
+      const updateBar = () => { rsvpBar.hidden = !(phone.matches && below); };
+      new IntersectionObserver(([entry]) => {
+        below = !entry.isIntersecting && entry.boundingClientRect.top > 0;
+        updateBar();
+      }).observe(mainRsvp);
+      phone.addEventListener("change", updateBar);
     }
 
     const EVENT_TEXT = "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain.";
     const EVENT = {
       title: "Happy Hour with the Barozzi & Tardito Lab",
       start: "20261030T170000",
-      location: "CCR container",
+      // Without an end time the calendar entry lasts 3 hours.
+      timing: FACTS ? FACTS.icsTiming() : "DURATION:PT3H",
+      location: FACTS ? FACTS.location("CCR container") : "CCR container",
       url: rsvpUrl,
       description: rsvpUrl
         ? `${EVENT_TEXT} ${RSVP_ASK}\n${rsvpUrl}`
@@ -779,6 +1111,7 @@
         "UID:happy-hour-20261030@barozzi-tardito-lab",
         `DTSTAMP:${stamp}`,
         `DTSTART;TZID=Europe/Vienna:${EVENT.start}`,
+        EVENT.timing,
         `SUMMARY:${icsText(EVENT.title)}`,
         `LOCATION:${icsText(EVENT.location)}`,
         `DESCRIPTION:${icsText(EVENT.description)}`,
@@ -812,6 +1145,9 @@
     if (slides) {
       const frame = slides.querySelector(".still-frame");
       const nav = slides.querySelector(".still-nav");
+      const toggle = slides.querySelector("[data-slides-toggle]");
+      const hint = slides.querySelector("[data-swipe-hint]");
+      const status = slides.querySelector("[data-slide-status]");
       const markupFrames = [...frame.querySelectorAll("img")];
       const markupDots = [...nav.querySelectorAll("[data-slide-to]")];
       const markupFrom = ["50% 50%", "42% 46%", "58% 50%", "50% 42%", "46% 58%", "54% 48%"];
@@ -827,16 +1163,21 @@
       const kenFrom = order.map((i) => markupFrom[i] || markupFrom[0]);
       const kenTo = order.map((i) => markupTo[i] || markupTo[0]);
       // Re-inserted pictures start without a computed style, so the first one appears without a fade.
-      frame.append(...frames);
-      nav.append(...dots);
+      frame.prepend(...frames);
+      toggle.after(...dots);
       dots.forEach((dot, i) => { dot.dataset.slideTo = String(i); });
+      // Slides 2 to 6 stay lazy.
+      frames[0].loading = "eager";
+      slides.querySelectorAll("[data-slide-step], [data-slides-toggle]").forEach((el) => { el.hidden = false; });
       const FADE_MS = 900;
       const SWIPE_MIN = 40;
       const DRAG_START = 8;
       let index = 0;
       let timer = 0;
       let leaveTimer = 0;
+      let playing = false;
       let hovering = false;
+      let keyboardFocus = false;
       // Only these pans are cancelled or paused. getAnimations() would also catch the opacity fade.
       const ken = [];
       const playKen = (i) => {
@@ -852,12 +1193,20 @@
           { duration: 8500, easing: "ease-out", fill: "forwards" }
         );
       };
-      const pauseKen = (paused) => {
-        ken.forEach((anim) => {
+      // Auto-advance and the pan run only while playing and neither hovered nor keyboard focused.
+      const syncMotion = () => {
+        const moving = playing && !hovering && !keyboardFocus;
+        ken.forEach((anim, i) => {
           if (!anim) return;
-          if (paused) anim.pause();
-          else anim.play();
+          if (moving && i === index) anim.play();
+          else anim.pause();
         });
+        if (moving && !timer && frames.length > 1) {
+          timer = window.setInterval(() => showSlide(index + 1), 7000);
+        } else if (!moving && timer) {
+          clearInterval(timer);
+          timer = 0;
+        }
       };
       // The outgoing picture stays opaque underneath while the new one fades in on top.
       const showSlide = (next) => {
@@ -881,33 +1230,28 @@
           dot.setAttribute("aria-current", on ? "true" : "false");
         });
         playKen(index);
+        syncMotion();
       };
-      const stopSlides = () => {
-        if (timer) {
-          clearInterval(timer);
-          timer = 0;
-        }
+      const setPlaying = (on) => {
+        playing = on;
+        toggle.dataset.state = on ? "playing" : "paused";
+        toggle.setAttribute("aria-label", on ? "Pause the gallery" : "Play the gallery");
+        syncMotion();
       };
-      const startSlides = () => {
-        stopSlides();
-        if (reduce || frames.length < 2) return;
-        timer = window.setInterval(() => showSlide(index + 1), 7000);
+      // Any manual change stops auto-advance until play is pressed.
+      const goManual = (next) => {
+        if (hint) hint.hidden = true;
+        showSlide(next);
+        setPlaying(false);
+        status.textContent = `Picture ${index + 1} of ${frames.length}. ${frames[index].alt}`;
       };
       dots.forEach((dot) => {
-        dot.addEventListener("click", () => {
-          showSlide(Number(dot.dataset.slideTo));
-          startSlides();
-        });
+        dot.addEventListener("click", () => goManual(Number(dot.dataset.slideTo)));
       });
-      // After a swipe or key press, hover and focus keep their pause.
-      const resumeSlides = () => {
-        if (hovering || slides.contains(document.activeElement)) {
-          stopSlides();
-          pauseKen(true);
-          return;
-        }
-        startSlides();
-      };
+      slides.querySelectorAll("[data-slide-step]").forEach((arrow) => {
+        arrow.addEventListener("click", () => goManual(index + Number(arrow.dataset.slideStep)));
+      });
+      toggle.addEventListener("click", () => setPlaying(!playing));
       frames.forEach((img) => { img.draggable = false; });
       let swipe = null;
       let swallowClick = false;
@@ -939,8 +1283,7 @@
         swallowClick = true;
         window.setTimeout(() => { swallowClick = false; }, 0);
         if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy) * 1.2) return;
-        showSlide(index + (dx < 0 ? 1 : -1));
-        resumeSlides();
+        goManual(index + (dx < 0 ? 1 : -1));
       });
       window.addEventListener("pointercancel", (e) => {
         if (swipe && e.pointerId === swipe.id) endSwipe();
@@ -959,38 +1302,45 @@
       document.addEventListener("selectstart", (e) => {
         if (swipe) e.preventDefault();
       });
-      document.addEventListener("keydown", (e) => {
-        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      // The gallery is one Tab stop. Its buttons stay clickable but out of the Tab order.
+      slides.addEventListener("keydown", (e) => {
         if (e.defaultPrevented || e.isComposing || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-        const target = e.target;
-        if (target.isContentEditable || (target.closest && target.closest("input, textarea, select"))) return;
-        e.preventDefault();
-        showSlide(index + (e.key === "ArrowRight" ? 1 : -1));
-        resumeSlides();
+        const step = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+        if (step) {
+          e.preventDefault();
+          goManual(index + step);
+        } else if (e.key === "Home" || e.key === "End") {
+          e.preventDefault();
+          goManual(e.key === "Home" ? 0 : frames.length - 1);
+        } else if (e.key === " " && e.target === frame) {
+          e.preventDefault();
+          setPlaying(!playing);
+        }
       });
       // Touch taps also fire mouseenter without a mouseleave, which would stop the slides for good.
       slides.addEventListener("pointerenter", (e) => {
         if (e.pointerType !== "mouse") return;
         hovering = true;
-        stopSlides();
-        pauseKen(true);
+        syncMotion();
       });
       slides.addEventListener("pointerleave", (e) => {
         if (e.pointerType !== "mouse") return;
         hovering = false;
-        pauseKen(false);
-        startSlides();
+        syncMotion();
       });
-      slides.addEventListener("focusin", () => {
-        stopSlides();
-        pauseKen(true);
+      // Clicking a control focuses it too. Only keyboard focus pauses, so play still plays after a click.
+      slides.addEventListener("focusin", (e) => {
+        keyboardFocus = e.target.matches(":focus-visible");
+        syncMotion();
       });
-      slides.addEventListener("focusout", () => {
-        pauseKen(false);
-        startSlides();
+      slides.addEventListener("focusout", (e) => {
+        if (slides.contains(e.relatedTarget)) return;
+        keyboardFocus = false;
+        syncMotion();
       });
+      if (hint && matchMedia("(pointer: coarse)").matches) hint.hidden = false;
       showSlide(0);
-      startSlides();
+      setPlaying(!reduce);
     }
   </script>
 </body>
