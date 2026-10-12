@@ -35,12 +35,18 @@ RSVP_SOON = "RSVP opens soon"
 EVENT_TEXT = "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain."
 DATA_LINK_RE = re.compile(r"[?&]act=[A-Za-z0-9_-]{6,}")
 SOSCI_URL_KEY = re.compile(r"\bHH_SOSCI_URL\s*:\s*[\"']")
-POSTER_FULL = "science-supernova-4.jpg"
+POSTER_FULL = "science-supernova-4-2828.jpg"
 POSTER_WIDTHS = (
     ("science-supernova-4-480", 480),
     ("science-supernova-4-960", 960),
-    ("science-supernova-4", 1414),
+    ("science-supernova-4-1414", 1414),
+    ("science-supernova-4-2000", 2000),
+    ("science-supernova-4-2828", 2828),
 )
+POSTER_SIZES = "(min-width: 1180px) 320px, (min-width: 443px) 420px, calc(100vw - 1.4rem)"
+# Phones at 2x and 3x load AVIF or WebP up to 1414 pixels wide.
+POSTER_PHONE_MAX = 500_000
+POSTER_FILE_MAX = 1_500_000
 
 BANNED_WORDS = (
     "stellar",
@@ -308,6 +314,8 @@ def check_poster(html: str) -> None:
         return
     inner = figure.group(1)
     picture = check_poster_picture("index.html", inner, "assets/images/")
+    if picture.count(f'sizes="{POSTER_SIZES}"') != 3:
+        fail("index.html poster sizes do not match its 320 and 420 pixel boxes")
     if 'loading="lazy"' not in picture:
         fail("index.html poster is not lazy loaded")
     if "Science Supernova poster" not in picture:
@@ -365,15 +373,39 @@ def check_slideshow(html: str) -> None:
         fail("index.html slideshow dots do not match its pictures")
 
 
+def jpeg_size(path: Path) -> tuple[int, int] | None:
+    """Width and height from the first JPEG frame header."""
+    data = path.read_bytes()
+    i = 2
+    while i + 9 < len(data):
+        if data[i] != 0xFF:
+            return None
+        marker = data[i + 1]
+        if marker in (0xC0, 0xC1, 0xC2):
+            return int.from_bytes(data[i + 7:i + 9], "big"), int.from_bytes(data[i + 5:i + 7], "big")
+        i += 2 + int.from_bytes(data[i + 2:i + 4], "big")
+    return None
+
+
 def check_assets() -> None:
-    for name, _ in POSTER_WIDTHS:
+    for name, width in POSTER_WIDTHS:
         for fmt in ("avif", "webp", "jpg"):
             rel = f"assets/images/{name}.{fmt}"
             path = ROOT / rel
             if not path.is_file() or path.stat().st_size < 5000:
                 fail(f"Missing or empty asset {rel}")
-            elif path.stat().st_size > 400_000:
-                fail(f"{rel} is larger than 400 KB")
+                continue
+            size = path.stat().st_size
+            if fmt != "jpg" and width <= 1414 and size > POSTER_PHONE_MAX:
+                fail(f"{rel} is larger than {POSTER_PHONE_MAX // 1000} KB, too heavy for phones")
+            elif size > POSTER_FILE_MAX:
+                fail(f"{rel} is larger than {POSTER_FILE_MAX // 1_000_000} MB")
+        jpg = ROOT / f"assets/images/{name}.jpg"
+        if jpg.is_file() and (jpeg_size(jpg) or (0, 0))[0] != width:
+            fail(f"assets/images/{name}.jpg is not {width} pixels wide")
+    full = ROOT / "assets/images" / POSTER_FULL
+    if full.is_file() and jpeg_size(full) != (2828, 4000):
+        fail(f"{POSTER_FULL} is not the 2828 by 4000 full-size poster")
     for rel in (
         "assets/images/icon.png",
         "assets/images/terrace.jpg",
