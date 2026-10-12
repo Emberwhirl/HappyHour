@@ -430,6 +430,63 @@
       to { transform: translateY(0); }
     }
 
+    .poster {
+      width: min(100%, 420px);
+      margin: 1.25rem auto 0;
+    }
+    .poster-link {
+      display: block;
+      overflow: hidden;
+      border-radius: 22px;
+      background: #12101f;
+      color: var(--lilac);
+      text-decoration: none;
+      box-shadow:
+        0 0 0 1px rgba(231, 197, 106, .42),
+        0 22px 60px rgba(0, 0, 0, .45);
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+    .poster-link:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 0 1px rgba(231, 197, 106, .6),
+        0 26px 66px rgba(0, 0, 0, .5);
+    }
+    .poster-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+    .poster img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1414 / 2000;
+      background: #1a1730;
+    }
+    .poster-hint {
+      display: block;
+      padding: .7rem 1rem .8rem;
+      font-size: .8rem;
+      letter-spacing: .04em;
+      text-align: center;
+    }
+
+    @media (min-width: 1180px) {
+      .wrap {
+        width: min(1140px, calc(100% - 3rem));
+        grid-template-columns: minmax(0, 780px) minmax(0, 320px);
+        justify-content: center;
+        align-items: start;
+        column-gap: 1.75rem;
+      }
+      .invite, footer { grid-column: 1; }
+      .poster {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        position: sticky;
+        top: 1.4rem;
+        width: 100%;
+        margin: 0;
+      }
+    }
+
     @media (max-width: 680px) {
       .when { grid-template-columns: 1fr; }
       .invite { padding: 1.25rem 1.05rem 1.35rem; border-radius: 26px; }
@@ -442,6 +499,8 @@
       html { scroll-behavior: auto; }
       .blob, .invite, .glow { animation: none !important; }
       .still-frame img.is-on { transition: none; }
+      .poster-link { transition: none; }
+      .poster-link:hover { transform: none; }
       .invite {
         opacity: 1;
         transform: none;
@@ -524,6 +583,17 @@
         <p class="rsvp-count" data-rsvp-count hidden></p>
       </section>
     </article>
+
+    <figure class="poster">
+      <a class="poster-link" href="assets/images/science-supernova-4.jpg" target="_blank" rel="noopener">
+        <picture>
+          <source type="image/avif" srcset="assets/images/science-supernova-4-480.avif 480w, assets/images/science-supernova-4-960.avif 960w, assets/images/science-supernova-4.avif 1414w" sizes="(min-width: 1180px) 320px, (min-width: 680px) 420px, calc(100vw - 1.4rem)">
+          <source type="image/webp" srcset="assets/images/science-supernova-4-480.webp 480w, assets/images/science-supernova-4-960.webp 960w, assets/images/science-supernova-4.webp 1414w" sizes="(min-width: 1180px) 320px, (min-width: 680px) 420px, calc(100vw - 1.4rem)">
+          <img src="assets/images/science-supernova-4-960.jpg" srcset="assets/images/science-supernova-4-480.jpg 480w, assets/images/science-supernova-4-960.jpg 960w, assets/images/science-supernova-4.jpg 1414w" sizes="(min-width: 1180px) 320px, (min-width: 680px) 420px, calc(100vw - 1.4rem)" width="1414" height="2000" loading="lazy" decoding="async" alt="Science Supernova poster. Five friends raise glasses around a glowing blue fountain outside the CCR container at night, under a colorful nebula with molecule drawings and playful lines of code.">
+        </picture>
+        <span class="poster-hint">Open the full-size poster</span>
+      </a>
+    </figure>
 
     <footer>
       <span>Hope to see you there!</span>
@@ -637,7 +707,8 @@
     };
     const settle = async () => {
       try { await document.fonts.ready; } catch (err) { /* keep going */ }
-      await Promise.all([...document.images].map((img) => (img.complete ? null : img.decode().catch(() => {}))));
+      const eager = [...document.images].filter((img) => img.loading !== "lazy");
+      await Promise.all(eager.map((img) => (img.complete ? null : img.decode().catch(() => {}))));
       const invite = document.querySelector(".invite");
       const anims = invite ? invite.getAnimations() : [];
       if (reduce || !anims.length) {
