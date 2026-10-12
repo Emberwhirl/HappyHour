@@ -2,9 +2,10 @@
 """Check the invitation page, its assets, the RSVP setup, and the legacy sender.
 
 Exit 0 when the guest-facing text and the send gate still match the plan.
-This script does not send mail and does not open a network connection.
+This script does not send mail and does not reach the internet.
 When node is installed it also runs scripts/check_rsvp_count.mjs, which
-replaces fetch and stays offline.
+replaces fetch and stays offline, and scripts/check_slideshow.mjs, which
+serves the page on 127.0.0.1 and drives a local headless Chrome.
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ SIGNUP = ROOT / "drafts_helene" / "rsvp-names.html"
 CONFIG = ROOT / "assets" / "hh-config.js"
 COUNT_API = ROOT / "api" / "rsvp-count.mjs"
 COUNT_CHECK = ROOT / "scripts" / "check_rsvp_count.mjs"
+SLIDESHOW_CHECK = ROOT / "scripts" / "check_slideshow.mjs"
 PROBLEMS: list[str] = []
 
 RSVP_ASK = "Please RSVP using the form so we know how much to get."
@@ -344,18 +346,36 @@ def check_poster(html: str) -> None:
 
 
 def check_slideshow(html: str) -> None:
-    """Crossfade with the old picture underneath, touch swipe, dots, and no motion when reduced."""
+    """Shuffled crossfade with the old picture underneath, swipe and drag, arrow keys, dots, and no motion when reduced."""
     for item in (
         ".still-frame img.is-leaving { z-index: 1; opacity: 1; }",
         "transition: opacity .9s cubic-bezier(.4, 0, .2, 1);",
         "touch-action: pan-y;",
         "aspect-ratio: 16 / 9;",
+        "cursor: grab;",
+        ".still-frame.is-dragging { cursor: grabbing; }",
         "const FADE_MS = 900;",
         'img.classList.toggle("is-leaving", !on && i === prev && !reduce);',
+        "for (let i = order.length - 1; i > 0; i -= 1) {",
+        "const j = Math.floor(Math.random() * (i + 1));",
+        "[order[i], order[j]] = [order[j], order[i]];",
+        "const dots = order.map((i) => markupDots[i]);",
+        "frame.append(...frames);",
+        "nav.append(...dots);",
+        "dots.forEach((dot, i) => { dot.dataset.slideTo = String(i); });",
         'frame.addEventListener("pointerdown"',
-        'frame.addEventListener("pointerup"',
-        'frame.addEventListener("pointercancel"',
+        'window.addEventListener("pointermove"',
+        'window.addEventListener("pointerup"',
+        'window.addEventListener("pointercancel"',
+        "const DRAG_START = 8;",
+        "frame.setPointerCapture(e.pointerId);",
+        "if (e.target === frame && swipe && e.pointerId === swipe.id) endSwipe();",
+        'window.addEventListener("click", (e) => {',
+        'frame.addEventListener("dragstart", (e) => e.preventDefault());',
         "showSlide(index + (dx < 0 ? 1 : -1));",
+        'document.addEventListener("keydown", (e) => {',
+        'if (target.isContentEditable || (target.closest && target.closest("input, textarea, select"))) return;',
+        'showSlide(index + (e.key === "ArrowRight" ? 1 : -1));',
         "showSlide(Number(dot.dataset.slideTo));",
         'slides.addEventListener("pointerenter"',
         "if (reduce || frames.length < 2) return;",
@@ -367,6 +387,8 @@ def check_slideshow(html: str) -> None:
         fail("index.html slideshow still fades under prefers-reduced-motion")
     if "img.getAnimations()" in html:
         fail("the slideshow cancels every animation on a picture, which cuts the fade short")
+    if re.search(r"\.sort\(\s*\(\)\s*=>\s*Math\.random\(\)", html):
+        fail("the slideshow shuffles with sort and Math.random, which is biased")
     dots = re.findall(r'data-slide-to="(\d)"', html)
     frames = re.search(r'<div class="still-frame">(.*?)</div>', html, re.S)
     if not frames or dots != [str(i) for i in range(len(re.findall(r"<img\b", frames.group(1))))]:
@@ -642,6 +664,20 @@ def check_count_api() -> None:
         fail(f"scripts/check_rsvp_count.mjs failed\n{result.stderr.strip() or result.stdout.strip()}")
 
 
+def check_slideshow_browser() -> None:
+    """Shuffle, mouse drag, arrow keys, and touch swipe in headless Chrome at 1280 and 390 pixels."""
+    if not shutil.which("node"):
+        print("node is not installed, so scripts/check_slideshow.mjs was skipped.")
+        return
+    result = subprocess.run(
+        ["node", str(SLIDESHOW_CHECK)], cwd=ROOT, capture_output=True, text=True, timeout=600
+    )
+    if result.returncode != 0:
+        fail(f"scripts/check_slideshow.mjs failed\n{result.stderr.strip() or result.stdout.strip()}")
+    elif result.stdout.strip():
+        print(result.stdout.strip())
+
+
 def check_no_data_link() -> None:
     """The SoSci data link is a secret. It lives only in the Vercel env."""
     skip_dirs = {".git", "node_modules", ".vercel", "__pycache__"}
@@ -670,6 +706,7 @@ def main() -> int:
         check_no_save_feature(str(doc.relative_to(ROOT)), read(doc))
     sosci_url = check_config()
     check_count_api()
+    check_slideshow_browser()
     check_no_data_link()
     check_sender()
     if PROBLEMS:

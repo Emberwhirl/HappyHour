@@ -15,7 +15,7 @@ The public page URL is still the `[PAGE_URL]` placeholder in the `hh-page-url` m
 | `api/rsvp-count.mjs` | Vercel function for the optional live attendee count. |
 | `assets/posters/` | `poster1.png` from the note in `drafts_helene/README.md`, and `science-supernova-3.png` with its A4 print. |
 | `docs/` | Event facts, the open plan, and implementation notes. Start with `docs/overview.md`. |
-| `scripts/` | `preview.sh` serves the page. `check_invitation.py` checks copy, assets, the RSVP setup, and the send gate. `check_rsvp_count.mjs` tests the count function offline. |
+| `scripts/` | `preview.sh` serves the page. `check_invitation.py` checks copy, assets, the RSVP setup, and the send gate. `check_rsvp_count.mjs` tests the count function offline. `check_slideshow.mjs` tests the shuffled slideshow, mouse drag, arrow keys, and touch swipe in headless Chrome at 1280 and 390 pixels. |
 | `drafts_helene/` | Legacy mail drafts. They stay in this folder. |
 
 ## Preview the page
@@ -42,7 +42,7 @@ Check the page before you hand it on.
 python3 scripts/check_invitation.py
 ```
 
-It also runs `node scripts/check_rsvp_count.mjs` when node is installed. That check replaces `fetch`, so it stays offline.
+It also runs `node scripts/check_rsvp_count.mjs` when node is installed. That check replaces `fetch`, so it stays offline. With node it also runs `node scripts/check_slideshow.mjs`, which serves the page on 127.0.0.1 and drives a local Chrome or Chromium that cannot reach other hosts. It takes about half a minute and is skipped when no Chrome is found. Set `CHROME_PATH` to choose the browser.
 
 ## Sending later
 
