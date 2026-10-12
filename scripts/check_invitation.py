@@ -35,6 +35,12 @@ RSVP_SOON = "RSVP opens soon"
 EVENT_TEXT = "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain."
 DATA_LINK_RE = re.compile(r"[?&]act=[A-Za-z0-9_-]{6,}")
 SOSCI_URL_KEY = re.compile(r"\bHH_SOSCI_URL\s*:\s*[\"']")
+POSTER_FULL = "science-supernova-4.jpg"
+POSTER_WIDTHS = (
+    ("science-supernova-4-480", 480),
+    ("science-supernova-4-960", 960),
+    ("science-supernova-4", 1414),
+)
 
 BANNED_WORDS = (
     "stellar",
@@ -245,6 +251,8 @@ def check_page(html: str) -> None:
         fail("the page still mentions an end time")
     check_copy("invitation page", guest_text(html))
     check_skip_link("index.html", html)
+    check_poster(html)
+    check_slideshow(html)
     for snippet in (
         "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM.",
         "There will be a glowing gin tonic fountain.",
@@ -254,7 +262,118 @@ def check_page(html: str) -> None:
         check_copy("page script", snippet)
 
 
+def check_poster_picture(label: str, html: str, prefix: str) -> str:
+    """The optimized poster, AVIF and WebP with a JPEG fallback. Returns the <picture> markup."""
+    picture = re.search(r"<picture>(.*?)</picture>", html, re.S)
+    if not picture:
+        fail(f"{label} has no <picture> for the poster")
+        return ""
+    inner = picture.group(1)
+    for fmt in ("avif", "webp"):
+        source = re.search(rf'<source type="image/{fmt}" srcset="([^"]+)" sizes="[^"]+">', inner)
+        expected = ", ".join(f"{prefix}{name}.{fmt} {w}w" for name, w in POSTER_WIDTHS)
+        if not source or source.group(1) != expected:
+            fail(f"{label} poster has no {fmt} source with every width")
+    img = re.search(r"<img\b([^>]*)>", inner)
+    if not img:
+        fail(f"{label} poster has no fallback <img>")
+        return inner
+    attrs = img.group(1)
+    jpgs = ", ".join(f"{prefix}{name}.jpg {w}w" for name, w in POSTER_WIDTHS)
+    for item in (
+        f'src="{prefix}science-supernova-4-960.jpg"',
+        f'srcset="{jpgs}"',
+        'sizes="',
+        'width="1414"',
+        'height="2000"',
+        'decoding="async"',
+    ):
+        if item not in attrs:
+            fail(f"{label} poster <img> is missing {item}")
+    alt = re.search(r'alt="([^"]+)"', attrs)
+    if not alt or len(alt.group(1)) < 40:
+        fail(f"{label} poster has no descriptive alt text")
+    else:
+        check_copy(f"{label} poster alt text", alt.group(1))
+    if "%20" in inner or re.search(r'(?:src|href)="[^"]* [^"]*"', inner):
+        fail(f"{label} poster uses a filename with a space")
+    return inner
+
+
+def check_poster(html: str) -> None:
+    """The poster is its own element after the RSVP section, never one of the slides."""
+    figure = re.search(r'<figure class="poster">(.*?)</figure>', html, re.S)
+    if not figure:
+        fail("index.html has no poster figure")
+        return
+    inner = figure.group(1)
+    picture = check_poster_picture("index.html", inner, "assets/images/")
+    if 'loading="lazy"' not in picture:
+        fail("index.html poster is not lazy loaded")
+    if "Science Supernova poster" not in picture:
+        fail("index.html poster alt text does not name the poster")
+    link = re.search(r'<a class="poster-link" href="([^"]+)" target="_blank" rel="noopener">', inner)
+    if not link or link.group(1) != f"assets/images/{POSTER_FULL}":
+        fail("index.html poster does not open the full-size image in a new tab")
+    if "Open the full-size poster" not in inner:
+        fail("index.html poster has no visible hint that it opens full size")
+    slides = re.search(r"<figure class=\"still\" data-slides>(.*?)</figure>", html, re.S)
+    if not slides:
+        fail("index.html has no slideshow")
+    elif "supernova" in slides.group(1).lower():
+        fail("the poster is one of the slideshow pictures")
+    rsvp_end = html.find("</section>", html.find('id="rsvp"'))
+    if html.find('<figure class="poster">') < rsvp_end:
+        fail("the poster comes before the RSVP section and pushes it down")
+    for item in (
+        "@media (min-width: 1180px)",
+        "grid-column: 2;",
+        "aspect-ratio: 1414 / 2000;",
+        'filter((img) => img.loading !== "lazy")',
+    ):
+        if item not in html:
+            fail(f"index.html poster layout is missing {item}")
+
+
+def check_slideshow(html: str) -> None:
+    """Crossfade with the old picture underneath, touch swipe, dots, and no motion when reduced."""
+    for item in (
+        ".still-frame img.is-leaving { z-index: 1; opacity: 1; }",
+        "transition: opacity .9s cubic-bezier(.4, 0, .2, 1);",
+        "touch-action: pan-y;",
+        "aspect-ratio: 16 / 9;",
+        "const FADE_MS = 900;",
+        'img.classList.toggle("is-leaving", !on && i === prev && !reduce);',
+        'frame.addEventListener("pointerdown"',
+        'frame.addEventListener("pointerup"',
+        'frame.addEventListener("pointercancel"',
+        "showSlide(index + (dx < 0 ? 1 : -1));",
+        "showSlide(Number(dot.dataset.slideTo));",
+        'slides.addEventListener("pointerenter"',
+        "if (reduce || frames.length < 2) return;",
+    ):
+        if item not in html:
+            fail(f"index.html slideshow is missing {item}")
+    reduced = re.search(r"@media \(prefers-reduced-motion: reduce\) \{(.*?)\n    \}", html, re.S)
+    if not reduced or ".still-frame img.is-on { transition: none; }" not in reduced.group(1):
+        fail("index.html slideshow still fades under prefers-reduced-motion")
+    if "img.getAnimations()" in html:
+        fail("the slideshow cancels every animation on a picture, which cuts the fade short")
+    dots = re.findall(r'data-slide-to="(\d)"', html)
+    frames = re.search(r'<div class="still-frame">(.*?)</div>', html, re.S)
+    if not frames or dots != [str(i) for i in range(len(re.findall(r"<img\b", frames.group(1))))]:
+        fail("index.html slideshow dots do not match its pictures")
+
+
 def check_assets() -> None:
+    for name, _ in POSTER_WIDTHS:
+        for fmt in ("avif", "webp", "jpg"):
+            rel = f"assets/images/{name}.{fmt}"
+            path = ROOT / rel
+            if not path.is_file() or path.stat().st_size < 5000:
+                fail(f"Missing or empty asset {rel}")
+            elif path.stat().st_size > 400_000:
+                fail(f"{rel} is larger than 400 KB")
     for rel in (
         "assets/images/icon.png",
         "assets/images/terrace.jpg",
@@ -390,8 +509,11 @@ def check_sender() -> None:
 
 def check_email_draft(preview: str) -> None:
     """The email draft is separate from production index.html."""
-    if "Science%20Supernova-4.png" not in preview and "Science Supernova-4.png" not in preview:
-        fail("email draft does not use Science Supernova-4.png")
+    picture = check_poster_picture("email draft", preview, "../assets/images/")
+    if "Supernova-4.png" in preview:
+        fail("email draft still loads the 5.6 MB poster PNG")
+    if 'loading="lazy"' in picture or 'fetchpriority="high"' not in picture:
+        fail("email draft poster is the first thing on the page and should load eagerly")
     if "data-slides" in preview or "still-nav" in preview or "data-slide-to" in preview:
         fail("email draft still has a picture slideshow")
     lowered = preview.lower()
@@ -405,9 +527,7 @@ def check_email_draft(preview: str) -> None:
     first_lines = preview.split("<head>", 1)[0]
     if not re.search(r"<!--[^>]*only as a link to the hosted page[^>]*-->", first_lines):
         fail("email draft has no link-only comment at the top")
-    image_at = preview.find("Science%20Supernova-4.png")
-    if image_at < 0:
-        image_at = preview.find("Science Supernova-4.png")
+    image_at = preview.find('<figure class="still">\n        <picture>')
     title_at = preview.find("<h1>")
     if image_at < 0 or title_at < 0 or image_at > title_at:
         fail("email draft does not place the picture before the other info")

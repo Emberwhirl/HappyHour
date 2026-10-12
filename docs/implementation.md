@@ -87,7 +87,15 @@ The page uses these files in `assets/images/`:
 - `icon.png` in the header and as the browser icon. The same file is linked after the base-URL script so it resolves next to the page.
 - Six pictures under the date line. `terrace.jpg` is the Vienna terrace with two friends looking at a phone. `feast.jpg` is that terrace with food and beer. `table.jpg` is glasses, olives, crackers, and cheese. `party.jpg` is mugs and glasses under warm lights. `cosmos.jpg` is drinks under a starry sky. `snacks.jpg` is beer, pretzels, cheese, olives, and bread. Each large file has a 640 pixel sibling for narrower screens.
 
-The frame crossfades, and the picture eases across the frame while it is showing. The dots under the frame pick a picture. Hovering or focusing the frame pauses the change and the drift. With reduced motion, the terrace picture stays still until a dot is used. The header icon is decorative because the lab name is already beside it.
+The frame crossfades over 0.9 seconds. The outgoing picture stays fully opaque underneath (`is-leaving`) while the new one fades in on top (`is-on`), so the dark frame never shows through. The picture also eases across the frame while it is showing. Those pans are kept in their own list, because cancelling every animation on a picture would also cancel its fade. The dots under the frame pick a picture. On touch screens a horizontal swipe of at least 40 pixels goes to the next or previous picture. The frame uses `touch-action: pan-y`, so vertical scrolling still works. A mouse pointer over the frame, or focus inside it, pauses the change and the drift. Touch taps do not pause it. With reduced motion there is no autoplay and no fade, and dots and swipes switch instantly. The frame keeps a 16 by 9 box, so switching never moves the page. The header icon is decorative because the lab name is already beside it.
+
+## Poster
+
+The Science Supernova poster sits after the card on phones and tablets, so it never pushes the date, time, place, or RSVP down. At 1180 pixels and wider it sits in a column beside the card and stays in view while the page scrolls.
+
+It is a `<picture>` with AVIF and WebP sources and a JPEG fallback, each at 480, 960, and 1414 pixels wide (`assets/images/science-supernova-4-480.*`, `-960.*`, and `science-supernova-4.*`). The `<img>` has `width="1414"` and `height="2000"` and a matching `aspect-ratio`, so nothing shifts when it loads. It is `loading="lazy"`, and the settle script does not wait for lazy pictures. The whole poster is a link to the full-size JPEG in a new tab, with a visible "Open the full-size poster" hint. It is not part of the slideshow.
+
+`assets/images/Science Supernova-4.png` is the 5.6 MB source. No page loads it. To regenerate the optimized files, export the three widths from it with the same names.
 
 ## Addresses with no trailing slash
 
@@ -95,7 +103,7 @@ Font and image URLs are relative (`assets/...`). If a host serves the page at a 
 
 ## Email draft
 
-`drafts_helene/happy_hour_preview.html` is the email invitation. It keeps this dark gold card and does not follow `index.html` after the draft changes. The picture is the static file `assets/images/Science Supernova-4.png`, placed first. Headers use Courier New. Body copy stays in Outfit. The draft does not mention Vienna time and does not offer an email RSVP. It has the same RSVP button and calendar file as the main page, with `?r=mail`. It has no live count.
+`drafts_helene/happy_hour_preview.html` is the email invitation. It keeps this dark gold card and does not follow `index.html` after the draft changes. The picture is the Science Supernova poster, placed first. It uses the same optimized `<picture>` files as the main page, loaded eagerly with `fetchpriority="high"` because it is the first thing on the page. Its size, position, and alt text match the old PNG, so it looks the same and loads about 5 MB less. Headers use Courier New. Body copy stays in Outfit. The draft does not mention Vienna time and does not offer an email RSVP. It has the same RSVP button and calendar file as the main page, with `?r=mail`. It has no live count.
 
 The draft is shared only as a link to the hosted page. A comment at the top of the file says so.
 

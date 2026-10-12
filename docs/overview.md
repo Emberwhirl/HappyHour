@@ -19,7 +19,7 @@ October 30, 2026 is a Friday. Europe switches from summer time to standard time 
 | `assets/hh-config.js` | RSVP settings shared by both pages. `HH_SOSCI_URL` is the SoSci questionnaire link. |
 | `api/rsvp-count.mjs` | Vercel function behind the optional live attendee count. |
 | `assets/fonts/` | Self-hosted Cormorant Garamond and Outfit files. |
-| `assets/images/` | Header icon and the six pictures that switch under the date line. |
+| `assets/images/` | Header icon, the six pictures that switch under the date line, and the Science Supernova poster. |
 | `docs/` | Event facts, the open plan, and implementation notes. |
 | `scripts/` | Local preview server and the invitation check. |
 | `drafts_helene/` | Email invite draft, the retired names page that now forwards to the RSVP, and the legacy mail script. Leave this folder where it is. |
