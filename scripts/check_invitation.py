@@ -37,13 +37,13 @@ RSVP_SOON = "RSVP opens soon"
 EVENT_TEXT = "Drinks and snacks with the Barozzi & Tardito Lab at 5:00 PM. There will be a glowing gin tonic fountain."
 DATA_LINK_RE = re.compile(r"[?&]act=[A-Za-z0-9_-]{6,}")
 SOSCI_URL_KEY = re.compile(r"\bHH_SOSCI_URL\s*:\s*[\"']")
-POSTER_FULL = "science-supernova-4-2828.jpg"
+POSTER_FULL = "science-supernova-5-2828.jpg"
 POSTER_WIDTHS = (
-    ("science-supernova-4-480", 480),
-    ("science-supernova-4-960", 960),
-    ("science-supernova-4-1414", 1414),
-    ("science-supernova-4-2000", 2000),
-    ("science-supernova-4-2828", 2828),
+    ("science-supernova-5-480", 480),
+    ("science-supernova-5-960", 960),
+    ("science-supernova-5-1414", 1414),
+    ("science-supernova-5-2000", 2000),
+    ("science-supernova-5-2828", 2828),
 )
 POSTER_SIZES = "(min-width: 1180px) 320px, (min-width: 443px) 420px, calc(100vw - 1.4rem)"
 # Phones at 2x and 3x load AVIF or WebP up to 1414 pixels wide.
@@ -289,7 +289,7 @@ def check_poster_picture(label: str, html: str, prefix: str) -> str:
     attrs = img.group(1)
     jpgs = ", ".join(f"{prefix}{name}.jpg {w}w" for name, w in POSTER_WIDTHS)
     for item in (
-        f'src="{prefix}science-supernova-4-960.jpg"',
+        f'src="{prefix}science-supernova-5-960.jpg"',
         f'srcset="{jpgs}"',
         'sizes="',
         'width="1414"',
@@ -564,8 +564,8 @@ def check_sender() -> None:
 def check_email_draft(preview: str) -> None:
     """The email draft is separate from production index.html."""
     picture = check_poster_picture("email draft", preview, "../assets/images/")
-    if "Supernova-4.png" in preview:
-        fail("email draft still loads the 5.6 MB poster PNG")
+    if "Supernova-4.png" in preview or "science-supernova-5.png" in preview:
+        fail("email draft still loads a poster PNG")
     if 'loading="lazy"' in picture or 'fetchpriority="high"' not in picture:
         fail("email draft poster is the first thing on the page and should load eagerly")
     if "data-slides" in preview or "still-nav" in preview or "data-slide-to" in preview:

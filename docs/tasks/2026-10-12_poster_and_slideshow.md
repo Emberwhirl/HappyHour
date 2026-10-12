@@ -4,7 +4,9 @@ Both changes are on `index.html`. RSVP, the skip link to `#rsvp`, the copy, and 
 
 ## Poster
 
-- `assets/images/Science Supernova-4.png` (1414 by 2000, 5.6 MB) is now exported as AVIF, WebP, and JPEG at 480, 960, and 1414 pixels wide. The names have no spaces, for example `science-supernova-4-960.avif`. The largest file is the 332 KB full-size JPEG.
+Those `science-supernova-4` files, including `assets/images/Science Supernova-4.png`, were removed. The page now uses `assets/images/science-supernova-5-*`, made from `assets/posters/science-supernova-5.png`.
+
+- `assets/images/Science Supernova-4.png` (1414 by 2000, 5.6 MB) was exported as AVIF, WebP, and JPEG at 480, 960, and 1414 pixels wide. The names had no spaces, for example `science-supernova-4-960.avif`. The largest file was the 332 KB full-size JPEG.
 - On the main page the poster is its own `<figure class="poster">` after the card, outside the slideshow. Below 1180 pixels it comes after the RSVP section. Before this change, the details were already partly below the fold at 390 by 844 and 1280 by 900, and RSVP was fully below it, so nothing may go above them. At 1180 pixels and wider it is a sticky column beside the card.
 - `<picture>` with `srcset` and `sizes`, a JPEG fallback, `width`, `height`, `aspect-ratio`, `loading="lazy"`, and descriptive alt text. Tapping it opens the full-size JPEG in a new tab.
 - The email version now uses the same optimized files with the same size, position, and alt text. It loads eagerly because the poster is the first thing on that page. Its look is unchanged.

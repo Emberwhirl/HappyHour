@@ -1,5 +1,5 @@
 for the email invite keep the background of the current draft but do following changes: 
-1. change main picture to: Science Supernova-4.png. and it should be static. 
+1. change main picture to the Science Supernova poster, and it should be static. `Science Supernova-4.png` was removed. The draft now uses `assets/images/science-supernova-5-*`. 
 2. you can keep the basic font but hte headers should all be in the same computer font as in the picture. 
 3. remove vienna time. 
 and the picture should be the first thing, the rest of the info comes below it. 

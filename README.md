@@ -13,7 +13,7 @@ The public page URL is still the `[PAGE_URL]` placeholder in the `hh-page-url` m
 | `index.html` | The hosted invitation. |
 | `assets/` | Fonts, pictures, posters, and `hh-config.js` with the RSVP settings. |
 | `api/rsvp-count.mjs` | Vercel function for the optional live attendee count. |
-| `assets/posters/` | `poster1.png` from the note in `drafts_helene/README.md`, and `science-supernova-3.png` with its A4 print. |
+| `assets/posters/` | `science-supernova-3.png`, the earlier patio photograph, and `science-supernova-5.png`, the 2828 by 4000 master. |
 | `docs/` | Event facts, the open plan, and implementation notes. Start with `docs/overview.md`. |
 | `scripts/` | `preview.sh` serves the page. `check_invitation.py` checks copy, assets, the RSVP setup, and the send gate. `check_rsvp_count.mjs` tests the count function offline. `check_slideshow.mjs` tests the shuffled slideshow, mouse drag, arrow keys, and touch swipe in headless Chrome at 1280 and 390 pixels. |
 | `drafts_helene/` | Legacy mail drafts. They stay in this folder. |
@@ -28,7 +28,7 @@ Open `index.html` in a browser, or serve the repo root and visit [http://127.0.0
 
 `python3 -m http.server 8000` from the repo root does the same thing.
 
-The email invite draft is `drafts_helene/happy_hour_preview.html`. It keeps the dark gold card, shows the Science Supernova poster as one static picture (the optimized `assets/images/science-supernova-4*` files), and has the same RSVP button as the main page. It is shared only as a link to the hosted page. `drafts_helene/rsvp-names.html` is retired and forwards old links to the questionnaire, or to the invite while the questionnaire is not set. Running the script below prints the email subject. It does **not** send anything, and it does not rebuild the draft from `index.html`.
+The email invite draft is `drafts_helene/happy_hour_preview.html`. It keeps the dark gold card, shows the Science Supernova poster as one static picture (the optimized `assets/images/science-supernova-5*` files), and has the same RSVP button as the main page. It is shared only as a link to the hosted page. `drafts_helene/rsvp-names.html` is retired and forwards old links to the questionnaire, or to the invite while the questionnaire is not set. Running the script below prints the email subject. It does **not** send anything, and it does not rebuild the draft from `index.html`.
 
 ```bash
 python3 drafts_helene/mail_happy_hour.py
