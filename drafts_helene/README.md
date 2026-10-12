@@ -1,4 +1,4 @@
-For posters it should be portrait format and look like real pictures. 
+For posters it should be portrait format and look like real pictures. `poster1.png` was removed. The current master is `assets/posters/science-supernova-5.png`. 
 
 
 poster 1: 
