@@ -28,7 +28,7 @@ Open `index.html` in a browser, or serve the repo root and visit [http://127.0.0
 
 `python3 -m http.server 8000` from the repo root does the same thing.
 
-The email invite draft is `drafts_helene/happy_hour_preview.html`. It keeps the dark gold card, shows `assets/images/Science Supernova-4.png` as one static picture, and has the same RSVP button as the main page. It is shared only as a link to the hosted page. `drafts_helene/rsvp-names.html` is retired and forwards old links to the questionnaire, or to the invite while the questionnaire is not set. Running the script below prints the email subject. It does **not** send anything, and it does not rebuild the draft from `index.html`.
+The email invite draft is `drafts_helene/happy_hour_preview.html`. It keeps the dark gold card, shows the Science Supernova poster as one static picture (the optimized `assets/images/science-supernova-4*` files), and has the same RSVP button as the main page. It is shared only as a link to the hosted page. `drafts_helene/rsvp-names.html` is retired and forwards old links to the questionnaire, or to the invite while the questionnaire is not set. Running the script below prints the email subject. It does **not** send anything, and it does not rebuild the draft from `index.html`.
 
 ```bash
 python3 drafts_helene/mail_happy_hour.py
