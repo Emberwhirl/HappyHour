@@ -257,6 +257,8 @@ def check_page(html: str) -> None:
         fail("the page still embeds an illustration SVG")
     if "7:00" in html:
         fail("the page still mentions an end time")
+    if "DURATION:PT6H" not in html:
+        fail("index.html calendar is missing a six hour duration")
     check_copy("invitation page", guest_text(html))
     check_skip_link("index.html", html)
     check_poster(html)
@@ -318,16 +320,20 @@ def check_poster(html: str) -> None:
     picture = check_poster_picture("index.html", inner, "assets/images/")
     if picture.count(f'sizes="{POSTER_SIZES}"') != 3:
         fail("index.html poster sizes do not match its 320 and 420 pixel boxes")
-    if 'loading="lazy"' not in picture:
-        fail("index.html poster is not lazy loaded")
-    if "Science Supernova poster" not in picture:
-        fail("index.html poster alt text does not name the poster")
+    if 'loading="lazy"' in picture:
+        fail("index.html poster is lazy loaded")
+    if 'fetchpriority="high"' not in picture:
+        fail("index.html poster is not loaded with high priority")
+    if "Science Supernova" in picture:
+        fail("index.html poster alt text still names Science Supernova")
+    if "Friday, October 30, 2026, 5:00 PM, CCR container" not in inner:
+        fail("index.html poster caption is missing the date, time, and place")
     link = re.search(r'<a class="poster-link" href="([^"]+)" target="_blank" rel="noopener">', inner)
     if not link or link.group(1) != f"assets/images/{POSTER_FULL}":
         fail("index.html poster does not open the full-size image in a new tab")
     if "Open the full-size poster" not in inner:
         fail("index.html poster has no visible hint that it opens full size")
-    slides = re.search(r"<figure class=\"still\" data-slides>(.*?)</figure>", html, re.S)
+    slides = re.search(r'<figure class="still" data-slides(?: [^>]*)?>(.*?)</figure>', html, re.S)
     if not slides:
         fail("index.html has no slideshow")
     elif "supernova" in slides.group(1).lower():
@@ -369,10 +375,11 @@ def check_slideshow(html: str) -> None:
         'window.addEventListener("pointercancel"',
         "const DRAG_START = 8;",
         "frame.setPointerCapture(e.pointerId);",
-        "if (e.target === frame && swipe && e.pointerId === swipe.id) endSwipe();",
+        "finishSwipe(swipe.lastX ?? swipe.x, swipe.lastY ?? swipe.y);",
         'window.addEventListener("click", (e) => {',
         'frame.addEventListener("dragstart", (e) => e.preventDefault());',
         "showSlide(index + (dx < 0 ? 1 : -1));",
+        "if (!slides.contains(document.activeElement)) return;",
         'document.addEventListener("keydown", (e) => {',
         'if (target.isContentEditable || (target.closest && target.closest("input, textarea, select"))) return;',
         'showSlide(index + (e.key === "ArrowRight" ? 1 : -1));',
@@ -571,8 +578,14 @@ def check_email_draft(preview: str) -> None:
     if "data-slides" in preview or "still-nav" in preview or "data-slide-to" in preview:
         fail("email draft still has a picture slideshow")
     lowered = preview.lower()
-    if "vienna time" in lowered:
-        fail("email draft still mentions Vienna time")
+    if "5:00 PM</span> <span class=\"nw\">Vienna time</span> in the" not in preview:
+        fail("email draft header line has no Vienna time")
+    if "<span>Time</span>\n          <strong><span class=\"nw\">5:00 PM</span></strong>\n          <span>Vienna time</span>" not in preview:
+        fail("email draft time card has no Vienna time")
+    if "Friday, October 30, 2026, 5:00 PM, Vienna time, CCR container" not in preview:
+        fail("email draft caption has no Vienna time")
+    if "DURATION:PT6H" not in preview:
+        fail("email draft calendar is missing a six hour duration")
     if "mailto:" in lowered or "[RSVP_EMAIL]" in preview or "Email RSVP" in preview:
         fail("email draft still asks for an email RSVP")
     check_rsvp("email draft", preview, "mail", "../assets/hh-config.js")
