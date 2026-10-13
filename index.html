@@ -25,6 +25,7 @@
   </script>
   <script src="assets/hh-config.js"></script>
   <link rel="icon" type="image/png" href="assets/images/icon.png">
+  <noscript><style>.still[data-pending]{visibility:visible}</style></noscript>
   <style>
     @font-face {
       font-family: "Cormorant Garamond";
@@ -182,6 +183,7 @@
       overflow: hidden;
       border: 1px solid rgba(243, 223, 154, .16);
     }
+    .still[data-pending] { visibility: hidden; }
     .still-frame {
       position: relative;
       aspect-ratio: 16 / 9;
@@ -210,20 +212,41 @@
       opacity: 1;
       transition: opacity .9s cubic-bezier(.4, 0, .2, 1);
     }
+    .still-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .25rem;
+      padding: .15rem .4rem .2rem;
+    }
     .still-nav {
       display: flex;
       justify-content: center;
       gap: 0;
-      padding: .2rem 0 .05rem;
     }
     .still-nav button {
-      width: 2rem;
-      height: 2rem;
+      width: 44px;
+      height: 44px;
       padding: 0;
       border: 0;
       border-radius: 999px;
       background: transparent;
       cursor: pointer;
+    }
+    .still-pause {
+      min-width: 44px;
+      min-height: 44px;
+      padding: 0 .85rem;
+      border: 1px solid rgba(231, 197, 106, .45);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--gold-2);
+      font: 600 .85rem/1 Outfit, "Segoe UI", sans-serif;
+      cursor: pointer;
+    }
+    .still-pause:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
     }
     .still-nav button::after {
       content: "";
@@ -462,21 +485,30 @@
       aspect-ratio: 1414 / 2000;
       background: #1a1730;
     }
+    .poster-foot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .15rem;
+      padding: .7rem 1rem .85rem;
+    }
     .poster-hint {
       display: block;
-      padding: .7rem 1rem .8rem;
       font-size: .8rem;
       letter-spacing: .04em;
       text-align: center;
     }
     .poster-caption {
-      margin: .75rem .4rem 0;
+      margin: 0;
       font-family: Outfit, "Segoe UI", sans-serif;
       font-size: .95rem;
       font-weight: 500;
       line-height: 1.35;
       text-align: center;
       color: var(--cream);
+    }
+    .poster-side {
+      display: none;
     }
 
     @media (min-width: 1180px) {
@@ -496,6 +528,17 @@
         width: 100%;
         margin: 0;
       }
+      .poster-side {
+        display: block;
+        margin: 1rem .2rem 0;
+        color: var(--cream);
+        font-family: Outfit, "Segoe UI", sans-serif;
+        font-size: .98rem;
+        line-height: 1.45;
+        text-align: center;
+      }
+      .poster-side p { margin: 0 0 .65rem; }
+      .poster-side p:last-child { margin: 0; color: var(--gold-2); }
     }
 
     @media (max-width: 680px) {
@@ -541,7 +584,7 @@
       <p class="lede">Join us for a drink after work.</p>
       <p class="when-line">Friday, <span class="nw">October 30,</span> 2026 at <span class="nw">5:00 PM</span> <span class="nw">(Vienna time)</span> in the <span class="nw">CCR container</span></p>
 
-      <figure class="still" data-slides>
+      <figure class="still" data-slides data-pending>
         <div class="still-frame">
           <img class="is-on" src="assets/images/terrace.jpg" srcset="assets/images/terrace-640.jpg 640w, assets/images/terrace.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Friends on a Vienna terrace at dusk, two of them looking at a phone." width="1280" height="720">
           <img src="assets/images/feast.jpg" srcset="assets/images/feast-640.jpg 640w, assets/images/feast.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Food and beer on a Vienna terrace at dusk." width="1280" height="720" aria-hidden="true">
@@ -550,13 +593,16 @@
           <img src="assets/images/cosmos.jpg" srcset="assets/images/cosmos-640.jpg 640w, assets/images/cosmos.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Drinks on a ledge under a starry sky." width="1280" height="720" aria-hidden="true">
           <img src="assets/images/snacks.jpg" srcset="assets/images/snacks-640.jpg 640w, assets/images/snacks.jpg 1280w" sizes="(max-width: 760px) 92vw, 700px" alt="Beer, pretzels, cheese, olives, and bread." width="1280" height="720" aria-hidden="true">
         </div>
-        <div class="still-nav">
-          <button type="button" class="is-on" data-slide-to="0" aria-label="Show the terrace" aria-current="true"></button>
-          <button type="button" data-slide-to="1" aria-label="Show the food and beer" aria-current="false"></button>
-          <button type="button" data-slide-to="2" aria-label="Show the quiet table" aria-current="false"></button>
-          <button type="button" data-slide-to="3" aria-label="Show the party lights" aria-current="false"></button>
-          <button type="button" data-slide-to="4" aria-label="Show the starry drinks" aria-current="false"></button>
-          <button type="button" data-slide-to="5" aria-label="Show the snacks" aria-current="false"></button>
+        <div class="still-bar" role="group" aria-label="Choose a picture">
+          <div class="still-nav">
+            <button type="button" class="is-on" data-slide-to="0" aria-label="Show the terrace" aria-current="true"></button>
+            <button type="button" data-slide-to="1" aria-label="Show the food and beer" aria-current="false" tabindex="-1"></button>
+            <button type="button" data-slide-to="2" aria-label="Show the quiet table" aria-current="false" tabindex="-1"></button>
+            <button type="button" data-slide-to="3" aria-label="Show the party lights" aria-current="false" tabindex="-1"></button>
+            <button type="button" data-slide-to="4" aria-label="Show the starry drinks" aria-current="false" tabindex="-1"></button>
+            <button type="button" data-slide-to="5" aria-label="Show the snacks" aria-current="false" tabindex="-1"></button>
+          </div>
+          <button type="button" class="still-pause" data-slide-pause aria-pressed="false">Pause</button>
         </div>
       </figure>
 
@@ -600,11 +646,17 @@
         <picture>
           <source type="image/avif" srcset="assets/images/science-supernova-5-480.avif 480w, assets/images/science-supernova-5-960.avif 960w, assets/images/science-supernova-5-1414.avif 1414w, assets/images/science-supernova-5-2000.avif 2000w, assets/images/science-supernova-5-2828.avif 2828w" sizes="(min-width: 1180px) 320px, (min-width: 443px) 420px, calc(100vw - 1.4rem)">
           <source type="image/webp" srcset="assets/images/science-supernova-5-480.webp 480w, assets/images/science-supernova-5-960.webp 960w, assets/images/science-supernova-5-1414.webp 1414w, assets/images/science-supernova-5-2000.webp 2000w, assets/images/science-supernova-5-2828.webp 2828w" sizes="(min-width: 1180px) 320px, (min-width: 443px) 420px, calc(100vw - 1.4rem)">
-          <img src="assets/images/science-supernova-5-960.jpg" srcset="assets/images/science-supernova-5-480.jpg 480w, assets/images/science-supernova-5-960.jpg 960w, assets/images/science-supernova-5-1414.jpg 1414w, assets/images/science-supernova-5-2000.jpg 2000w, assets/images/science-supernova-5-2828.jpg 2828w" sizes="(min-width: 1180px) 320px, (min-width: 443px) 420px, calc(100vw - 1.4rem)" width="1414" height="2000" loading="lazy" decoding="async" alt="Science Supernova poster. Five friends raise glasses around a glowing blue fountain outside the CCR container at night, under a colorful nebula.">
+          <img src="assets/images/science-supernova-5-960.jpg" srcset="assets/images/science-supernova-5-480.jpg 480w, assets/images/science-supernova-5-960.jpg 960w, assets/images/science-supernova-5-1414.jpg 1414w, assets/images/science-supernova-5-2000.jpg 2000w, assets/images/science-supernova-5-2828.jpg 2828w" sizes="(min-width: 1180px) 320px, (min-width: 443px) 420px, calc(100vw - 1.4rem)" width="1414" height="2000" fetchpriority="high" decoding="async" alt="Five friends raise glasses around a glowing blue fountain outside the CCR container at night, under a colorful nebula.">
         </picture>
-        <span class="poster-hint">Open the full-size poster</span>
+        <span class="poster-foot">
+          <span class="poster-hint">Open the full-size poster</span>
+          <span class="poster-caption">Friday, October 30, 2026, 5:00 PM, CCR container</span>
+        </span>
       </a>
-      <figcaption class="poster-caption">Friday, October 30, 5:00 PM, CCR container</figcaption>
+      <div class="poster-side">
+        <p>There will be a glowing gin tonic fountain.</p>
+        <p>Hope to see you there!</p>
+      </div>
     </figure>
 
     <footer>
@@ -789,6 +841,7 @@
         "UID:happy-hour-20261030@barozzi-tardito-lab",
         `DTSTAMP:${stamp}`,
         `DTSTART;TZID=Europe/Vienna:${EVENT.start}`,
+        "DURATION:PT6H",
         `SUMMARY:${icsText(EVENT.title)}`,
         `LOCATION:${icsText(EVENT.location)}`,
         `DESCRIPTION:${icsText(EVENT.description)}`,
@@ -839,6 +892,7 @@
       // Re-inserted pictures start without a computed style, so the first one appears without a fade.
       frame.append(...frames);
       nav.append(...dots);
+      slides.removeAttribute("data-pending");
       dots.forEach((dot, i) => { dot.dataset.slideTo = String(i); });
       const FADE_MS = 900;
       const SWIPE_MIN = 40;
@@ -847,6 +901,8 @@
       let timer = 0;
       let leaveTimer = 0;
       let hovering = false;
+      let userPaused = false;
+      const pauseBtn = slides.querySelector("[data-slide-pause]");
       // Only these pans are cancelled or paused. getAnimations() would also catch the opacity fade.
       const ken = [];
       const playKen = (i) => {
@@ -885,11 +941,14 @@
             frames.forEach((img) => img.classList.remove("is-leaving"));
           }, FADE_MS + 100);
         }
+        const dotFocused = dots.includes(document.activeElement);
         dots.forEach((dot, i) => {
           const on = i === index;
           dot.classList.toggle("is-on", on);
           dot.setAttribute("aria-current", on ? "true" : "false");
+          dot.tabIndex = on ? 0 : -1;
         });
+        if (dotFocused) dots[index].focus();
         playKen(index);
       };
       const stopSlides = () => {
@@ -906,18 +965,28 @@
       dots.forEach((dot) => {
         dot.addEventListener("click", () => {
           showSlide(Number(dot.dataset.slideTo));
-          startSlides();
+          resumeSlides();
         });
       });
-      // After a swipe or key press, hover and focus keep their pause.
-      const resumeSlides = () => {
-        if (hovering || slides.contains(document.activeElement)) {
+      // Hover, focus on a dot, and the pause control all hold the motion.
+      const syncMotion = () => {
+        const focused = slides.contains(document.activeElement) && document.activeElement !== pauseBtn;
+        const hold = userPaused || hovering || focused;
+        if (hold) {
           stopSlides();
           pauseKen(true);
           return;
         }
+        pauseKen(false);
         startSlides();
       };
+      const resumeSlides = () => syncMotion();
+      pauseBtn.addEventListener("click", () => {
+        userPaused = !userPaused;
+        pauseBtn.setAttribute("aria-pressed", userPaused ? "true" : "false");
+        pauseBtn.textContent = userPaused ? "Play" : "Pause";
+        syncMotion();
+      });
       frames.forEach((img) => { img.draggable = false; });
       let swipe = null;
       let swallowClick = false;
@@ -932,17 +1001,10 @@
       });
       // Below DRAG_START the press stays a plain click, so nothing is captured or swallowed.
       // Move and release are heard on window because a quick drag can leave the frame before capture.
-      window.addEventListener("pointermove", (e) => {
-        if (!swipe || e.pointerId !== swipe.id || swipe.dragging) return;
-        if (Math.max(Math.abs(e.clientX - swipe.x), Math.abs(e.clientY - swipe.y)) < DRAG_START) return;
-        swipe.dragging = true;
-        frame.classList.add("is-dragging");
-        try { frame.setPointerCapture(e.pointerId); } catch (err) { /* the pointer is already gone */ }
-      });
-      window.addEventListener("pointerup", (e) => {
-        if (!swipe || e.pointerId !== swipe.id) return;
-        const dx = e.clientX - swipe.x;
-        const dy = e.clientY - swipe.y;
+      const finishSwipe = (x, y) => {
+        if (!swipe) return;
+        const dx = x - swipe.x;
+        const dy = y - swipe.y;
         const dragged = swipe.dragging;
         endSwipe();
         if (!dragged) return;
@@ -951,13 +1013,33 @@
         if (Math.abs(dx) < SWIPE_MIN || Math.abs(dx) < Math.abs(dy) * 1.2) return;
         showSlide(index + (dx < 0 ? 1 : -1));
         resumeSlides();
+      };
+      window.addEventListener("pointermove", (e) => {
+        if (!swipe || e.pointerId !== swipe.id) return;
+        swipe.lastX = e.clientX;
+        swipe.lastY = e.clientY;
+        if (swipe.dragging) return;
+        if (Math.max(Math.abs(e.clientX - swipe.x), Math.abs(e.clientY - swipe.y)) < DRAG_START) return;
+        swipe.dragging = true;
+        frame.classList.add("is-dragging");
+        try { frame.setPointerCapture(e.pointerId); } catch (err) { /* the pointer is already gone */ }
+      });
+      window.addEventListener("pointerup", (e) => {
+        if (!swipe || e.pointerId !== swipe.id) return;
+        finishSwipe(e.clientX, e.clientY);
       });
       window.addEventListener("pointercancel", (e) => {
         if (swipe && e.pointerId === swipe.id) endSwipe();
       });
       // Touch starts with an implicit capture on the picture, whose loss bubbles up here.
       frame.addEventListener("lostpointercapture", (e) => {
-        if (e.target === frame && swipe && e.pointerId === swipe.id) endSwipe();
+        if (!swipe || e.pointerId !== swipe.id || e.target !== frame) return;
+        // A release past the frame edge can drop capture before pointerup.
+        if (swipe.dragging && e.buttons === 0) {
+          finishSwipe(swipe.lastX ?? swipe.x, swipe.lastY ?? swipe.y);
+          return;
+        }
+        if (!swipe.dragging) endSwipe();
       });
       window.addEventListener("click", (e) => {
         if (!swallowClick) return;
@@ -971,6 +1053,7 @@
       });
       document.addEventListener("keydown", (e) => {
         if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+        if (!slides.contains(document.activeElement)) return;
         if (e.defaultPrevented || e.isComposing || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
         const target = e.target;
         if (target.isContentEditable || (target.closest && target.closest("input, textarea, select"))) return;
@@ -988,17 +1071,10 @@
       slides.addEventListener("pointerleave", (e) => {
         if (e.pointerType !== "mouse") return;
         hovering = false;
-        pauseKen(false);
-        startSlides();
+        syncMotion();
       });
-      slides.addEventListener("focusin", () => {
-        stopSlides();
-        pauseKen(true);
-      });
-      slides.addEventListener("focusout", () => {
-        pauseKen(false);
-        startSlides();
-      });
+      slides.addEventListener("focusin", () => { queueMicrotask(syncMotion); });
+      slides.addEventListener("focusout", () => { queueMicrotask(syncMotion); });
       showSlide(0);
       startSlides();
     }

@@ -432,6 +432,7 @@ async function mouseChecks(page, vp, markup) {
   await page.frames();
   s = await page.state();
   check(s.on === pick, `${vp.name}px: clicking dot ${pick} showed ${s.on}`);
+  check(s.pan === "paused", `${vp.name}px: a dot click while the pointer is over the slides restarted the pan (${s.pan})`);
   checkConsistent(`${vp.name}px after a dot`, s, markup);
 
   // Leaving the slides lets the pan run again.
@@ -452,8 +453,13 @@ async function keyChecks(page, vp) {
   let before = s;
   await page.key("ArrowRight", 39);
   s = await page.state();
+  check(s.on === before.on, `${vp.name}px: ArrowRight outside the slideshow changed the slide`);
+  await page.evaluate('document.querySelector("[data-slide-to].is-on").focus()');
+  before = await page.state();
+  await page.key("ArrowRight", 39);
+  s = await page.state();
   check(s.on === next(before.on, n), `${vp.name}px: ArrowRight did not go forward`);
-  check(s.pan === "running", `${vp.name}px: ArrowRight left the slides paused (${s.pan})`);
+  check(s.pan === "paused", `${vp.name}px: ArrowRight left the slides paused (${s.pan})`);
   before = s;
   await page.key("ArrowLeft", 37);
   await page.key("ArrowLeft", 37);
@@ -548,6 +554,7 @@ async function reducedChecks(page, vp, markup) {
   let before = s;
   const frame = await page.rect(".still-frame");
   await page.drag({ x: frame.left + frame.width * 0.75, y: frame.y }, { x: frame.left + frame.width * 0.25, y: frame.y });
+  await page.evaluate('document.querySelector("[data-slide-to].is-on").focus()');
   await page.key("ArrowRight", 39);
   s = await page.state();
   check(s.on === (before.on + 2) % n, `${vp.name}px reduced motion: drag and key did not switch`);
