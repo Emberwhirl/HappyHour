@@ -527,9 +527,12 @@ def check_sender() -> None:
                 os.environ[key] = value
 
     plain = mail.build_plain_text()
-    check_copy("plain text note", plain)
-    if "[PAGE_URL]" not in plain:
-        fail("the default plain note should still carry the page placeholder")
+    check_copy("plain text note", plain.replace("https://", ""))
+    live_page = "https://sonic-beryl-7zlowfy.vercel.app/"
+    if live_page not in plain:
+        fail("the default plain note does not use the live page URL")
+    if "[PAGE_URL]" in plain:
+        fail("the default plain note still carries the page placeholder")
     if "[RSVP_EMAIL]" in plain or "Vienna time" in plain or "reply to" in plain.lower():
         fail("the plain note still asks for an email RSVP or names Vienna time")
     if "rsvp-names" in plain or "signup" in plain.lower():
@@ -551,13 +554,21 @@ def check_sender() -> None:
     try:
         mail.ensure_no_placeholders(html, plain)
     except SystemExit as exc:
+        fail(f"ensure_no_placeholders refused the live page URL: {exc}")
+    try:
+        mail.ensure_no_placeholders(html, plain.replace(live_page, "[PAGE_URL]"))
+    except SystemExit as exc:
         if "placeholder" not in str(exc).lower():
             fail(f"placeholder refusal had an unexpected message: {exc}")
     else:
-        fail("ensure_no_placeholders allowed the current placeholders")
+        fail("ensure_no_placeholders allowed a placeholder")
 
     preview = read(PREVIEW)
     check_email_draft(preview)
+    if 'name="hh-page-url" content="https://sonic-beryl-7zlowfy.vercel.app/"' not in preview:
+        fail("email draft hh-page-url is not the live site")
+    if mail.DEFAULT_PAGE_URL != "https://sonic-beryl-7zlowfy.vercel.app/":
+        fail("DEFAULT_PAGE_URL is not the live site")
     if 'url("../assets/fonts/' not in preview:
         fail("preview HTML does not point fonts at ../assets/")
     if 'url("assets/' in preview or 'src="assets/' in preview or 'href="assets/' in preview:
@@ -730,10 +741,10 @@ def main() -> int:
     print("Invitation check passed.")
     if sosci_url:
         print(f"RSVP is configured with {sosci_url}")
-        print("--send will refuse until hh-page-url is set.")
+        print("hh-page-url is https://sonic-beryl-7zlowfy.vercel.app/")
     else:
         print("RSVP is not configured, so both pages show RSVP opens soon.")
-        print("--send will refuse until hh-page-url is set and HH_SOSCI_URL in assets/hh-config.js is filled in.")
+        print("--send will refuse until HH_SOSCI_URL in assets/hh-config.js is filled in.")
     return 0
 
 
