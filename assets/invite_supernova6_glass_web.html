@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Happy hour</title>
+  <style>
+    html, body { margin: 0; padding: 0; background: #070b16; color: #ffffff; }
+    body { font-family: Consolas, "Courier New", monospace; }
+    .sky {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: -30%;
+      height: 160%;
+      background-image: url("posters/science-supernova-6-sky-seamless.jpg");
+      background-repeat: no-repeat;
+      background-size: cover;
+      pointer-events: none;
+      will-change: transform;
+    }
+    .sky-far { z-index: 0; background-position: center top; }
+    .sky-near {
+      z-index: 0;
+      background-position: center 40%;
+      opacity: 0.55;
+      mix-blend-mode: screen;
+    }
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 40px 16px 120px;
+    }
+    .mascot {
+      display: block;
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 22px;
+      border: 0;
+      border-radius: 48px;
+      box-shadow: 0 0 0 3px #5fd4ff, 0 0 18px 6px #5fd4ff;
+    }
+    .glass {
+      background-color: rgba(16, 26, 58, 0.46);
+      background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.20) 0%, rgba(16, 26, 58, 0.18) 22%, rgba(16, 26, 58, 0.42) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .copy { padding: 28px 24px 30px; text-align: center; }
+    .poster-wrap { margin-top: 18px; padding: 12px; }
+    h1 {
+      margin: 0;
+      font-size: 27px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-shadow: 0 1px 3px #000000;
+    }
+    .when {
+      margin: 14px 0 0;
+      font-size: 15px;
+      line-height: 1.45;
+      text-shadow: 0 1px 3px #000000;
+    }
+    .ask {
+      margin: 18px 0 0;
+      font-size: 16px;
+      line-height: 1.5;
+      text-shadow: 0 1px 3px #000000;
+    }
+    .rsvp {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 16px 48px;
+      background: #1f5fd6;
+      color: #ffffff;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1;
+      text-decoration: none;
+      border-radius: 28px;
+    }
+    .aside {
+      margin: 20px 0 0;
+      color: #c9b8ff;
+      font-size: 14px;
+      line-height: 1.5;
+      text-shadow: 0 1px 3px #000000;
+    }
+    .poster {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 0;
+      border-radius: 12px;
+    }
+    @media (max-width: 599px) {
+      h1 { font-size: 22px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sky { transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sky sky-far" id="sky-far"></div>
+  <div class="sky sky-near" id="sky-near"></div>
+  <main>
+    <img class="mascot" src="images/icon.png" width="96" height="96" alt="Anime mascot.">
+    <section class="glass copy">
+      <h1>The Barozzi and Tardito labs invite you to our Happy hour!</h1>
+      <p class="when">Friday, 30 October 2026 · 17:00 Vienna time · CCR container</p>
+      <p class="ask">Please RSVP by Monday, 26 October so we can buy enough drinks.</p>
+      <a class="rsvp" href="https://s2survey.net/ccr/?r=mail">RSVP</a>
+      <p class="aside">Come as you are or come as you aren't. Casual earthling, full extraterrestrial, or something in between - all life forms welcome.</p>
+    </section>
+    <section class="glass poster-wrap">
+      <img class="poster" src="posters/science-supernova-6-1200-fade.jpg" width="1200" height="1697" alt="Science Supernova poster. Happy hour Friday 30 October 2026, 17:00, CCR container.">
+    </section>
+  </main>
+  <script>
+    (function () {
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduce) return;
+      var far = document.getElementById("sky-far");
+      var near = document.getElementById("sky-near");
+      function onScroll() {
+        var y = window.scrollY || 0;
+        far.style.transform = "translate3d(0," + (y * -0.12) + "px,0)";
+        near.style.transform = "translate3d(0," + (y * -0.38) + "px,0)";
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+</body>
+</html>
