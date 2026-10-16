@@ -1,0 +1,1 @@
+from the current html of the invite, remove the frame around the poster and the text. also remove the filling of the box. it should jsut be text in front of the starry background. and there are two rsvp buttons right now. one Is enough. rsvp button should be blue and the survey behind it also dark and blue so it fits the theme. save new files in a different name but same folder 
